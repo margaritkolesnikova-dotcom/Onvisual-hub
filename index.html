@@ -703,12 +703,72 @@
     </section>
 
     <section id="tasks" class="section">
-      <div class="section-head"><div><div class="eyebrow">04 / WORK</div><h1>TASKS</h1><p>Общая доска с разделением по направлениям.</p></div></div>
-      <div class="scope-filters"><button class="scope-filter active">Все</button><button class="scope-filter studio-filter">ONVISUAL</button><button class="scope-filter mv-filter">Мультвселенная</button><button class="scope-filter shared-filter">Общее</button></div>
-      <div class="kanban"><div><h3>Новая <span>0</span></h3><p>Нет задач</p></div><div><h3>В работе <span>0</span></h3><p>Нет задач</p></div><div><h3>На проверке <span>0</span></h3><p>Нет задач</p></div><div><h3>Готово <span>0</span></h3><p>Нет задач</p></div></div>
+      <div class="section-head section-head-action">
+        <div><div class="eyebrow">04 / WORK</div><h1>TASKS</h1><p>Общая доска с разделением по направлениям.</p></div>
+        <button class="hub-action-btn" id="addTaskBtn">＋ Добавить задачу</button>
+      </div>
+      <div class="scope-filters" id="taskFilters">
+        <button class="scope-filter active" data-scope="all">Все</button>
+        <button class="scope-filter studio-filter" data-scope="ONVISUAL">ONVISUAL</button>
+        <button class="scope-filter mv-filter" data-scope="Мультвселенная">Мультвселенная</button>
+        <button class="scope-filter shared-filter" data-scope="Общее">Общее</button>
+      </div>
+      <div class="kanban" id="taskBoard">
+        <div class="kanban-column" data-status="new"><h3>Новая <span>0</span></h3><div class="task-list"></div><p class="task-empty">Нет задач</p></div>
+        <div class="kanban-column" data-status="progress"><h3>В работе <span>0</span></h3><div class="task-list"></div><p class="task-empty">Нет задач</p></div>
+        <div class="kanban-column" data-status="review"><h3>На проверке <span>0</span></h3><div class="task-list"></div><p class="task-empty">Нет задач</p></div>
+        <div class="kanban-column" data-status="done"><h3>Готово <span>0</span></h3><div class="task-list"></div><p class="task-empty">Нет задач</p></div>
+      </div>
     </section>
 
-    <section id="calendar" class="section"><div class="section-head"><div><div class="eyebrow">05 / DATES</div><h1>CALENDAR</h1><p>Дедлайны, встречи и релизы.</p></div></div><div class="calendar-card"><div class="calendar-title">Сентябрь 2026</div><div class="cal-grid" id="calendarGrid"></div></div></section>
+    <section id="calendar" class="section">
+      <div class="section-head section-head-action">
+        <div><div class="eyebrow">05 / DATES</div><h1>CALENDAR</h1><p>Дедлайны, встречи и релизы.</p></div>
+        <button class="hub-action-btn calendar-action" id="addEventBtn">＋ Добавить событие</button>
+      </div>
+      <div class="calendar-toolbar">
+        <button class="calendar-nav" id="prevMonthBtn" aria-label="Предыдущий месяц">←</button>
+        <div class="calendar-title" id="calendarTitle">Сентябрь 2026</div>
+        <button class="calendar-nav" id="nextMonthBtn" aria-label="Следующий месяц">→</button>
+      </div>
+      <div class="calendar-card"><div class="cal-grid" id="calendarGrid"></div></div>
+      <div class="calendar-event-list" id="calendarEventList"></div>
+    </section>
+
+    <dialog class="hub-modal" id="taskModal">
+      <form method="dialog" id="taskForm">
+        <div class="modal-head"><div><small>NEW TASK</small><h2>Добавить задачу</h2></div><button type="button" class="modal-close" data-close="taskModal">×</button></div>
+        <label>Задача<input name="title" required placeholder="Например: подготовить КП для бренда"></label>
+        <div class="form-grid">
+          <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+          <label>Статус<select name="status"><option value="new">Новая</option><option value="progress">В работе</option><option value="review">На проверке</option><option value="done">Готово</option></select></label>
+          <label>Срок<input name="due" type="date"></label>
+          <label>Ответственный<input name="owner" list="teamNames" placeholder="Выбрать или ввести"></label>
+        </div>
+        <label>Комментарий<textarea name="note" rows="3" placeholder="Короткое описание или следующий шаг"></textarea></label>
+        <div class="modal-actions"><button type="button" class="secondary-modal" data-close="taskModal">Отмена</button><button type="submit" class="primary-modal">Добавить задачу</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="hub-modal" id="eventModal">
+      <form method="dialog" id="eventForm">
+        <div class="modal-head"><div><small>NEW EVENT</small><h2>Добавить событие</h2></div><button type="button" class="modal-close" data-close="eventModal">×</button></div>
+        <label>Название<input name="title" required placeholder="Например: созвон с клиентом"></label>
+        <div class="form-grid">
+          <label>Дата<input name="date" type="date" required></label>
+          <label>Тип<select name="type"><option>Дедлайн</option><option>Встреча</option><option>Релиз</option><option>Событие</option></select></label>
+          <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+          <label>Ответственный<input name="owner" list="teamNames" placeholder="Выбрать или ввести"></label>
+        </div>
+        <label>Комментарий<textarea name="note" rows="3" placeholder="Что важно помнить"></textarea></label>
+        <div class="modal-actions"><button type="button" class="secondary-modal" data-close="eventModal">Отмена</button><button type="submit" class="primary-modal">Добавить в календарь</button></div>
+      </form>
+    </dialog>
+
+    <datalist id="teamNames">
+      <option value="Кодин Дмитрий"><option value="Ярошенко Екатерина"><option value="Колесникова Маргарита"><option value="Подкорытов Александр">
+      <option value="Иван"><option value="Дмитрий"><option value="Алексей"><option value="Анна"><option value="Павел"><option value="Ксения">
+    </datalist>
     <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">06 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
   <script src="app.js"></script>
