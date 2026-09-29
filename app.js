@@ -49,6 +49,8 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 let tasks=readStore(STORAGE_TASKS);
 let events=readStore(STORAGE_EVENTS);
 let activeTaskScope='all';
+let editingTaskId=null;
+let editingEventId=null;
 
 const taskBoard=document.getElementById('taskBoard');
 const taskModal=document.getElementById('taskModal');
@@ -86,9 +88,15 @@ function renderTasks(){
           <option value="review" ${t.status==='review'?'selected':''}>На проверке</option>
           <option value="done" ${t.status==='done'?'selected':''}>Готово</option>
         </select>`;
-      card.querySelector('.task-delete').addEventListener('click',()=>{
+      card.addEventListener('click',e=>{
+        if(e.target.closest('.task-delete')||e.target.closest('.task-status-select'))return;
+        openTaskEditor(t.id);
+      });
+      card.querySelector('.task-delete').addEventListener('click',e=>{
+        e.stopPropagation();
         tasks=tasks.filter(x=>x.id!==t.id);writeStore(STORAGE_TASKS,tasks);renderTasks();
       });
+      card.querySelector('.task-status-select').addEventListener('click',e=>e.stopPropagation());
       card.querySelector('.task-status-select').addEventListener('change',e=>{
         t.status=e.target.value;writeStore(STORAGE_TASKS,tasks);renderTasks();
       });
@@ -103,12 +111,34 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-addTaskBtn?.addEventListener('click',()=>taskModal.showModal());
+function openTaskEditor(id=null){
+  editingTaskId=id;
+  taskForm.reset();
+  const titleEl=taskModal.querySelector('.modal-head h2');
+  const submit=taskForm.querySelector('.primary-modal');
+  if(id){
+    const t=tasks.find(x=>x.id===id);
+    if(!t)return;
+    taskForm.elements.title.value=t.title||'';
+    taskForm.elements.scope.value=t.scope||'ONVISUAL';
+    taskForm.elements.status.value=t.status||'new';
+    taskForm.elements.due.value=t.due||'';
+    taskForm.elements.dueTime.value=t.dueTime||'';
+    taskForm.elements.owner.value=t.owner||'';
+    taskForm.elements.note.value=t.note||'';
+    titleEl.textContent='Редактировать задачу';
+    submit.textContent='Сохранить изменения';
+  }else{
+    titleEl.textContent='Добавить задачу';
+    submit.textContent='Добавить задачу';
+  }
+  taskModal.showModal();
+}
+addTaskBtn?.addEventListener('click',()=>openTaskEditor());
 taskForm?.addEventListener('submit',e=>{
   e.preventDefault();
   const fd=new FormData(taskForm);
-  tasks.unshift({
-    id:uid(),
+  const payload={
     title:fd.get('title').trim(),
     scope:fd.get('scope'),
     status:fd.get('status'),
@@ -116,8 +146,15 @@ taskForm?.addEventListener('submit',e=>{
     dueTime:fd.get('dueTime'),
     owner:fd.get('owner').trim(),
     note:fd.get('note').trim()
-  });
+  };
+  if(editingTaskId){
+    const t=tasks.find(x=>x.id===editingTaskId);
+    if(t)Object.assign(t,payload);
+  }else{
+    tasks.unshift({id:uid(),...payload});
+  }
   writeStore(STORAGE_TASKS,tasks);
+  editingTaskId=null;
   taskForm.reset();
   taskModal.close();
   renderTasks();
@@ -148,8 +185,28 @@ let calendarCursor=new Date(2026,8,1);
 function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function isoDate(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
 
-function openEventModal(date=''){
-  if(date)eventForm.elements.date.value=date;
+function openEventEditor(id=null,date=''){
+  editingEventId=id;
+  eventForm.reset();
+  const titleEl=eventModal.querySelector('.modal-head h2');
+  const submit=eventForm.querySelector('.primary-modal');
+  if(id){
+    const ev=events.find(x=>x.id===id);
+    if(!ev)return;
+    eventForm.elements.title.value=ev.title||'';
+    eventForm.elements.date.value=ev.date||'';
+    eventForm.elements.time.value=ev.time||'';
+    eventForm.elements.type.value=ev.type||'Дедлайн';
+    eventForm.elements.scope.value=ev.scope||'ONVISUAL';
+    eventForm.elements.owner.value=ev.owner||'';
+    eventForm.elements.note.value=ev.note||'';
+    titleEl.textContent='Редактировать событие';
+    submit.textContent='Сохранить изменения';
+  }else{
+    if(date)eventForm.elements.date.value=date;
+    titleEl.textContent='Добавить событие';
+    submit.textContent='Добавить в календарь';
+  }
   eventModal.showModal();
 }
 
@@ -178,7 +235,7 @@ function renderCalendar(){
       dot.title=ev.title;dots.appendChild(dot);
     });
     if(dayEvents.length>3){const more=document.createElement('small');more.textContent='+'+(dayEvents.length-3);dots.appendChild(more)}
-    cell.addEventListener('click',()=>openEventModal(date));
+    cell.addEventListener('click',()=>openEventEditor(null,date));
     calendarGrid.appendChild(cell);
   }
   renderCalendarEventList();
@@ -200,14 +257,19 @@ function renderCalendarEventList(){
       <div class="calendar-event-date"><strong>${new Date(ev.date+'T12:00:00').getDate()}</strong><span>${new Intl.DateTimeFormat('ru-RU',{month:'short'}).format(new Date(ev.date+'T12:00:00'))}</span></div>
       <div><small>${escapeHtml(ev.type)} / ${escapeHtml(ev.scope)}${ev.time?' / '+escapeHtml(ev.time):''}</small><h4>${escapeHtml(ev.title)}</h4>${ev.note?'<p>'+escapeHtml(ev.note)+'</p>':''}</div>
       <div class="calendar-event-side">${ev.owner?'<span>'+escapeHtml(ev.owner)+'</span>':''}<button class="event-delete" aria-label="Удалить событие">×</button></div>`;
-    row.querySelector('.event-delete').addEventListener('click',()=>{
+    row.addEventListener('click',e=>{
+      if(e.target.closest('.event-delete'))return;
+      openEventEditor(ev.id);
+    });
+    row.querySelector('.event-delete').addEventListener('click',e=>{
+      e.stopPropagation();
       events=events.filter(x=>x.id!==ev.id);writeStore(STORAGE_EVENTS,events);renderCalendar();
     });
     calendarEventList.appendChild(row);
   });
 }
 
-document.getElementById('addEventBtn')?.addEventListener('click',()=>openEventModal());
+document.getElementById('addEventBtn')?.addEventListener('click',()=>openEventEditor());
 document.getElementById('prevMonthBtn')?.addEventListener('click',()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()-1,1);renderCalendar()});
 document.getElementById('nextMonthBtn')?.addEventListener('click',()=>{calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+1,1);renderCalendar()});
 
@@ -215,8 +277,7 @@ eventForm?.addEventListener('submit',e=>{
   e.preventDefault();
   const fd=new FormData(eventForm);
   const date=fd.get('date');
-  events.push({
-    id:uid(),
+  const payload={
     title:fd.get('title').trim(),
     date,
     time:fd.get('time'),
@@ -224,10 +285,17 @@ eventForm?.addEventListener('submit',e=>{
     scope:fd.get('scope'),
     owner:fd.get('owner').trim(),
     note:fd.get('note').trim()
-  });
+  };
+  if(editingEventId){
+    const ev=events.find(x=>x.id===editingEventId);
+    if(ev)Object.assign(ev,payload);
+  }else{
+    events.push({id:uid(),...payload});
+  }
   writeStore(STORAGE_EVENTS,events);
   const dt=new Date(date+'T12:00:00');
   calendarCursor=new Date(dt.getFullYear(),dt.getMonth(),1);
+  editingEventId=null;
   eventForm.reset();
   eventModal.close();
   renderCalendar();
