@@ -12,5 +12,5 @@
 .visual-multiverse:hover{border-color:rgba(250,110,198,.45)}
 .visual-numbers:hover{border-color:rgba(98,217,143,.45)}
 .visual-team:hover{border-color:rgba(77,140,255,.45)}
-@media(max-width:1250px){.visual-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:900px){.visual-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1250px){.visual-grid{grid-template-columns:repeat(3,1fr)}.visual-onvisual,.visual-sales,.visual-multiverse,.visual-numbers,.visual-team{grid-column:auto}}
+@media(max-width:900px){.visual-grid{grid-template-columns:repeat(2,1fr)}.visual-onvisual,.visual-sales,.visual-multiverse,.visual-numbers,.visual-team{grid-column:auto}}
