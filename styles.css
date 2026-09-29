@@ -272,3 +272,279 @@
 .research-anchor-only h2{font-size:20px;margin:4px 0 5px}
 .research-anchor-only p{font-size:8.5px;color:#737d8f;margin:0}
 html{scroll-behavior:smooth}
+
+/* =========================================================
+   GLOBAL UX / READABILITY PASS — 2026-09-29
+   Keeps current structure, improves hierarchy everywhere
+   ========================================================= */
+
+/* Section accent system */
+#onvisual{--accent:#8d62ff;--accent-rgb:141,98,255}
+#multiverse{--accent:#fa6ec6;--accent-rgb:250,110,198}
+#team{--accent:#4d8cff;--accent-rgb:77,140,255}
+#tasks{--accent:#37d6d0;--accent-rgb:55,214,208}
+#calendar{--accent:#ffad5c;--accent-rgb:255,173,92}
+#files{--accent:#72d99a;--accent-rgb:114,217,154}
+
+/* Stronger page headers */
+.section:not(#home)>.section-head{
+  margin:0 0 18px;
+  padding:24px 26px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(var(--accent-rgb,141,98,255),.13),transparent 34%),
+    linear-gradient(145deg,#11151d,#0d1016);
+  position:relative;
+  overflow:hidden;
+}
+.section:not(#home)>.section-head:before{
+  content:"";
+  position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--accent,#8d62ff);
+  opacity:.9;
+}
+.section:not(#home)>.section-head h1{font-size:42px;line-height:1;margin:7px 0 10px;letter-spacing:-1.6px}
+.section:not(#home)>.section-head p{font-size:11px;line-height:1.55;color:#8e98aa;max-width:720px}
+.section:not(#home)>.section-head .eyebrow{color:rgba(var(--accent-rgb,141,98,255),.95)}
+
+/* Tabs behave and look like controls */
+.tabbar{
+  gap:7px;
+  padding:4px 0 14px;
+  margin-bottom:10px;
+  position:sticky;
+  top:0;
+  z-index:15;
+  background:linear-gradient(180deg,rgba(7,9,13,.98) 0%,rgba(7,9,13,.93) 70%,rgba(7,9,13,0) 100%);
+  backdrop-filter:blur(12px);
+}
+.tab{
+  cursor:pointer;
+  transition:.2s ease;
+  position:relative;
+}
+.tab:hover{
+  color:#e9edf5;
+  border-color:rgba(var(--accent-rgb,141,98,255),.34);
+  background:rgba(var(--accent-rgb,141,98,255),.055);
+  transform:translateY(-1px);
+}
+.tab.active{
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb,141,98,255),.15),0 8px 22px rgba(0,0,0,.18);
+}
+.tab:focus-visible,.scope-filter:focus-visible,.nav-link:focus-visible,a:focus-visible,button:focus-visible{
+  outline:2px solid rgba(var(--accent-rgb,141,98,255),.72);
+  outline-offset:2px;
+}
+
+/* More breathing room between content blocks */
+.tabpane{padding-top:8px}
+.tabpane>.feature,
+.tabpane>.resource-intro,
+.tabpane>.mini-grid,
+.tabpane>.kpi-row,
+.tabpane>.funnel,
+.tabpane>.world-section-title,
+.tabpane>.world-grid,
+.tabpane>.all-worlds-grid,
+.tabpane>.world-system,
+.tabpane>.empty,
+.tabpane>.table-card,
+.tabpane>.folder-row,
+.tabpane>.file-card-grid,
+.tabpane>.research-headline,
+.tabpane>.leadgen-hero,
+.tabpane>.leadgen-nav-grid{
+  margin-bottom:18px;
+}
+
+/* Headline bars reused across content areas */
+.resource-intro,
+.world-section-title,
+.world-system-head,
+.lead-block-head,
+.custdev-title-row,
+.competitor-head,
+.team-hero-copy{
+  position:relative;
+}
+.resource-intro>div:first-child,
+.world-section-title>div:first-child,
+.world-system-head>div:first-child,
+.lead-block-head>div:first-child,
+.custdev-title-row>div:first-child{
+  padding-left:13px;
+}
+.resource-intro>div:first-child:before,
+.world-section-title>div:first-child:before,
+.world-system-head>div:first-child:before,
+.lead-block-head>div:first-child:before,
+.custdev-title-row>div:first-child:before{
+  content:"";
+  position:absolute;
+  left:0;top:2px;bottom:2px;width:2px;
+  background:var(--accent,#8d62ff);
+  border-radius:2px;
+}
+.resource-intro h2,.world-section-title h2,.world-system-head h2,.lead-block-head h3,.custdev-title-row h3{
+  color:#f3f5f8;
+}
+
+/* Generic cards: stronger text hierarchy */
+.mini,.kpi,.world-library-card,.world-system-grid>div,.team-scope,.person,.kanban>div,.calendar-card,.empty{
+  border-color:rgba(255,255,255,.075);
+  background:
+    linear-gradient(180deg,rgba(var(--accent-rgb,141,98,255),.025),rgba(255,255,255,0) 34%),
+    #0e1218;
+}
+.mini h3,.team-scope h2,.world-library-card strong,.world-system-grid strong,.kanban h3{
+  color:#eef1f6;
+}
+.mini p,.team-scope p,.world-library-card small,.world-system-grid small,.kanban p,.empty{
+  color:#7f899b;
+  line-height:1.55;
+}
+.mini,.world-library-card,.world-system-grid>div,.team-scope,.person,.kanban>div{
+  transition:.2s ease;
+}
+.mini:hover,.world-library-card:not(.muted-world):hover,.world-system-grid>div:hover,.team-scope:hover{
+  border-color:rgba(var(--accent-rgb,141,98,255),.20);
+  transform:translateY(-2px);
+}
+
+/* Feature cards */
+.feature{
+  border-color:rgba(255,255,255,.08);
+  box-shadow:0 16px 36px rgba(0,0,0,.14);
+}
+.feature h2{font-size:30px;line-height:1.12;letter-spacing:-.8px}
+.feature p{font-size:11px;line-height:1.7;color:#929bad}
+.feature .eyebrow{color:var(--accent,#8d62ff)}
+
+/* Real interactive controls */
+.actions a,.resource-links a,.quick,.folder-row,.file-card,.research-actions a,
+.leadgen-hero>a,.lead-block-head a,.source-link-row,.competitor-actions a,.reference-badge{
+  transition:.2s ease;
+}
+.actions a:hover,.resource-links a:hover,.quick:hover,.folder-row:hover,.file-card:hover,
+.research-actions a:hover,.leadgen-hero>a:hover,.lead-block-head a:hover,.source-link-row:hover,
+.competitor-actions a:hover,.reference-badge:hover{
+  transform:translateY(-1px);
+  border-color:rgba(var(--accent-rgb,141,98,255),.34)!important;
+  background-color:rgba(var(--accent-rgb,141,98,255),.07)!important;
+  color:#fff!important;
+}
+
+/* ONVISUAL overview/resources */
+#onvisual .resource-card{
+  border-color:rgba(255,255,255,.075);
+  box-shadow:0 14px 30px rgba(0,0,0,.12);
+}
+#onvisual .resource-card:hover{box-shadow:0 18px 38px rgba(0,0,0,.20)}
+#onvisual .resource-card h3{color:#f1f3f7}
+#onvisual .resource-card p{color:#8791a3}
+
+/* Sales and leadgen hierarchy */
+.funnel{
+  padding:16px;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:15px;
+  background:linear-gradient(90deg,rgba(var(--accent-rgb,141,98,255),.04),#0d1117);
+}
+.funnel>div{
+  border-color:rgba(var(--accent-rgb,141,98,255),.13)!important;
+  background:#10141b!important;
+}
+.lead-block{
+  margin-top:26px;
+  padding:22px;
+  border-color:rgba(255,255,255,.075);
+  box-shadow:0 12px 30px rgba(0,0,0,.09);
+}
+.lead-block:nth-of-type(1){background:linear-gradient(180deg,rgba(255,108,121,.03),#0c0f15)}
+.lead-block:nth-of-type(2){background:linear-gradient(180deg,rgba(77,140,255,.03),#0c0f15)}
+.lead-block:nth-of-type(3){background:linear-gradient(180deg,rgba(141,98,255,.035),#0c0f15)}
+.lead-block:nth-of-type(4){background:linear-gradient(180deg,rgba(55,214,208,.035),#0c0f15)}
+.lead-block:nth-of-type(5){background:linear-gradient(180deg,rgba(250,110,198,.03),#0c0f15)}
+.lead-block:nth-of-type(6){background:linear-gradient(180deg,rgba(255,173,92,.03),#0c0f15)}
+.leadgen-nav-card{
+  transition:.2s ease;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.leadgen-nav-card:hover{transform:translateY(-2px)}
+.leadgen-nav-card strong{color:#eef2f6}
+.leadgen-nav-card small{color:#7d8799}
+
+/* Multiverse section hierarchy */
+#multiverse .world-section-title{
+  margin-top:26px;
+  padding:16px 18px;
+  border:1px solid rgba(250,110,198,.09);
+  border-radius:15px;
+  background:linear-gradient(90deg,rgba(250,110,198,.065),rgba(141,98,255,.02));
+}
+#multiverse .world-section-title small{color:#ff9ed7}
+#multiverse .world{border-color:rgba(255,255,255,.08);box-shadow:0 14px 30px rgba(0,0,0,.13)}
+#multiverse .world h2{color:#fff}
+#multiverse .world-system{
+  border-color:rgba(250,110,198,.10);
+  background:radial-gradient(circle at 100% 0%,rgba(250,110,198,.09),transparent 34%),#0d1016;
+}
+#multiverse .mini:nth-child(1){box-shadow:inset 2px 0 #fa6ec6}
+#multiverse .mini:nth-child(2){box-shadow:inset 2px 0 #a97cff}
+#multiverse .mini:nth-child(3){box-shadow:inset 2px 0 #62c5ff}
+#multiverse .mini:nth-child(4){box-shadow:inset 2px 0 #72d99a}
+
+/* Team */
+#team .team-scope.common{border-top:2px solid rgba(77,140,255,.60)}
+#team .team-scope.studio{border-top:2px solid rgba(141,98,255,.60)}
+#team .team-scope.mv{border-top:2px solid rgba(250,110,198,.60)}
+#team .add-person{
+  border-style:dashed;
+  background:rgba(77,140,255,.025);
+}
+
+/* Tasks */
+.scope-filter{cursor:pointer;transition:.2s ease}
+.scope-filter:hover{transform:translateY(-1px);color:#e8edf5;border-color:rgba(var(--accent-rgb,55,214,208),.28)}
+#tasks .kanban>div:nth-child(1){border-top:2px solid #6f7a8d}
+#tasks .kanban>div:nth-child(2){border-top:2px solid #4d8cff}
+#tasks .kanban>div:nth-child(3){border-top:2px solid #ffad5c}
+#tasks .kanban>div:nth-child(4){border-top:2px solid #72d99a}
+
+/* Calendar + Files */
+#calendar .calendar-card{
+  border-top:2px solid rgba(255,173,92,.65);
+  box-shadow:0 14px 34px rgba(0,0,0,.12);
+}
+#calendar .calendar-title{color:#f5f0e7;font-size:17px}
+#files .empty{
+  min-height:180px;
+  display:grid;
+  place-items:center;
+  border-style:dashed;
+  border-color:rgba(114,217,154,.18);
+  background:radial-gradient(circle at 50% 0%,rgba(114,217,154,.055),transparent 45%),#0d1117;
+}
+
+/* Sidebar controls */
+.nav-link{cursor:pointer;transition:.18s ease}
+.nav-link:hover{background:rgba(255,255,255,.035);color:#fff}
+.nav-link.active{box-shadow:inset 2px 0 rgba(141,98,255,.75)}
+
+/* Text legibility baseline */
+.section h2,.section h3,.section h4{font-weight:650}
+.section p,.section small,.section td,.section th{letter-spacing:.005em}
+.table-card th{color:#aeb7c7;background:#10151c}
+.table-card td{color:#8f99ab}
+.table-card tr:hover td{background:rgba(var(--accent-rgb,141,98,255),.025)}
+
+/* Mobile keeps hierarchy without crowding */
+@media(max-width:760px){
+  .section:not(#home)>.section-head{padding:20px}
+  .section:not(#home)>.section-head h1{font-size:32px}
+  .tabbar{position:static;background:transparent;backdrop-filter:none}
+  .feature h2{font-size:25px}
+  .lead-block{padding:16px}
+}
