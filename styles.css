@@ -1252,3 +1252,127 @@ html{scroll-behavior:smooth}
   .mv-research-head p{text-align:left}
   .mv-test-flow,.mv-test-links{grid-template-columns:1fr}
 }
+
+/* Multiverse socials / metrics / benchmark completion */
+.mv-social-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:9px;
+  margin-top:14px;
+}
+.mv-social-grid a{
+  min-height:120px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:14px;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.065);
+  background:
+    radial-gradient(circle at 85% 15%,rgba(250,110,198,.12),transparent 34%),
+    #0d1117;
+  color:#eef2f7;
+  text-decoration:none;
+  transition:.2s ease;
+}
+.mv-social-grid a:nth-child(2){background:radial-gradient(circle at 85% 15%,rgba(77,140,255,.14),transparent 34%),#0d1117}
+.mv-social-grid a:nth-child(3){background:radial-gradient(circle at 85% 15%,rgba(255,173,92,.12),transparent 34%),#0d1117}
+.mv-social-grid a:nth-child(4){background:radial-gradient(circle at 85% 15%,rgba(255,255,255,.08),transparent 34%),#0d1117}
+.mv-social-grid a:nth-child(5){background:radial-gradient(circle at 85% 15%,rgba(141,98,255,.14),transparent 34%),#0d1117}
+.mv-social-grid a:hover{transform:translateY(-2px);border-color:rgba(250,110,198,.30)}
+.mv-social-grid span{font-size:9px;letter-spacing:1px;color:#8d96a7;margin-bottom:auto}
+.mv-social-grid strong{font-size:15px}
+.mv-social-grid small{font-size:9.5px;color:#818b9c;margin-top:5px}
+.mv-social-note{
+  margin-top:10px;
+  padding:14px 15px;
+  border-radius:12px;
+  border:1px solid rgba(55,214,208,.10);
+  background:linear-gradient(90deg,rgba(55,214,208,.035),rgba(141,98,255,.025));
+}
+.mv-social-note>span{font-size:8px;letter-spacing:1.1px;color:#72c9c5}
+.mv-social-note p{font-size:10.5px!important;line-height:1.6!important;color:#818b9c!important;margin:7px 0 10px!important}
+.mv-social-note a{font-size:10px;color:#b8ece8;text-decoration:none}
+
+.mv-metric-source-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin-top:14px;
+}
+.mv-metric-source-grid>div{
+  min-height:100px;
+  padding:12px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.06);
+  background:#0f141b;
+}
+.mv-metric-source-grid span{font-size:8px;color:#7f70b7}
+.mv-metric-source-grid strong{display:block;font-size:12px;margin-top:17px}
+.mv-metric-source-grid small{display:block;font-size:9px;color:#747f91;margin-top:5px}
+.mv-live-source{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+  margin-top:11px;
+  padding:14px 15px;
+  border:1px solid rgba(141,98,255,.10);
+  border-radius:12px;
+  background:rgba(141,98,255,.03);
+}
+.mv-live-source small{font-size:8px;letter-spacing:1px;color:#9c87dc}
+.mv-live-source h3{font-size:15px;margin:6px 0}
+.mv-live-source p{font-size:10px!important;color:#7c8698!important;margin:0!important}
+.mv-live-source a{
+  white-space:nowrap;
+  text-decoration:none;
+  color:#d5c8ff;
+  border:1px solid rgba(141,98,255,.16);
+  border-radius:9px;
+  padding:8px 10px;
+  font-size:10px;
+}
+
+.mv-benchmark-block{
+  margin-top:18px;
+  padding:18px;
+  border-radius:16px;
+  border:1px solid rgba(77,140,255,.10);
+  background:
+    radial-gradient(circle at 100% 0%,rgba(77,140,255,.06),transparent 31%),
+    linear-gradient(180deg,#10141b,#0d1117);
+}
+.mv-source-pill{
+  font-size:9px;
+  text-decoration:none;
+  color:#bcd1ff;
+  border:1px solid rgba(77,140,255,.15);
+  border-radius:999px;
+  padding:7px 9px;
+}
+.mv-insight-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:14px;
+}
+.mv-insight-grid>div{
+  min-height:145px;
+  padding:13px;
+  border-radius:11px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#0f141b;
+}
+.mv-insight-grid span{font-size:8px;color:#668bc9}
+.mv-insight-grid strong{display:block;font-size:12px;line-height:1.4;margin-top:17px}
+.mv-insight-grid p{font-size:9.5px!important;line-height:1.55!important;color:#788396!important;margin:7px 0 0!important}
+
+@media(max-width:1000px){
+  .mv-social-grid,.mv-metric-source-grid{grid-template-columns:repeat(3,1fr)}
+  .mv-insight-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:650px){
+  .mv-social-grid,.mv-metric-source-grid,.mv-insight-grid{grid-template-columns:1fr}
+  .mv-live-source{align-items:flex-start;flex-direction:column}
+}
