@@ -209,3 +209,54 @@
 .mvp-card{margin-top:14px;border:1px solid rgba(55,214,208,.11);border-radius:12px;padding:14px;background:linear-gradient(145deg,rgba(55,214,208,.035),#0d1016);display:grid;grid-template-columns:.8fr 1.5fr;gap:18px;align-items:center}
 .mvp-card small{font-size:8px;letter-spacing:1.2px;color:#648f91}.mvp-card h3{font-size:16px;margin:5px 0 0}.mvp-card p{font-size:9px;line-height:1.6;color:#798395;margin:0}
 @media(max-width:800px){.custdev-principles{grid-template-columns:1fr}.mvp-card{grid-template-columns:1fr}.custdev-branches summary{grid-template-columns:30px 1fr}.custdev-branches summary small{grid-column:2}}
+
+/* Research readability pass */
+.research-menu-compact{gap:10px;margin:18px 0 26px}
+.research-menu-compact .research-menu-card{min-height:82px;padding:14px 16px;border-radius:14px;background:linear-gradient(180deg,#10141b,#0d1016)}
+.research-menu-compact .research-menu-card strong{font-size:11px}
+.research-menu-compact .research-menu-card small{font-size:8px;line-height:1.45}
+.research-divider{display:grid;grid-template-columns:58px 1fr;gap:14px;align-items:center;margin:34px 0 16px;padding:18px 20px;border-radius:18px;border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}
+.research-divider:before{content:"";position:absolute;inset:0;opacity:.9;pointer-events:none}
+.research-divider>span{position:relative;z-index:1;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03)}
+.research-divider>div{position:relative;z-index:1}
+.research-divider small{font-size:8px;letter-spacing:1.5px}
+.research-divider h2{font-size:24px;line-height:1.05;margin:5px 0 6px;letter-spacing:-.7px}
+.research-divider p{margin:0;font-size:9px;line-height:1.55;color:#8a94a6;max-width:760px}
+.research-divider-custdev{background:linear-gradient(90deg,rgba(77,140,255,.11),rgba(77,140,255,.025) 62%,rgba(77,140,255,0))}
+.research-divider-custdev>span,.research-divider-custdev small{color:#8fb4ff}
+.research-divider-insights{background:linear-gradient(90deg,rgba(141,98,255,.12),rgba(141,98,255,.025) 62%,rgba(141,98,255,0))}
+.research-divider-insights>span,.research-divider-insights small{color:#b49aff}
+.research-divider-competitors{background:linear-gradient(90deg,rgba(250,110,198,.10),rgba(250,110,198,.025) 62%,rgba(250,110,198,0))}
+.research-divider-competitors>span,.research-divider-competitors small{color:#ff9ed7}
+.research-divider-reference{background:linear-gradient(90deg,rgba(55,214,208,.10),rgba(55,214,208,.025) 62%,rgba(55,214,208,0))}
+.research-divider-reference>span,.research-divider-reference small{color:#78e0dc}
+.custdev-block{padding:0;border:0;background:transparent}
+.custdev-grid{gap:14px}
+.custdev-card{padding:18px;border-radius:16px;background:linear-gradient(180deg,#11161e,#0e1218);box-shadow:0 10px 24px rgba(0,0,0,.14)}
+.custdev-card h4{font-size:22px;margin:16px 0 4px}
+.custdev-facts{gap:9px}
+.custdev-facts>div{padding:12px;background:#0b0f15}
+.custdev-facts span{font-size:7px;letter-spacing:.9px;color:#637086}
+.custdev-facts strong{font-size:9.5px;line-height:1.5}
+.insight-board{margin-top:0;padding:18px;border-radius:16px;background:linear-gradient(180deg,rgba(141,98,255,.055),#0e1218)}
+.insight-board-title{display:none}
+.insight-grid{gap:10px}
+.insight-grid>div{min-height:145px;padding:14px;background:#0b0f15;border-radius:12px}
+.insight-grid strong{font-size:11px;line-height:1.35}
+.insight-grid p{font-size:8.5px;line-height:1.55}
+.competitor-research{margin-top:0;padding:18px;border:1px solid rgba(255,255,255,.06);border-radius:16px;background:linear-gradient(180deg,rgba(250,110,198,.025),#0e1218)}
+.competitor-head{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+.competitor-head h3{font-size:20px}
+.competitor-groups{gap:10px}
+.competitor-groups article{padding:15px;background:#0b0f15;border-radius:12px}
+.competitor-groups article h4{font-size:12px;margin:18px 0 6px}
+.competitor-groups article p{font-size:8px;line-height:1.5}
+.competitor-groups article b{font-size:8.5px;line-height:1.5}
+.competitor-takeaways{margin-top:12px;gap:8px}
+.competitor-takeaways>div{padding:11px 12px;background:#0b0f15}
+.compact-reference{margin-top:0;padding:16px 18px;border-radius:14px;background:linear-gradient(180deg,rgba(55,214,208,.035),#0e1218)}
+.reference-copy{max-width:820px}
+@media(max-width:760px){
+  .research-divider{grid-template-columns:46px 1fr;padding:15px}
+  .research-divider h2{font-size:20px}
+}
