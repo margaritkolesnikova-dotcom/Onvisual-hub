@@ -800,3 +800,122 @@ html{scroll-behavior:smooth}
     linear-gradient(145deg,#21170f,#0b0f15 62%);
 }
 @media(min-width:1051px){.team-grid-core{grid-template-columns:repeat(4,1fr)}}
+
+/* Desktop readability pass */
+@media(min-width:1100px){
+  body{font-size:15px}
+
+  /* global small text */
+  .eyebrow,
+  .resource-kicker,
+  .leadgen-kicker,
+  .research-headline span,
+  .custdev-title-row small,
+  .lead-block-head small,
+  .world-section-title small,
+  .world-system-head small,
+  .team-section-title small,
+  .person-scope,
+  .person-role-block>strong,
+  .research-divider small,
+  .tab-visual small{
+    font-size:10px!important;
+  }
+
+  .section p,
+  .feature p,
+  .resource-card p,
+  .research-headline p,
+  .leadgen-hero p,
+  .lead-note,
+  .custdev-card>p,
+  .insight-grid p,
+  .competitor-head p,
+  .competitor-groups article p,
+  .world-system-head p,
+  .team-section-title p,
+  .team-scope p{
+    font-size:12px!important;
+    line-height:1.65!important;
+  }
+
+  /* tabs + nav */
+  .tab{font-size:12px!important;padding:10px 13px}
+  .nav-link{font-size:12px!important}
+  .nav-label{font-size:9px!important}
+  .brand{font-size:16px!important}
+  .brand-sub{font-size:9px!important}
+
+  /* research */
+  .research-menu-card>span{font-size:9px!important}
+  .research-menu-card strong{font-size:12px!important}
+  .research-menu-card small{font-size:10px!important}
+  .custdev-title-row h3{font-size:27px!important}
+  .custdev-card h4{font-size:23px!important}
+  .custdev-card-top b{font-size:9px!important}
+  .custdev-facts span{font-size:8.5px!important}
+  .custdev-facts strong{font-size:11px!important;line-height:1.55}
+  .custdev-redflags{font-size:10px!important;line-height:1.55}
+  .insight-grid strong{font-size:13px!important}
+  .insight-grid>div>span{font-size:9px!important}
+  .competitor-groups article h4{font-size:14px!important}
+  .competitor-groups article b{font-size:10px!important;line-height:1.55}
+  .competitor-takeaways span{font-size:9px!important}
+  .competitor-takeaways strong{font-size:11px!important}
+
+  /* leadgen */
+  .lead-block-head h3{font-size:26px!important}
+  .lead-block-head a{font-size:11px!important}
+  .leadgen-nav-card>span{font-size:10px!important}
+  .leadgen-nav-card strong{font-size:14px!important}
+  .leadgen-nav-card small{font-size:10px!important}
+  .company-signal-grid span{font-size:9px!important}
+  .company-signal-grid strong{font-size:12px!important}
+  .score-grid article strong{font-size:13px!important}
+  .score-grid p{font-size:10.5px!important}
+  .tg-segments strong{font-size:12px!important}
+  .tg-segments small{font-size:9.5px!important}
+  .tg-examples strong{font-size:11px!important}
+  .tg-examples span{font-size:10px!important}
+  .tg-examples small{font-size:9px!important}
+  .contest-grid h4{font-size:14px!important}
+  .contest-grid p{font-size:10px!important}
+  .contest-grid article>div strong{font-size:11px!important}
+  .contest-grid a{font-size:9.5px!important}
+
+  /* team */
+  .person-meta h3{font-size:21px!important}
+  .person-title{font-size:11px!important}
+  .person-role-block ul{font-size:10.5px!important;line-height:1.6}
+  .person-tags span{font-size:8.5px!important}
+
+  /* resources/cards */
+  .resource-card h3{font-size:18px!important}
+  .resource-card b,
+  .file-card b,
+  .folder-row b,
+  .quick,
+  .actions a,
+  .resource-links a{
+    font-size:11px!important;
+  }
+  .folder-row strong{font-size:14px!important}
+  .folder-row small{font-size:11px!important}
+  .file-card p{font-size:11px!important}
+
+  /* multiverse */
+  .world-library-card strong{font-size:16px!important}
+  .world-library-card small{font-size:11px!important}
+  .world-system-grid strong{font-size:14px!important}
+  .world-system-grid small{font-size:10px!important}
+  .mini h3{font-size:14px!important}
+  .mini p{font-size:11px!important}
+
+  /* misc labels */
+  .score-total,.tg-count,.events-watch,
+  .scope-badge,
+  .scope-filter,
+  .source-link-row{
+    font-size:10px!important;
+  }
+}
