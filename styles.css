@@ -759,3 +759,36 @@ html{scroll-behavior:smooth}
 .producer-card{border-top:2px solid rgba(55,214,208,.58)}
 @media(max-width:1050px){.team-grid-core{grid-template-columns:1fr 1fr}.person-role{min-height:500px}}
 @media(max-width:700px){.team-grid-core{grid-template-columns:1fr}.team-section-title{align-items:flex-start;flex-direction:column}.team-section-title p{text-align:left}.person-photo-placeholder{height:180px}}
+
+/* Production team */
+.production-title{
+  margin-top:30px;
+  border-color:rgba(141,98,255,.12);
+  background:linear-gradient(90deg,rgba(141,98,255,.055),rgba(55,214,208,.025));
+}
+.production-title small{color:#b29cff}
+.team-grid-production{grid-template-columns:repeat(4,1fr);gap:12px}
+.team-grid-production .person-role{min-height:470px}
+.director-card{border-top:2px solid rgba(255,173,92,.62)}
+.director-card .person-photo-placeholder:before{
+  background:radial-gradient(circle at 76% 18%,rgba(255,173,92,.22),transparent 35%),linear-gradient(145deg,#21170f,#0b0f15 62%);
+}
+.creator-card{border-top:2px solid rgba(141,98,255,.55)}
+.creator-card .person-photo-placeholder:before{
+  background:radial-gradient(circle at 76% 18%,rgba(141,98,255,.24),transparent 35%),linear-gradient(145deg,#171225,#0b0f15 62%);
+}
+.senior-creator{border-top-color:rgba(77,140,255,.62)}
+.senior-creator .person-photo-placeholder:before{
+  background:radial-gradient(circle at 76% 18%,rgba(77,140,255,.25),transparent 35%),linear-gradient(145deg,#10192a,#0b0f15 62%);
+}
+.editor-card{border-top:2px solid rgba(55,214,208,.58)}
+.editor-card .person-photo-placeholder:before{
+  background:radial-gradient(circle at 76% 18%,rgba(55,214,208,.20),transparent 35%),linear-gradient(145deg,#0f201f,#0b0f15 62%);
+}
+.content-card{border-top:2px solid rgba(250,110,198,.56)}
+.content-card .person-photo-placeholder:before{
+  background:radial-gradient(circle at 76% 18%,rgba(250,110,198,.20),transparent 35%),linear-gradient(145deg,#21101d,#0b0f15 62%);
+}
+@media(max-width:1200px){.team-grid-production{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.team-grid-production{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.team-grid-production{grid-template-columns:1fr}}
