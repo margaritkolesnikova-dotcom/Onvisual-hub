@@ -156,3 +156,8 @@
 .file-card>span{font-size:10px;color:#777f92}.file-card h3{margin-top:70px;font-size:18px}.file-card p{font-size:10px;color:#737c8e}.file-card b{font-size:10px;color:#c8cfdb;margin-top:auto}
 @media(max-width:1000px){.resource-grid,.file-card-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.resource-grid,.file-card-grid{grid-template-columns:1fr}.resource-intro{align-items:flex-start;flex-direction:column}.resource-intro p{text-align:left}.folder-row{align-items:flex-start;flex-wrap:wrap}.folder-row b{margin-left:60px}}
+
+.cases-multi{cursor:default}
+.resource-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;position:relative;z-index:2}
+.resource-links a{font-size:9px;text-decoration:none;color:#d8ddeb;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);padding:6px 8px;border-radius:999px}
+.resource-links a:hover{border-color:rgba(250,110,198,.34);background:rgba(250,110,198,.08)}
