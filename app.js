@@ -197,7 +197,7 @@ function renderCalendarEventList(){
     row.className='calendar-event-row';
     row.innerHTML=`
       <div class="calendar-event-date"><strong>${new Date(ev.date+'T12:00:00').getDate()}</strong><span>${new Intl.DateTimeFormat('ru-RU',{month:'short'}).format(new Date(ev.date+'T12:00:00'))}</span></div>
-      <div><small>${escapeHtml(ev.type)} / ${escapeHtml(ev.scope)}</small><h4>${escapeHtml(ev.title)}</h4>${ev.note?'<p>'+escapeHtml(ev.note)+'</p>':''}</div>
+      <div><small>${escapeHtml(ev.type)} / ${escapeHtml(ev.scope)}${ev.time?' / '+escapeHtml(ev.time):''}</small><h4>${escapeHtml(ev.title)}</h4>${ev.note?'<p>'+escapeHtml(ev.note)+'</p>':''}</div>
       <div class="calendar-event-side">${ev.owner?'<span>'+escapeHtml(ev.owner)+'</span>':''}<button class="event-delete" aria-label="Удалить событие">×</button></div>`;
     row.querySelector('.event-delete').addEventListener('click',()=>{
       events=events.filter(x=>x.id!==ev.id);writeStore(STORAGE_EVENTS,events);renderCalendar();
@@ -218,6 +218,7 @@ eventForm?.addEventListener('submit',e=>{
     id:uid(),
     title:fd.get('title').trim(),
     date,
+    time:fd.get('time'),
     type:fd.get('type'),
     scope:fd.get('scope'),
     owner:fd.get('owner').trim(),
