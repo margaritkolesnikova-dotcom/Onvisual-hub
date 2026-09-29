@@ -633,3 +633,129 @@ html{scroll-behavior:smooth}
   .tab-visual>div{left:18px;right:18px;bottom:18px}
   .tab-visual h2{font-size:24px}
 }
+
+/* Core team cards */
+.team-section-title{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-end;
+  margin:26px 0 14px;
+  padding:16px 18px;
+  border:1px solid rgba(77,140,255,.09);
+  border-radius:15px;
+  background:linear-gradient(90deg,rgba(77,140,255,.06),rgba(141,98,255,.025));
+}
+.team-section-title small{font-size:8px;letter-spacing:1.5px;color:#80a9ff}
+.team-section-title h2{font-size:23px;margin:5px 0 0}
+.team-section-title p{margin:0;max-width:560px;color:#7c8798;font-size:9px;line-height:1.55;text-align:right}
+.team-grid-core{grid-template-columns:repeat(3,1fr);gap:12px}
+.person-role{
+  min-height:520px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:18px;
+  padding:0;
+  background:#0d1117;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 14px 32px rgba(0,0,0,.12);
+}
+.person-photo-placeholder{
+  height:210px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+.person-photo-placeholder:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.9;
+}
+.ceo-card .person-photo-placeholder:before{
+  background:
+    radial-gradient(circle at 75% 20%,rgba(77,140,255,.28),transparent 35%),
+    linear-gradient(145deg,#111a29,#0b0f15 60%);
+}
+.creative-card .person-photo-placeholder:before{
+  background:
+    radial-gradient(circle at 76% 18%,rgba(250,110,198,.25),transparent 34%),
+    linear-gradient(145deg,#201221,#0b0f15 62%);
+}
+.producer-card .person-photo-placeholder:before{
+  background:
+    radial-gradient(circle at 76% 18%,rgba(55,214,208,.20),transparent 35%),
+    linear-gradient(145deg,#10201f,#0b0f15 62%);
+}
+.person-photo-placeholder>span{
+  position:relative;
+  z-index:1;
+  font-size:54px;
+  font-weight:700;
+  letter-spacing:-2px;
+  line-height:1;
+  color:#eef2f7;
+}
+.person-photo-placeholder>small{
+  position:relative;
+  z-index:1;
+  font-size:7px;
+  letter-spacing:1.4px;
+  color:#728095;
+  margin-top:8px;
+}
+.person-meta{padding:16px 18px 0}
+.person-scope{
+  display:inline-block;
+  font-size:7px;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  color:#7d8799;
+  margin-bottom:8px;
+}
+.person-meta h3{font-size:20px;margin:0 0 4px}
+.person-title{font-size:10px!important;color:#aab3c2!important;margin:0!important}
+.person-role-block{
+  padding:16px 18px;
+  margin-top:4px;
+}
+.person-role-block>strong{
+  display:block;
+  font-size:8px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#687386;
+  margin-bottom:10px;
+}
+.person-role-block ul{
+  margin:0;
+  padding-left:16px;
+  color:#8892a4;
+  font-size:9px;
+  line-height:1.55;
+}
+.person-role-block li{margin-bottom:7px}
+.person-tags{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  padding:0 18px 18px;
+  margin-top:auto;
+}
+.person-tags span{
+  font-size:7px;
+  padding:5px 7px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.07);
+  color:#9aa4b4;
+  background:rgba(255,255,255,.025);
+}
+.ceo-card{border-top:2px solid rgba(77,140,255,.58)}
+.creative-card{border-top:2px solid rgba(250,110,198,.58)}
+.producer-card{border-top:2px solid rgba(55,214,208,.58)}
+@media(max-width:1050px){.team-grid-core{grid-template-columns:1fr 1fr}.person-role{min-height:500px}}
+@media(max-width:700px){.team-grid-core{grid-template-columns:1fr}.team-section-title{align-items:flex-start;flex-direction:column}.team-section-title p{text-align:left}.person-photo-placeholder{height:180px}}
