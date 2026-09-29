@@ -919,3 +919,59 @@ html{scroll-behavior:smooth}
     font-size:10px!important;
   }
 }
+
+/* Tenders inside lead generation */
+.tender-block{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(255,173,92,.08),transparent 34%),
+    linear-gradient(180deg,rgba(255,173,92,.025),#0c0f15);
+  border-color:rgba(255,173,92,.12);
+}
+.tender-nav-card{border-color:rgba(255,173,92,.16)}
+.tender-nav-card:hover{border-color:rgba(255,173,92,.34);background:rgba(255,173,92,.055)}
+.tender-actions{display:flex;gap:7px;flex-wrap:wrap}
+.tender-actions a{
+  font-size:10px;
+  color:#d8dee9;
+  text-decoration:none;
+  border:1px solid rgba(255,173,92,.16);
+  border-radius:9px;
+  padding:8px 10px;
+  background:rgba(255,173,92,.035);
+}
+.tender-actions a:hover{background:rgba(255,173,92,.08);border-color:rgba(255,173,92,.34)}
+.tender-flow{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  margin-top:15px;
+}
+.tender-flow>div{
+  min-height:145px;
+  border:1px solid rgba(255,255,255,.065);
+  border-radius:12px;
+  background:#10141b;
+  padding:13px;
+  display:flex;
+  flex-direction:column;
+}
+.tender-flow span{font-size:9px;color:#b88a56}
+.tender-flow strong{font-size:12px;margin-top:22px}
+.tender-flow small{font-size:9px;line-height:1.45;color:#727d8f;margin-top:6px}
+.tender-notes{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.tender-notes>div{
+  border:1px solid rgba(255,173,92,.09);
+  border-radius:11px;
+  background:rgba(255,173,92,.025);
+  padding:12px;
+}
+.tender-notes span{display:block;font-size:8px;letter-spacing:.8px;text-transform:uppercase;color:#9e7950}
+.tender-notes strong{display:block;font-size:11px;margin-top:10px}
+.tender-notes p{font-size:9px!important;color:#727c8e!important;margin:6px 0 0}
+@media(max-width:1200px){.tender-flow{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.tender-flow,.tender-notes{grid-template-columns:1fr}.tender-actions{width:100%}}
