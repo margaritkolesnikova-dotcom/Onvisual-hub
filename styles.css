@@ -566,3 +566,70 @@ html{scroll-behavior:smooth}
   opacity:.82;
 }
 .mini-action:hover span{opacity:1}
+
+/* Unique visual banners for ONVISUAL tabs */
+.tab-visual{
+  position:relative;
+  min-height:260px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:18px;
+  background:#0b0e13;
+  box-shadow:0 16px 36px rgba(0,0,0,.16);
+}
+.tab-visual img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  filter:saturate(1.04) contrast(1.03);
+  transition:transform .55s ease;
+}
+.tab-visual:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(4,6,9,.90) 0%,rgba(4,6,9,.54) 34%,rgba(4,6,9,.08) 72%),
+    linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.38));
+}
+.tab-visual>div{
+  position:absolute;
+  left:24px;
+  bottom:22px;
+  z-index:2;
+  max-width:520px;
+}
+.tab-visual small{
+  display:block;
+  font-size:8px;
+  letter-spacing:1.6px;
+  color:#a99aff;
+  margin-bottom:7px;
+}
+.tab-visual h2{
+  margin:0;
+  font-size:30px;
+  line-height:1.05;
+  letter-spacing:-.9px;
+  color:#fff;
+}
+.tab-visual:hover img{transform:scale(1.025)}
+.tab-visual-light:after{background:linear-gradient(90deg,rgba(11,7,4,.84),rgba(11,7,4,.34) 42%,rgba(11,7,4,.05) 76%),linear-gradient(180deg,transparent,rgba(0,0,0,.22))}
+.tab-visual-light small{color:#ffd7a0}
+.tab-visual-green small{color:#80e3ad}
+.tab-visual-green:after{background:linear-gradient(90deg,rgba(4,10,8,.88),rgba(4,10,8,.38) 45%,rgba(4,10,8,.06) 78%),linear-gradient(180deg,transparent,rgba(0,0,0,.28))}
+.tab-visual-blue small{color:#8cbcff}
+.tab-visual-blue:after{background:linear-gradient(90deg,rgba(5,7,14,.90),rgba(5,7,14,.40) 46%,rgba(5,7,14,.05) 78%),linear-gradient(180deg,transparent,rgba(0,0,0,.30))}
+.tab-visual-cyan small{color:#78e0dc}
+.tab-visual-cyan:after{background:linear-gradient(90deg,rgba(3,10,12,.90),rgba(3,10,12,.38) 46%,rgba(3,10,12,.05) 78%),linear-gradient(180deg,transparent,rgba(0,0,0,.30))}
+.tab-visual-archive small{color:#c8cbd2}
+.tab-visual-archive img{filter:saturate(.82) contrast(1.04)}
+@media(max-width:760px){
+  .tab-visual{min-height:210px}
+  .tab-visual>div{left:18px;right:18px;bottom:18px}
+  .tab-visual h2{font-size:24px}
+}
