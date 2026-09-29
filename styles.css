@@ -548,3 +548,21 @@ html{scroll-behavior:smooth}
   .feature h2{font-size:25px}
   .lead-block{padding:16px}
 }
+
+[data-go]{cursor:pointer}
+.mini-action{
+  appearance:none;
+  width:100%;
+  text-align:left;
+  color:inherit;
+  font:inherit;
+  cursor:pointer;
+}
+.mini-action span{
+  display:block;
+  margin-top:18px;
+  font-size:8px;
+  color:var(--accent,#fa6ec6);
+  opacity:.82;
+}
+.mini-action:hover span{opacity:1}
