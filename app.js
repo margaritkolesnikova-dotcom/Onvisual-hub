@@ -78,7 +78,7 @@ function renderTasks(){
         ${t.note?'<p>'+escapeHtml(t.note)+'</p>':''}
         <div class="task-meta">
           ${t.owner?'<span>Ответственный: <b>'+escapeHtml(t.owner)+'</b></span>':''}
-          ${t.due?'<span>Срок: <b>'+formatDateRu(t.due)+'</b></span>':''}
+          ${t.due?'<span>Срок: <b>'+formatDateRu(t.due)+(t.dueTime?' · '+escapeHtml(t.dueTime):'')+'</b></span>':''}
         </div>
         <select class="task-status-select" aria-label="Статус задачи">
           <option value="new" ${t.status==='new'?'selected':''}>Новая</option>
@@ -113,6 +113,7 @@ taskForm?.addEventListener('submit',e=>{
     scope:fd.get('scope'),
     status:fd.get('status'),
     due:fd.get('due'),
+    dueTime:fd.get('dueTime'),
     owner:fd.get('owner').trim(),
     note:fd.get('note').trim()
   });
