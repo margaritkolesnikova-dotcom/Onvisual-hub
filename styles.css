@@ -1189,3 +1189,10 @@ html{scroll-behavior:smooth}
   #lead-events .event-row b{font-size:11px!important}
   #lead-events .event-card-note p{font-size:12px!important}
 }
+
+/* Editable task/event affordance */
+.task-card,.calendar-event-row{cursor:pointer}
+.task-card:hover,.calendar-event-row:hover{
+  border-color:rgba(141,98,255,.22);
+  background:#111722;
+}
