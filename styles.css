@@ -14,3 +14,56 @@
 .visual-team:hover{border-color:rgba(77,140,255,.45)}
 @media(max-width:1250px){.visual-grid{grid-template-columns:repeat(3,1fr)}.visual-onvisual,.visual-sales,.visual-multiverse,.visual-numbers,.visual-team{grid-column:auto}}
 @media(max-width:900px){.visual-grid{grid-template-columns:repeat(2,1fr)}.visual-onvisual,.visual-sales,.visual-multiverse,.visual-numbers,.visual-team{grid-column:auto}}
+
+.direction-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.direction-card{position:relative;min-height:420px;border:1px solid var(--line);border-radius:22px;overflow:hidden;cursor:pointer;background:#0b0d12;transition:.28s}
+.direction-card:hover{transform:translateY(-4px);box-shadow:0 28px 80px rgba(0,0,0,.34)}
+.direction-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s}
+.direction-card:hover img{transform:scale(1.03)}
+.direction-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,6,9,.05) 18%,rgba(5,6,9,.24) 48%,rgba(5,6,9,.96) 100%)}
+.direction-copy{position:absolute;left:28px;right:28px;bottom:26px}
+.direction-copy small{font-size:10px;letter-spacing:1.3px;color:#b8c0d0}
+.direction-copy h2{font-size:38px;line-height:1;margin:8px 0 10px;letter-spacing:-1.2px}
+.direction-copy p{max-width:560px;color:#b3bac8;font-size:13px;line-height:1.55;margin:0}
+.direction-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.direction-tags span{border:1px solid rgba(255,255,255,.13);background:rgba(7,9,13,.65);backdrop-filter:blur(10px);padding:7px 10px;border-radius:9px;font-size:10px;color:#d7dbe5}
+.direction-onvisual{border-color:rgba(100,115,255,.22)}
+.direction-multiverse{border-color:rgba(241,100,211,.24)}
+.direction-onvisual:hover{border-color:rgba(100,115,255,.5)}
+.direction-multiverse:hover{border-color:rgba(241,100,211,.5)}
+
+.shared-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.shared-card{min-height:130px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#11151d,#0d1016);padding:18px;cursor:pointer;transition:.2s}
+.shared-card:hover{border-color:rgba(255,255,255,.18);transform:translateY(-2px)}
+.shared-card span{font-size:10px;color:#656f82}.shared-card h3{margin:22px 0 6px;font-size:16px}.shared-card p{margin:0;color:#7f8798;font-size:11px;line-height:1.45}
+
+.world-section-title{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:8px 0 16px}
+.world-section-title small{font-size:9px;letter-spacing:1.5px;color:#687286}
+.world-section-title h2{margin:5px 0 0;font-size:26px}
+.world-section-title p{margin:0;max-width:440px;color:#747d8f;font-size:11px;text-align:right}
+.all-worlds-title{margin-top:34px}
+.all-worlds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.world-library-card{position:relative;min-height:150px;border:1px solid var(--line);border-radius:14px;background:radial-gradient(circle at 90% 10%,rgba(117,91,255,.10),transparent 36%),#0f1218;padding:18px;display:flex;flex-direction:column;justify-content:flex-end}
+.world-library-card .world-index{position:absolute;left:18px;top:16px;color:#5f6879;font-size:10px}
+.world-library-card strong{font-size:15px}.world-library-card small{margin-top:5px;color:#717a8d;font-size:10px}
+.muted-world{border-style:dashed;background:#0c0f14}
+.add-world{align-items:flex-start;justify-content:center;border-style:dashed;background:linear-gradient(145deg,rgba(141,98,255,.06),rgba(250,110,198,.04))}
+.add-world>span{font-size:30px;color:#9879ff;margin-bottom:14px}
+
+.legacy-section{display:none!important}
+
+@media(max-width:1000px){
+  .direction-grid{grid-template-columns:1fr}
+  .direction-card{min-height:360px}
+  .shared-grid{grid-template-columns:1fr 1fr}
+  .all-worlds-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .direction-card{min-height:330px}
+  .direction-copy{left:20px;right:20px;bottom:20px}
+  .direction-copy h2{font-size:30px}
+  .shared-grid{grid-template-columns:1fr}
+  .all-worlds-grid{grid-template-columns:1fr}
+  .world-section-title{align-items:flex-start;flex-direction:column}
+  .world-section-title p{text-align:left}
+}
