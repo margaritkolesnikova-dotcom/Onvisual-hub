@@ -413,9 +413,11 @@ function renderProductionDeadlines(){
 
   const today=new Date();
   today.setHours(0,0,0,0);
+  const upcomingLimit=new Date(today);
+  upcomingLimit.setDate(upcomingLimit.getDate()+5);
 
   const withDue=productionItems
-    .filter(item=>item.due && item.title && !isProductionFinished(item))
+    .filter(item=>item.due && item.title)
     .map(item=>({...item,_due:new Date(item.due+"T00:00:00")}))
     .filter(item=>!isNaN(item._due));
 
@@ -424,9 +426,8 @@ function renderProductionDeadlines(){
     .sort((a,b)=>a._due-b._due);
 
   const upcoming=withDue
-    .filter(item=>item._due>=today)
-    .sort((a,b)=>a._due-b._due)
-    .slice(0,6);
+    .filter(item=>item._due>=today && item._due<=upcomingLimit)
+    .sort((a,b)=>a._due-b._due);
 
   const renderItem=(item,isOverdue)=>{
     const btn=document.createElement("button");
@@ -443,7 +444,7 @@ function renderProductionDeadlines(){
   upcoming.forEach(item=>upcomingHost.appendChild(renderItem(item,false)));
 
   if(!overdue.length)overdueHost.innerHTML='<div class="deadline-empty">Просроченных задач нет</div>';
-  if(!upcoming.length)upcomingHost.innerHTML='<div class="deadline-empty">Ближайших дедлайнов нет</div>';
+  if(!upcoming.length)upcomingHost.innerHTML='<div class="deadline-empty">На ближайшие 5 дней дедлайнов нет</div>';
 
   const overdueCount=document.getElementById("overdueDeadlineCount");
   const upcomingCount=document.getElementById("upcomingDeadlineCount");
