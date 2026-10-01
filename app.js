@@ -672,8 +672,14 @@ function applyLiveProductionTable(table){
   const live=mapZipRowsFromGviz(table);
   if(!live.length)throw new Error("No production rows");
   productionItems.splice(0,productionItems.length,...live);
+
+  // Everything below must be recalculated from the live sheet.
   renderProductionRows();
+  renderProductionExtraTasks();
+  renderProductionDeadlines();
   updateProductionKpisFromLive();
+  updateProductionStageCounts();
+
   setProductionSyncState("ok","Live · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}));
 }
 
