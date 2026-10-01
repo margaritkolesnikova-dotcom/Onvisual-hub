@@ -351,14 +351,18 @@ function productionClass(item){
 function productionLabel(cls){
   return ({ready:"Готово",risk:"Риск",revision:"На правках",work:"В работе",plan:"План"})[cls]||cls;
 }
+function normalizeProductionStages(item){
+  return prodStageNames.map((_,i)=>item.stages?.[i]||"Не начато");
+}
 function productionProgress(item){
-  const completed=item.stages.slice(0,7).filter(x=>x==="Готово").length;
-  return Math.round(completed/7*100);
+  const stages=normalizeProductionStages(item);
+  const completed=stages.filter(x=>x==="Готово").length;
+  return Math.round(completed/prodStageNames.length*100);
 }
 function productionStageDot(status,name){
-  const cls=status==="Готово"?"done":status==="В работе"?"work":status==="На правках"?"revision":status==="Не начато"?"empty":"blank";
-  const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":"·";
-  return '<span class="prod-stage-dot '+cls+'" title="'+name+': '+(status||'нет статуса')+'">'+symbol+'</span>';
+  const cls=status==="Готово"?"stage-done":status==="В работе"?"stage-work":status==="На правках"?"stage-revision":"stage-empty";
+  const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":"";
+  return '<span class="prod-stage-dot '+cls+'" title="'+name+': '+status+'" aria-label="'+name+': '+status+'">'+symbol+'</span>';
 }
 function prodDate(value){
   if(!value)return "—";
@@ -374,7 +378,7 @@ function renderProductionRows(){
     if(search && !item.title.toLowerCase().includes(search))return false;
     if(creator!=="all" && item.creator!==creator)return false;
     if(status!=="all" && productionClass(item)!==status)return false;
-    if(prodStageFilter!==null && item.stages[prodStageFilter]==="Готово")return false;
+    if(prodStageFilter!==null && normalizeProductionStages(item)[prodStageFilter]==="Готово")return false;
     return true;
   });
   host.innerHTML="";
@@ -392,7 +396,7 @@ function renderProductionRows(){
     row.innerHTML=`
       <span class="prod-num">#${item.num}</span>
       <span class="prod-title"><strong>${escapeHtml(item.title)}</strong><small>${progress}% готовности</small></span>
-      <span class="prod-stages">${item.stages.map((s,i)=>productionStageDot(s,prodStageNames[i])).join("")}</span>
+      <span class="prod-stages">${normalizeProductionStages(item).map((s,i)=>productionStageDot(s,prodStageNames[i])).join("")}</span>
       <span class="prod-owner">${item.creator?escapeHtml(item.creator):"—"}</span>
       <span class="prod-due ${cls==="risk"?"risk":""}">${prodDate(item.due)}</span>
       <span class="prod-state state-${cls}">${productionLabel(cls)}</span>`;
@@ -418,7 +422,7 @@ function openProductionDetail(id){
       <div><span>Хронометраж</span><strong>${item.duration||"—"}</strong></div>
     </div>
     <div class="prod-detail-pipeline">
-      ${prodStageNames.map((name,i)=>'<div><span>'+String(i+1).padStart(2,"0")+'</span><strong>'+name+'</strong><small class="detail-stage '+(item.stages[i]==="Готово"?"done":item.stages[i]==="В работе"?"work":item.stages[i]==="На правках"?"revision":"")+'">'+(item.stages[i]||"Нет статуса")+'</small></div>').join("")}
+      ${prodStageNames.map((name,i)=>{const s=normalizeProductionStages(item)[i];return '<div><span>'+String(i+1).padStart(2,"0")+'</span><strong>'+name+'</strong><small class="detail-stage '+(s==="Готово"?"stage-done":s==="В работе"?"stage-work":s==="На правках"?"stage-revision":"stage-empty")+'">'+s+'</small></div>'}).join("")}
     </div>
     <div class="prod-detail-actions">
       ${item.folder?'<a href="'+item.folder+'" target="_blank" rel="noreferrer">Открыть рабочую папку ↗</a>':""}
