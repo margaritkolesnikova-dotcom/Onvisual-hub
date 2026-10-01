@@ -53,11 +53,17 @@ function parseRows(table){
     };
   }).filter(Boolean);
 }
-function lineFor(item,today){
+function esc(s){
+  return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function lineFor(item,today,isOverdue){
   const diff=daysBetween(today,item.due);
   const when=diff<0?"просрочено на "+Math.abs(diff)+" дн.":diff===0?"сегодня":diff===1?"завтра":"через "+diff+" дн.";
-  const extra=item.kind==="task"?" · доп. задача":"";
-  return "• "+item.title+" — "+dateLabel(item.due)+" — "+(item.creator||"не назначен")+extra+" ("+when+")";
+  const extra=item.kind==="task"?" · <i>доп. задача</i>":"";
+  const icon=isOverdue?"🔴":"🔹";
+  return icon+" <b>"+esc(item.title)+"</b>\n"+
+    "   📅 <b>"+dateLabel(item.due)+"</b> · 👤 "+esc(item.creator||"не назначен")+extra+"\n"+
+    "   <i>"+esc(when)+"</i>";
 }
 async function getRecipients(base){
   const r=await fetch(base+"/getUpdates?limit=100&timeout=0");
@@ -74,7 +80,12 @@ async function send(base,chatId,text){
   const r=await fetch(base+"/sendMessage",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({chat_id:chatId,text})
+    body:JSON.stringify({
+      chat_id:chatId,
+      text,
+      parse_mode:"HTML",
+      disable_web_page_preview:true
+    })
   });
   const j=await r.json();
   if(!j.ok)throw new Error("telegram_send_failed");
@@ -100,22 +111,35 @@ export default async function handler(req,res){
     const scenarioReady=episodes.filter(x=>x.scenario==="Готово").length;
 
     const out=[];
-    out.push("ONVISUAL / PRODUCTION");
-    out.push(new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",day:"2-digit",month:"long",year:"numeric"}).format(new Date()));
+    const dateText=new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",day:"2-digit",month:"long",year:"numeric"}).format(new Date());
+
+    out.push("⚡ <b>ONVISUAL / PRODUCTION</b>");
+    out.push("<i>"+esc(dateText)+"</i>");
     out.push("");
-    out.push("MONSTER ZIP");
-    out.push("Ролики: "+episodes.length);
-    out.push("Сценарии: "+scenarioReady+"/"+episodes.length);
-    out.push("Final: "+finalReady+"/"+episodes.length);
-    out.push("Опубликовано: "+published+"/"+episodes.length);
+    out.push("🎬 <b>MONSTER ZIP</b>");
+    out.push("├ Ролики: <b>"+episodes.length+"</b>");
+    out.push("├ Сценарии: <b>"+scenarioReady+"/"+episodes.length+"</b>");
+    out.push("├ Final: <b>"+finalReady+"/"+episodes.length+"</b>");
+    out.push("└ Опубликовано: <b>"+published+"/"+episodes.length+"</b>");
     out.push("");
-    out.push("🔴 ПРОСРОЧЕННЫЕ — "+overdue.length);
-    if(overdue.length) overdue.forEach(x=>out.push(lineFor(x,today))); else out.push("Нет");
+    out.push("━━━━━━━━━━━━");
+    out.push("🔴 <b>ПРОСРОЧЕННЫЕ · "+overdue.length+"</b>");
+    if(overdue.length){
+      overdue.forEach(x=>{ out.push(""); out.push(lineFor(x,today,true)); });
+    } else {
+      out.push("✅ Просроченных дедлайнов нет");
+    }
     out.push("");
-    out.push("🔵 БЛИЖАЙШИЕ 5 ДНЕЙ — "+upcoming.length);
-    if(upcoming.length) upcoming.forEach(x=>out.push(lineFor(x,today))); else out.push("Нет");
+    out.push("━━━━━━━━━━━━");
+    out.push("🔵 <b>БЛИЖАЙШИЕ 5 ДНЕЙ · "+upcoming.length+"</b>");
+    if(upcoming.length){
+      upcoming.forEach(x=>{ out.push(""); out.push(lineFor(x,today,false)); });
+    } else {
+      out.push("— На ближайшие 5 дней дедлайнов нет");
+    }
     out.push("");
-    out.push("Hub: https://onvisual-hub.vercel.app");
+    out.push("━━━━━━━━━━━━");
+    out.push("🔗 <a href=\"https://onvisual-hub.vercel.app\"><b>Открыть ONVISUAL HUB</b></a>");
 
     const base="https://api.telegram.org/bot"+token;
     const recipients=await getRecipients(base);
