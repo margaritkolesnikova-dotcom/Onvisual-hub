@@ -49,12 +49,17 @@ function parseRows(table){
       creator:String(cell(row,8)||"").trim(),
       due:toISO(cell(row,9)),
       final:String(cell(row,15)||"").trim(),
+      finalLink:String(cell(row,16)||"").trim(),
       publication:String(cell(row,18)||"").trim()
     };
   }).filter(Boolean);
 }
 function esc(s){
   return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function isDoneForDeadline(item){
+  if(item.kind==="episode") return Boolean(String(item.finalLink||"").trim());
+  return String(item.final||"").trim()==="Готово";
 }
 function lineFor(item,today,isOverdue){
   const diff=daysBetween(today,item.due);
@@ -104,8 +109,8 @@ export default async function handler(req,res){
     const limit=new Date(today+"T00:00:00Z"); limit.setUTCDate(limit.getUTCDate()+5);
     const limitIso=limit.toISOString().slice(0,10);
 
-    const overdue=items.filter(x=>x.due && x.due<today).sort((a,b)=>a.due.localeCompare(b.due));
-    const upcoming=items.filter(x=>x.due && x.due>=today && x.due<=limitIso).sort((a,b)=>a.due.localeCompare(b.due));
+    const overdue=items.filter(x=>x.due && x.due<today && !isDoneForDeadline(x)).sort((a,b)=>a.due.localeCompare(b.due));
+    const upcoming=items.filter(x=>x.due && x.due>=today && x.due<=limitIso && !isDoneForDeadline(x)).sort((a,b)=>a.due.localeCompare(b.due));
     const finalReady=episodes.filter(x=>x.final==="Готово").length;
     const published=episodes.filter(x=>x.publication==="Опубликовано"||x.publication==="Готово").length;
     const scenarioReady=episodes.filter(x=>x.scenario==="Готово").length;
