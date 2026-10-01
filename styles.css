@@ -2088,3 +2088,78 @@ html{scroll-behavior:smooth}
     grid-template-columns:.95fr 1.05fr!important;
   }
 }
+
+/* Production detail modal readability */
+.production-detail-modal{
+  width:min(860px,calc(100vw - 36px))!important;
+}
+.production-detail-modal>div{
+  padding:24px!important;
+}
+.production-detail-modal .modal-head small{
+  font-size:9.5px!important;
+  letter-spacing:1px!important;
+}
+.production-detail-modal .modal-head h2{
+  font-size:30px!important;
+  line-height:1.08!important;
+  margin-top:7px!important;
+}
+.production-detail-modal .modal-close{
+  font-size:24px!important;
+  width:34px!important;
+  height:34px!important;
+}
+
+.prod-detail-meta{
+  gap:10px!important;
+  margin-top:16px!important;
+}
+.prod-detail-meta>div{
+  padding:13px 14px!important;
+  min-height:74px!important;
+}
+.prod-detail-meta span{
+  font-size:9.5px!important;
+}
+.prod-detail-meta strong{
+  font-size:12.5px!important;
+  line-height:1.35!important;
+  margin-top:7px!important;
+}
+.prod-detail-meta .detail-status{
+  font-size:10px!important;
+  padding:5px 7px!important;
+}
+
+.prod-detail-pipeline{
+  gap:9px!important;
+  margin-top:15px!important;
+}
+.prod-detail-pipeline>div{
+  padding:13px 14px!important;
+  min-height:86px!important;
+}
+.prod-detail-pipeline span{
+  font-size:8.5px!important;
+}
+.prod-detail-pipeline strong{
+  font-size:12.5px!important;
+  line-height:1.35!important;
+  margin-top:9px!important;
+}
+.detail-stage{
+  font-size:10.5px!important;
+  line-height:1.35!important;
+  margin-top:6px!important;
+}
+
+.prod-detail-actions{
+  gap:8px!important;
+  margin-top:16px!important;
+}
+.prod-detail-actions a{
+  font-size:10.5px!important;
+  padding:10px 12px!important;
+  border-radius:9px!important;
+}
