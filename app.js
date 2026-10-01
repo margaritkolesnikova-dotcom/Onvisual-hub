@@ -532,23 +532,51 @@ function updateProductionKpisFromLive(){
   });
 }
 
-async function syncProductionFromSheet(){
+function applyLiveProductionTable(table){
+  const live=mapZipRowsFromGviz(table);
+  if(!live.length)throw new Error("No production rows");
+  productionItems.splice(0,productionItems.length,...live);
+  renderProductionRows();
+  updateProductionKpisFromLive();
+  setProductionSyncState("ok","Live · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}));
+}
+
+function syncProductionFromSheet(){
   setProductionSyncState("loading","Синхронизация…");
-  const url="https://docs.google.com/spreadsheets/d/"+PROD_SHEET_ID+"/gviz/tq?tqx=out:json&sheet="+encodeURIComponent(PROD_SHEET_NAME)+"&headers=1&_="+Date.now();
-  try{
-    const response=await fetch(url,{cache:"no-store",credentials:"omit"});
-    if(!response.ok)throw new Error("HTTP "+response.status);
-    const parsed=parseGvizResponse(await response.text());
-    const live=mapZipRowsFromGviz(parsed.table);
-    if(!live.length)throw new Error("No production rows");
-    productionItems.splice(0,productionItems.length,...live);
-    renderProductionRows();
-    updateProductionKpisFromLive();
-    setProductionSyncState("ok","Live · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}));
-  }catch(error){
-    console.warn("Monster Zip live sync unavailable",error);
+  const callback="onvisualProdSync_"+Date.now();
+  const script=document.createElement("script");
+  const timer=setTimeout(()=>{
+    delete window[callback];
+    script.remove();
     setProductionSyncState("fallback","Последние сохранённые данные");
-  }
+  },12000);
+
+  window[callback]=(payload)=>{
+    clearTimeout(timer);
+    try{
+      if(!payload||!payload.table)throw new Error("Invalid Google Sheets payload");
+      applyLiveProductionTable(payload.table);
+    }catch(error){
+      console.warn("Monster Zip live sync unavailable",error);
+      setProductionSyncState("fallback","Последние сохранённые данные");
+    }finally{
+      delete window[callback];
+      script.remove();
+    }
+  };
+
+  script.onerror=()=>{
+    clearTimeout(timer);
+    delete window[callback];
+    script.remove();
+    setProductionSyncState("fallback","Последние сохранённые данные");
+  };
+
+  script.src="https://docs.google.com/spreadsheets/d/"+PROD_SHEET_ID+
+    "/gviz/tq?tqx=responseHandler:"+callback+
+    "&sheet="+encodeURIComponent(PROD_SHEET_NAME)+
+    "&headers=1&_="+Date.now();
+  document.head.appendChild(script);
 }
 
 syncProductionFromSheet();
