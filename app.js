@@ -363,13 +363,13 @@ function normalizeProductionStages(item){
     return prodStageNames.map(()=> "Не применимо");
   }
 
-  // Для реального ролика сценарий считается существующим по самому факту строки ролика.
-  const scenarioApplicable=true;
-  const productionApplicable=Boolean(item.due);
+  // Сценарий: название ролика есть в E, статус сценария берём строго из H.
+  const scenarioStatus=item.stages?.[0]||"Не начато";
+  const productionApplicable=scenarioStatus==="Готово" && Boolean(item.due);
 
   return prodStageNames.map((_,i)=>{
     const value=item.stages?.[i];
-    if(i===0)return "Готово";
+    if(i===0)return scenarioStatus;
     if(!productionApplicable)return "Не применимо";
     return value||"Не начато";
   });
