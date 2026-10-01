@@ -423,17 +423,31 @@ function renderProductionDeadlines(){
 
   const overdue=withDue
     .filter(item=>item._due<today)
-    .sort((a,b)=>a._due-b._due);
+    .sort((a,b)=>b._due-a._due);
 
   const upcoming=withDue
     .filter(item=>item._due>=today && item._due<=upcomingLimit)
     .sort((a,b)=>a._due-b._due);
 
+  const daysDiff=(date)=>Math.round((date-today)/86400000);
+
   const renderItem=(item,isOverdue)=>{
     const btn=document.createElement("button");
     btn.type="button";
-    btn.className=isOverdue?"deadline-risk":"";
-    btn.innerHTML='<span><b>'+escapeHtml(item.title)+'</b><small>'+escapeHtml(item.creator||"Не назначен")+(isProductionExtraTask(item)?" · доп. задача":"")+'</small></span><strong>'+prodDate(item.due)+'</strong>';
+    btn.className=isOverdue?"deadline-risk":"deadline-upcoming";
+    const diff=daysDiff(item._due);
+    const timing=isOverdue
+      ? "Просрочено на "+Math.abs(diff)+" дн."
+      : diff===0 ? "Сегодня"
+      : diff===1 ? "Завтра"
+      : "Через "+diff+" дн.";
+    btn.innerHTML=
+      '<span class="deadline-copy">'+
+        '<b>'+escapeHtml(item.title)+'</b>'+
+        '<small>'+escapeHtml(item.creator||"Не назначен")+(isProductionExtraTask(item)?" · доп. задача":"")+'</small>'+
+        '<em>'+timing+'</em>'+
+      '</span>'+
+      '<strong>'+prodDate(item.due)+'</strong>';
     btn.addEventListener("click",()=>openProductionDetail(item.id));
     return btn;
   };
@@ -443,7 +457,7 @@ function renderProductionDeadlines(){
   overdue.forEach(item=>overdueHost.appendChild(renderItem(item,true)));
   upcoming.forEach(item=>upcomingHost.appendChild(renderItem(item,false)));
 
-  if(!overdue.length)overdueHost.innerHTML='<div class="deadline-empty">Просроченных задач нет</div>';
+  if(!overdue.length)overdueHost.innerHTML='<div class="deadline-empty">Просроченных дедлайнов нет</div>';
   if(!upcoming.length)upcomingHost.innerHTML='<div class="deadline-empty">На ближайшие 5 дней дедлайнов нет</div>';
 
   const overdueCount=document.getElementById("overdueDeadlineCount");
