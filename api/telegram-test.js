@@ -4,17 +4,36 @@ export default async function handler(req, res) {
 
   try {
     const base = "https://api.telegram.org/bot" + token;
+
+    const meRes = await fetch(base + "/getMe");
+    const me = await meRes.json();
+    if (!me.ok) return res.status(502).json({ ok:false, error:"bot_auth_failed" });
+
     const updatesRes = await fetch(base + "/getUpdates?limit=50&timeout=0");
     const updates = await updatesRes.json();
-    if (!updates.ok) return res.status(502).json({ ok:false, error:"updates_failed" });
+    if (!updates.ok) {
+      return res.status(502).json({
+        ok:false,
+        error:"updates_failed",
+        bot:"@"+(me.result?.username||"unknown")
+      });
+    }
 
-    const messages = (updates.result || [])
-      .map(x => x.message)
+    const privateMessages = (updates.result || [])
+      .map(x => x.message || x.edited_message)
       .filter(Boolean)
       .filter(m => m.chat && m.chat.type === "private");
 
-    const last = messages[messages.length - 1];
-    if (!last) return res.status(404).json({ ok:false, error:"no_private_chat" });
+    const last = privateMessages[privateMessages.length - 1];
+    if (!last) {
+      return res.status(404).json({
+        ok:false,
+        error:"no_private_chat",
+        bot:"@"+(me.result?.username||"unknown"),
+        updates_seen:(updates.result||[]).length,
+        hint:"Send a normal text message to this bot, then refresh."
+      });
+    }
 
     const sendRes = await fetch(base + "/sendMessage", {
       method:"POST",
@@ -25,9 +44,19 @@ export default async function handler(req, res) {
       })
     });
     const sent = await sendRes.json();
-    if (!sent.ok) return res.status(502).json({ ok:false, error:"send_failed" });
+    if (!sent.ok) {
+      return res.status(502).json({
+        ok:false,
+        error:"send_failed",
+        bot:"@"+(me.result?.username||"unknown")
+      });
+    }
 
-    return res.status(200).json({ ok:true });
+    return res.status(200).json({
+      ok:true,
+      bot:"@"+(me.result?.username||"unknown"),
+      message:"Test message sent successfully"
+    });
   } catch (e) {
     return res.status(500).json({ ok:false, error:"internal_error" });
   }
