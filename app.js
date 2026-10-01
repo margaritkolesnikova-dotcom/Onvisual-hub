@@ -352,12 +352,17 @@ function productionLabel(cls){
   return ({ready:"Готово",risk:"Риск",revision:"На правках",work:"В работе",plan:"План"})[cls]||cls;
 }
 function normalizeProductionStages(item){
-  return prodStageNames.map((_,i)=>item.stages?.[i]||"Не начато");
+  return prodStageNames.map((_,i)=>{
+    const value=item.stages?.[i];
+    if(i===0 && !value)return "Не применимо";
+    return value||"Не начато";
+  });
 }
 function productionProgress(item){
   const stages=normalizeProductionStages(item);
-  const completed=stages.filter(x=>x==="Готово").length;
-  return Math.round(completed/prodStageNames.length*100);
+  const applicable=stages.filter(x=>x!=="Не применимо");
+  const completed=applicable.filter(x=>x==="Готово").length;
+  return applicable.length?Math.round(completed/applicable.length*100):0;
 }
 function productionStageDot(status,name,index){
   if(index===6){
@@ -368,8 +373,8 @@ function productionStageDot(status,name,index){
     const published=status==="Опубликовано"||status==="Готово";
     return '<span class="prod-stage-dot prod-stage-special stage-published '+(published?'is-ready':'is-empty')+'" title="Публикация: '+status+'" aria-label="Публикация: '+status+'">'+(published?'✓':'')+'</span>';
   }
-  const cls=status==="Готово"?"stage-done":status==="В работе"?"stage-work":status==="На правках"?"stage-revision":"stage-empty";
-  const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":"";
+  const cls=status==="Готово"?"stage-done":status==="В работе"?"stage-work":status==="На правках"?"stage-revision":status==="Не применимо"?"stage-na":"stage-empty";
+  const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":status==="Не применимо"?"—":"";
   return '<span class="prod-stage-dot '+cls+'" title="'+name+': '+status+'" aria-label="'+name+': '+status+'">'+symbol+'</span>';
 }
 function prodDate(value){
@@ -386,7 +391,10 @@ function renderProductionRows(){
     if(search && !item.title.toLowerCase().includes(search))return false;
     if(creator!=="all" && item.creator!==creator)return false;
     if(status!=="all" && productionClass(item)!==status)return false;
-    if(prodStageFilter!==null && normalizeProductionStages(item)[prodStageFilter]==="Готово")return false;
+    if(prodStageFilter!==null){
+      const stageValue=normalizeProductionStages(item)[prodStageFilter];
+      if(stageValue==="Не применимо"||stageValue==="Готово")return false;
+    }
     return true;
   });
   host.innerHTML="";
@@ -508,7 +516,7 @@ function mapZipRowsFromGviz(table){
       finalLink:String(gvizCell(row,16)||"").trim(),
       duration:String(gvizCell(row,20)||"").trim(),
       stages:[
-        String(gvizCell(row,7)||"").trim()||"Не начато",
+        String(gvizCell(row,7)||"").trim()||"Не применимо",
         String(gvizCell(row,10)||"").trim()||"Не начато",
         String(gvizCell(row,11)||"").trim()||"Не начато",
         String(gvizCell(row,12)||"").trim()||"Не начато",
@@ -519,6 +527,16 @@ function mapZipRowsFromGviz(table){
       ]
     };
   }).filter(Boolean);
+}
+
+function updateProductionStageCounts(){
+  document.querySelectorAll("[data-prod-stage]").forEach((btn,index)=>{
+    const values=productionItems.map(item=>normalizeProductionStages(item)[index]);
+    const applicable=values.filter(v=>v!=="Не применимо");
+    const ready=applicable.filter(v=>v==="Готово" || (index===7 && v==="Опубликовано")).length;
+    const counter=btn.querySelector("strong");
+    if(counter)counter.textContent=ready+"/"+applicable.length;
+  });
 }
 
 function updateProductionKpisFromLive(){
