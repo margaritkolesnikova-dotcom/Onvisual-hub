@@ -1831,3 +1831,46 @@ html{scroll-behavior:smooth}
 #production .production-extra-task>div strong{font-size:12px!important}
 #production .production-extra-task>span{font-size:10.5px!important}
 #production .production-extra-task>b{font-size:9.5px!important}
+
+/* Deadline readability + explanation */
+#production .production-deadlines .production-block-head h3{font-size:20px!important}
+#production .deadline-group-title{font-size:10px!important;margin-bottom:9px!important}
+#production .deadline-group-title b{min-width:24px!important;height:24px!important;font-size:9px!important}
+#production .deadline-list button{
+  padding:12px!important;
+  min-height:72px;
+}
+#production .deadline-list .deadline-copy b{
+  font-size:12.5px!important;
+  line-height:1.35!important;
+}
+#production .deadline-list .deadline-copy small{
+  display:block;
+  font-size:10px!important;
+  line-height:1.35!important;
+  margin-top:3px!important;
+}
+#production .deadline-list .deadline-copy em{
+  display:block;
+  font-style:normal;
+  font-size:9.5px!important;
+  line-height:1.35!important;
+  margin-top:5px;
+}
+#production .deadline-list button>strong{
+  font-size:11.5px!important;
+  min-width:44px;
+  text-align:right;
+}
+#production .deadline-list .deadline-risk .deadline-copy em{color:#ff858d}
+#production .deadline-list .deadline-upcoming .deadline-copy em{color:#7fb8ff}
+#production .deadline-empty{font-size:10px!important;padding:12px!important}
+
+/* Larger production typography overall */
+#production .production-stage-strip b{font-size:12px!important}
+#production .production-stage-strip strong{font-size:16px!important}
+#production .prod-title strong{font-size:14px!important}
+#production .prod-title small{font-size:10px!important}
+#production .prod-owner,#production .prod-due{font-size:11.5px!important}
+#production .prod-state{font-size:10px!important}
+#production .production-table-header{font-size:9.5px!important}
