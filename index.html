@@ -790,12 +790,14 @@
           </section>
 
           <section class="production-deadlines">
-            <div class="production-block-head compact"><div><small>CONTROL</small><h3>Ближайшие дедлайны</h3></div></div>
-            <div class="deadline-list">
-              <button data-prod-open="locations"><span><b>Проработка локаций</b><small>Алексей</small></span><strong>02.10</strong></button>
-              <button data-prod-open="find-star" class="deadline-risk"><span><b>Найди звезду</b><small>Алексей</small></span><strong>29.09</strong></button>
-              <button data-prod-open="foam-bath" class="deadline-risk"><span><b>Пенная ванна</b><small>Анна</small></span><strong>29.09</strong></button>
-              <button data-prod-open="autumn-print" class="deadline-risk"><span><b>Осенний опечаток</b><small>Дмитрий</small></span><strong>27.09</strong></button>
+            <div class="production-block-head compact"><div><small>CONTROL</small><h3>Дедлайны</h3></div></div>
+            <div class="deadline-group">
+              <div class="deadline-group-title overdue"><span>Просроченные</span><b id="overdueDeadlineCount">0</b></div>
+              <div class="deadline-list" id="overdueDeadlineList"></div>
+            </div>
+            <div class="deadline-group">
+              <div class="deadline-group-title upcoming"><span>Ближайшие</span><b id="upcomingDeadlineCount">0</b></div>
+              <div class="deadline-list" id="upcomingDeadlineList"></div>
             </div>
           </section>
 
