@@ -351,20 +351,26 @@ function productionClass(item){
 function productionLabel(cls){
   return ({ready:"Готово",risk:"Риск",revision:"На правках",work:"В работе",plan:"План"})[cls]||cls;
 }
+function isProductionEpisode(item){
+  return Boolean(item.title && String(item.num||"").trim() && String(item.num||"").trim()!=="DEV");
+}
+function isProductionExtraTask(item){
+  return Boolean(item.title) && !isProductionEpisode(item);
+}
+
 function normalizeProductionStages(item){
+  if(!isProductionEpisode(item)){
+    return prodStageNames.map(()=> "Не применимо");
+  }
+
   const scenarioRaw=item.stages?.[0];
   const scenarioApplicable=Boolean(scenarioRaw && scenarioRaw!=="Не применимо");
   const productionApplicable=scenarioApplicable && Boolean(item.due);
 
   return prodStageNames.map((_,i)=>{
     const value=item.stages?.[i];
-
-    // Сценарий существует только там, где он реально указан в источнике.
-    if(i===0)return scenarioApplicable?(value||"Не начато"):"Не применимо";
-
-    // Остальные production-этапы считаем только после появления сценария + дедлайна ролика.
+    if(i===0)return scenarioApplicable?(value||"Не начато"):"Не начато";
     if(!productionApplicable)return "Не применимо";
-
     return value||"Не начато";
   });
 }
@@ -391,13 +397,36 @@ function prodDate(value){
   if(!value)return "—";
   return new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"2-digit"}).format(new Date(value+"T12:00:00"));
 }
+function renderProductionExtraTasks(){
+  const host=document.getElementById("productionExtraTasks");
+  if(!host)return;
+  const tasks=productionItems.filter(isProductionExtraTask);
+  host.innerHTML="";
+  if(!tasks.length){
+    host.innerHTML='<div class="production-empty">Дополнительных задач сейчас нет.</div>';
+    return;
+  }
+  tasks.forEach(item=>{
+    const row=document.createElement("article");
+    row.className="production-extra-task";
+    const rawStatus=(item.stages||[]).find(s=>s && s!=="Не начато" && s!=="Не применимо")||"План";
+    row.innerHTML=`
+      <div><small>ДОП. ЗАДАЧА</small><strong>${escapeHtml(item.title)}</strong></div>
+      <span>${item.creator?escapeHtml(item.creator):"—"}</span>
+      <span>${prodDate(item.due)}</span>
+      <b>${escapeHtml(rawStatus)}</b>`;
+    row.addEventListener("click",()=>openProductionDetail(item.id));
+    host.appendChild(row);
+  });
+}
+
 function renderProductionRows(){
   const host=document.getElementById("productionRows");
   if(!host)return;
   const search=(document.getElementById("prodSearch")?.value||"").trim().toLowerCase();
   const creator=document.getElementById("prodCreatorFilter")?.value||"all";
   const status=document.getElementById("prodStatusFilter")?.value||"all";
-  let rows=productionItems.filter(item=>{
+  let rows=productionItems.filter(isProductionEpisode).filter(item=>{
     if(search && !item.title.toLowerCase().includes(search))return false;
     if(creator!=="all" && item.creator!==creator)return false;
     if(status!=="all" && productionClass(item)!==status)return false;
@@ -518,8 +547,9 @@ function mapZipRowsFromGviz(table){
     const publication=String(gvizCell(row,18)||"").trim()||"Не опубликовано";
     return {
       id:"live-"+(idx+1),
-      num:String(gvizCell(row,2)||"").trim()||"DEV",
+      num:String(gvizCell(row,2)||"").trim(),
       title,
+      kind:String(gvizCell(row,2)||"").trim()?"episode":"task",
       creator:String(gvizCell(row,8)||"").trim(),
       due:sheetDateToISO(gvizCell(row,9)),
       folder:String(gvizCell(row,3)||"").trim(),
@@ -540,9 +570,17 @@ function mapZipRowsFromGviz(table){
 }
 
 function updateProductionStageCounts(){
+  const episodes=productionItems.filter(isProductionEpisode);
   document.querySelectorAll("[data-prod-stage]").forEach((btn,index)=>{
-    const values=productionItems.map(item=>normalizeProductionStages(item)[index]);
-    const applicable=values.filter(v=>v!=="Не применимо");
+    const values=episodes.map(item=>normalizeProductionStages(item)[index]);
+    let applicable;
+    if(index===0){
+      // Сценарий считаем по всем реальным роликам.
+      applicable=values;
+    }else{
+      // Остальные этапы только по роликам, которые реально вошли в production (есть сценарий + дедлайн).
+      applicable=values.filter(v=>v!=="Не применимо");
+    }
     const ready=applicable.filter(v=>v==="Готово" || (index===7 && v==="Опубликовано")).length;
     const counter=btn.querySelector("strong");
     if(counter)counter.textContent=ready+"/"+applicable.length;
@@ -550,9 +588,10 @@ function updateProductionStageCounts(){
 }
 
 function updateProductionKpisFromLive(){
-  const total=productionItems.length;
-  const finals=productionItems.filter(x=>normalizeProductionStages(x)[6]==="Готово").length;
-  const published=productionItems.filter(x=>["Опубликовано","Готово"].includes(normalizeProductionStages(x)[7])).length;
+  const episodes=productionItems.filter(isProductionEpisode);
+  const total=episodes.length;
+  const finals=episodes.filter(x=>normalizeProductionStages(x)[6]==="Готово").length;
+  const published=episodes.filter(x=>["Опубликовано","Готово"].includes(normalizeProductionStages(x)[7])).length;
   const values={total,final:finals,remaining:Math.max(0,total-finals),published};
   Object.entries(values).forEach(([key,value])=>{
     const el=document.querySelector("[data-prod-kpi=\""+key+"\"]");
