@@ -110,45 +110,76 @@ export default async function handler(req,res){
     const published=episodes.filter(x=>x.publication==="Опубликовано"||x.publication==="Готово").length;
     const scenarioReady=episodes.filter(x=>x.scenario==="Готово").length;
 
-    const out=[];
     const dateText=new Intl.DateTimeFormat("ru-RU",{timeZone:"Europe/Moscow",day:"2-digit",month:"long",year:"numeric"}).format(new Date());
 
-    out.push("⚡ <b>ONVISUAL / PRODUCTION</b>");
-    out.push("<i>"+esc(dateText)+"</i>");
-    out.push("");
-    out.push("🎬 <b>MONSTER ZIP</b>");
-    out.push("├ Ролики: <b>"+episodes.length+"</b>");
-    out.push("├ Сценарии: <b>"+scenarioReady+"/"+episodes.length+"</b>");
-    out.push("├ Final: <b>"+finalReady+"/"+episodes.length+"</b>");
-    out.push("└ Опубликовано: <b>"+published+"/"+episodes.length+"</b>");
-    out.push("");
-    out.push("━━━━━━━━━━━━");
-    out.push("🔴 <b>ПРОСРОЧЕННЫЕ · "+overdue.length+"</b>");
+    const summary=[];
+    summary.push("⚡ <b>ONVISUAL / PRODUCTION</b>");
+    summary.push("<i>"+esc(dateText)+"</i>");
+    summary.push("");
+    summary.push("🎬 <b>MONSTER ZIP</b>");
+    summary.push("├ Ролики: <b>"+episodes.length+"</b>");
+    summary.push("├ Сценарии: <b>"+scenarioReady+"/"+episodes.length+"</b>");
+    summary.push("├ Final: <b>"+finalReady+"/"+episodes.length+"</b>");
+    summary.push("├ Опубликовано: <b>"+published+"/"+episodes.length+"</b>");
+    summary.push("├ Просрочено: <b>"+overdue.length+"</b>");
+    summary.push("└ Ближайшие 5 дней: <b>"+upcoming.length+"</b>");
+    summary.push("");
+    summary.push("🔗 <a href=\"https://onvisual-hub.vercel.app\"><b>Открыть ONVISUAL HUB</b></a>");
+
+    const overdueMessages=[];
     if(overdue.length){
-      overdue.forEach(x=>{ out.push(""); out.push(lineFor(x,today,true)); });
-    } else {
-      out.push("✅ Просроченных дедлайнов нет");
+      let chunk=["🔴 <b>ПРОСРОЧЕННЫЕ · "+overdue.length+"</b>"];
+      overdue.forEach((item,index)=>{
+        const block="\n"+lineFor(item,today,true);
+        const candidate=chunk.concat([block]).join("\n");
+        if(candidate.length>3500){
+          overdueMessages.push(chunk.join("\n"));
+          chunk=["🔴 <b>ПРОСРОЧЕННЫЕ · продолжение</b>",block];
+        }else{
+          chunk.push(block);
+        }
+      });
+      if(chunk.length)overdueMessages.push(chunk.join("\n"));
+    }else{
+      overdueMessages.push("🔴 <b>ПРОСРОЧЕННЫЕ · 0</b>\n\n✅ Просроченных дедлайнов нет");
     }
-    out.push("");
-    out.push("━━━━━━━━━━━━");
-    out.push("🔵 <b>БЛИЖАЙШИЕ 5 ДНЕЙ · "+upcoming.length+"</b>");
+
+    const upcomingMessages=[];
     if(upcoming.length){
-      upcoming.forEach(x=>{ out.push(""); out.push(lineFor(x,today,false)); });
-    } else {
-      out.push("— На ближайшие 5 дней дедлайнов нет");
+      let chunk=["🔵 <b>БЛИЖАЙШИЕ 5 ДНЕЙ · "+upcoming.length+"</b>"];
+      upcoming.forEach(item=>{
+        const block="\n"+lineFor(item,today,false);
+        const candidate=chunk.concat([block]).join("\n");
+        if(candidate.length>3500){
+          upcomingMessages.push(chunk.join("\n"));
+          chunk=["🔵 <b>БЛИЖАЙШИЕ 5 ДНЕЙ · продолжение</b>",block];
+        }else{
+          chunk.push(block);
+        }
+      });
+      if(chunk.length)upcomingMessages.push(chunk.join("\n"));
+    }else{
+      upcomingMessages.push("🔵 <b>БЛИЖАЙШИЕ 5 ДНЕЙ · 0</b>\n\n— На ближайшие 5 дней дедлайнов нет");
     }
-    out.push("");
-    out.push("━━━━━━━━━━━━");
-    out.push("🔗 <a href=\"https://onvisual-hub.vercel.app\"><b>Открыть ONVISUAL HUB</b></a>");
 
     const base="https://api.telegram.org/bot"+token;
     const recipients=await getRecipients(base);
     if(!recipients.length)return res.status(404).json({ok:false,error:"no_recipients"});
 
-    const text=out.join("\n");
-    for(const chatId of recipients)await send(base,chatId,text);
+    for(const chatId of recipients){
+      await send(base,chatId,summary.join("\n"));
+      for(const message of overdueMessages)await send(base,chatId,message);
+      for(const message of upcomingMessages)await send(base,chatId,message);
+    }
 
-    return res.status(200).json({ok:true,recipients:recipients.length,episodes:episodes.length,overdue:overdue.length,upcoming:upcoming.length});
+    return res.status(200).json({
+      ok:true,
+      recipients:recipients.length,
+      episodes:episodes.length,
+      overdue:overdue.length,
+      upcoming:upcoming.length,
+      telegram_messages:1+overdueMessages.length+upcomingMessages.length
+    });
   }catch(e){
     return res.status(500).json({ok:false,error:e?.message||"internal_error"});
   }
