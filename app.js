@@ -399,11 +399,10 @@ function prodDate(value){
 }
 function isProductionFinished(item){
   if(isProductionEpisode(item)){
-    // Для контроля дедлайна ролик закрыт только когда есть реальная ссылка на Final в колонке Q.
-    return Boolean(String(item.finalLink||"").trim());
+    // P = Final. Если P = "Готово", ролик закрыт для контроля дедлайна.
+    return String(item.stages?.[6]||"").trim()==="Готово";
   }
-  // Для дополнительных задач отдельного Final-файла может не быть:
-  // их закрываем по итоговому статусу P = "Готово".
+  // Дополнительные задачи тоже считаем закрытыми по итоговому статусу P = "Готово".
   return String(item.stages?.[6]||"").trim()==="Готово";
 }
 
