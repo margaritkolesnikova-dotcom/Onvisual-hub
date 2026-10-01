@@ -20,10 +20,11 @@
       <a class="nav-link" data-target="onvisual"><span>01</span> ONVISUAL STUDIO</a>
       <a class="nav-link" data-target="multiverse"><span>02</span> МУЛЬТВСЕЛЕННАЯ</a>
       <div class="nav-label">Общее</div>
-      <a class="nav-link" data-target="team"><span>03</span> КОМАНДА</a>
-      <a class="nav-link" data-target="tasks"><span>04</span> ЗАДАЧИ</a>
-      <a class="nav-link" data-target="calendar"><span>05</span> КАЛЕНДАРЬ</a>
-      <a class="nav-link" data-target="files"><span>06</span> ФАЙЛЫ</a>
+      <a class="nav-link production-nav-link" data-target="production"><span>03</span> PRODUCTION</a>
+      <a class="nav-link" data-target="team"><span>04</span> КОМАНДА</a>
+      <a class="nav-link" data-target="tasks"><span>05</span> ЗАДАЧИ</a>
+      <a class="nav-link" data-target="calendar"><span>06</span> КАЛЕНДАРЬ</a>
+      <a class="nav-link" data-target="files"><span>07</span> ФАЙЛЫ</a>
     </nav>
     <div class="sidebar-foot">ONVISUAL • 2026</div>
   </aside>
@@ -62,9 +63,10 @@
         </article>
       </div>
       <div class="shared-grid">
-        <article class="shared-card" data-go="team"><span>03</span><h3>Общая команда</h3><p>Люди могут работать сразу в двух направлениях.</p></article>
-        <article class="shared-card" data-go="tasks"><span>04</span><h3>Общие задачи</h3><p>С тегами ONVISUAL / Мультвселенная / Общее.</p></article>
-        <article class="shared-card" data-go="calendar"><span>05</span><h3>Календарь</h3><p>Встречи, дедлайны, релизы и общие события.</p></article>
+        <article class="shared-card production-home-card" data-go="production"><span>03</span><h3>Production</h3><p>Monster Zip: ролики, этапы, дедлайны и загрузка команды.</p></article>
+        <article class="shared-card" data-go="team"><span>04</span><h3>Общая команда</h3><p>Люди могут работать сразу в двух направлениях.</p></article>
+        <article class="shared-card" data-go="tasks"><span>05</span><h3>Общие задачи</h3><p>С тегами ONVISUAL / Мультвселенная / Общее.</p></article>
+        <article class="shared-card" data-go="calendar"><span>06</span><h3>Календарь</h3><p>Встречи, дедлайны, релизы и общие события.</p></article>
       </div>
       <div class="dashboard-grid">
         <div class="panel accent-purple"><div class="panel-title">Маршрут адаптации</div><div class="timeline">
@@ -701,6 +703,115 @@
     </section>
 
     <section id="numbers-legacy" class="section legacy-section"><div class="section-head"><div><div class="eyebrow">04 / METRICS</div><h1>MULTIVERSE NUMBERS</h1><p>Стратегия, цели и факт.</p></div><span class="section-dot green"></span></div><div class="kpi-row"><div class="kpi green-kpi"><span>Цель</span><strong>—</strong><i style="--p:0%"></i></div><div class="kpi green-kpi"><span>План</span><strong>—</strong><i style="--p:0%"></i></div><div class="kpi green-kpi"><span>Факт</span><strong>—</strong><i style="--p:0%"></i></div><div class="kpi green-kpi"><span>Аудитория</span><strong>—</strong><i style="--p:0%"></i></div></div><div class="empty">Данные будут добавлены. Здесь появятся стратегия, контент-план, экономика и план vs факт.</div></section>
+
+    <section id="production" class="section production-section">
+      <div class="production-hero">
+        <img src="assets/monster-zips-production.jpg" alt="Monster Zips production">
+        <div class="production-hero-overlay"></div>
+        <div class="production-hero-copy">
+          <div class="eyebrow">03 / PRODUCTION CONTROL</div>
+          <h1>MONSTER ZIP</h1>
+          <p>Рабочий производственный пайплайн: сценарии, генерации, видео, аудио, монтаж, правки, Final и публикация.</p>
+          <div class="production-hero-tags"><span>Основной проект</span><span>Сейчас в работе</span><span>Детский IP</span></div>
+        </div>
+        <div class="production-source-meta">
+          <span>Источник обновлён</span>
+          <strong>01.10.2026</strong>
+          <a href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Открыть Google Sheet ↗</a>
+        </div>
+      </div>
+
+      <div class="production-layout">
+        <div class="production-main">
+          <div class="production-kpis">
+            <article><small>ПОЗИЦИЙ ВСЕГО</small><strong>27</strong><span>24 с названием + 3 заготовки</span></article>
+            <article class="prod-kpi-green"><small>FINAL ГОТОВО</small><strong>8</strong><span>30% от общего пула</span></article>
+            <article class="prod-kpi-blue"><small>ДО FINAL</small><strong>19</strong><span>В производстве / планировании</span></article>
+            <article class="prod-kpi-pink"><small>ОПУБЛИКОВАНО</small><strong>0</strong><span>Публикации ещё не начаты</span></article>
+          </div>
+
+          <section class="production-stage-section">
+            <div class="production-block-head"><div><small>PIPELINE</small><h2>Этапы production</h2></div><span>Готовность этапов по текущему листу</span></div>
+            <div class="production-stage-strip">
+              <button data-prod-stage="Сценарий"><i>01</i><b>Сценарий</b><strong>16/27</strong></button>
+              <button data-prod-stage="Кадры"><i>02</i><b>Кадры</b><strong>10/27</strong></button>
+              <button data-prod-stage="Видео"><i>03</i><b>Видео</b><strong>9/27</strong></button>
+              <button data-prod-stage="Аудио"><i>04</i><b>Аудио</b><strong>8/27</strong></button>
+              <button data-prod-stage="Монтаж"><i>05</i><b>Монтаж</b><strong>9/27</strong></button>
+              <button data-prod-stage="Правки"><i>06</i><b>Правки</b><strong>7/27</strong></button>
+              <button data-prod-stage="Final"><i>07</i><b>Final</b><strong>8/27</strong></button>
+              <button data-prod-stage="Публикация"><i>08</i><b>Публикация</b><strong>0/27</strong></button>
+            </div>
+          </section>
+
+          <section class="production-table-section">
+            <div class="production-block-head production-table-head">
+              <div><small>ACTIVE PIPELINE</small><h2>Ролики и production-задачи</h2></div>
+              <div class="production-view-actions">
+                <input id="prodSearch" type="search" placeholder="Поиск по названию..." />
+                <select id="prodCreatorFilter"><option value="all">Все креаторы</option><option>Алексей</option><option>Дмитрий</option><option>Анна</option></select>
+                <select id="prodStatusFilter"><option value="all">Все статусы</option><option value="ready">Готово</option><option value="work">В работе</option><option value="revision">На правках</option><option value="risk">Риск</option><option value="plan">План</option></select>
+              </div>
+            </div>
+            <div class="production-table-wrap">
+              <div class="production-table-header">
+                <span>#</span><span>Название</span><span>Этапы производства</span><span>Ответственный</span><span>Дедлайн</span><span>Статус</span>
+              </div>
+              <div id="productionRows" class="production-rows"></div>
+            </div>
+          </section>
+
+          <section class="production-archive">
+            <div class="production-block-head"><div><small>ARCHIVE</small><h2>Архивные пайплайны</h2></div><span>Храним справочно, не смешиваем с текущим production</span></div>
+            <div class="production-archive-grid">
+              <article><span>ARCHIVE 01</span><h3>Totti</h3><p>Старый рабочий пайплайн и сводка проекта.</p><a href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Открыть источник ↗</a></article>
+              <article><span>ARCHIVE 02</span><h3>Мультвселенная</h3><p>Предыдущая версия общего production-пайплайна МВ.</p><a href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Открыть источник ↗</a></article>
+            </div>
+          </section>
+        </div>
+
+        <aside class="production-rail">
+          <section class="production-progress-card">
+            <div class="production-block-head compact"><div><small>PROJECT</small><h3>Прогресс проекта</h3></div></div>
+            <div class="prod-progress-ring"><div><strong>30%</strong><span>Final</span></div></div>
+            <div class="prod-progress-legend">
+              <div><i class="green"></i><span>Final готово</span><b>8</b></div>
+              <div><i class="blue"></i><span>До Final</span><b>19</b></div>
+              <div><i class="pink"></i><span>Опубликовано</span><b>0</b></div>
+            </div>
+          </section>
+
+          <section class="production-deadlines">
+            <div class="production-block-head compact"><div><small>CONTROL</small><h3>Ближайшие дедлайны</h3></div></div>
+            <div class="deadline-list">
+              <button data-prod-open="locations"><span><b>Проработка локаций</b><small>Алексей</small></span><strong>02.10</strong></button>
+              <button data-prod-open="find-star" class="deadline-risk"><span><b>Найди звезду</b><small>Алексей</small></span><strong>29.09</strong></button>
+              <button data-prod-open="foam-bath" class="deadline-risk"><span><b>Пенная ванна</b><small>Анна</small></span><strong>29.09</strong></button>
+              <button data-prod-open="autumn-print" class="deadline-risk"><span><b>Осенний опечаток</b><small>Дмитрий</small></span><strong>27.09</strong></button>
+            </div>
+          </section>
+
+          <section class="production-team-load">
+            <div class="production-block-head compact"><div><small>LOAD</small><h3>Команда</h3></div></div>
+            <div class="prod-team-row"><div><strong>Алексей</strong><small>8 назначено</small></div><i><em style="width:80%"></em></i><b>8</b></div>
+            <div class="prod-team-row"><div><strong>Дмитрий</strong><small>7 назначено</small></div><i><em style="width:70%"></em></i><b>7</b></div>
+            <div class="prod-team-row"><div><strong>Анна</strong><small>4 назначено</small></div><i><em style="width:40%"></em></i><b>4</b></div>
+            <div class="prod-team-row"><div><strong>Иван</strong><small>нет назначений</small></div><i><em style="width:0%"></em></i><b>0</b></div>
+          </section>
+
+          <section class="production-quicklinks">
+            <div class="production-block-head compact"><div><small>FILES</small><h3>Быстрые ссылки</h3></div></div>
+            <a href="https://disk.yandex.ru/d/ubmVPhZHuYV-6Q" target="_blank" rel="noreferrer">Production Monster Zip ↗</a>
+            <a href="https://disk.yandex.ru/d/t5xmEfom_VTjIQ" target="_blank" rel="noreferrer">Общая папка МВ ↗</a>
+            <a href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Пайплайн / источник ↗</a>
+          </section>
+        </aside>
+      </div>
+
+      <dialog class="hub-modal production-detail-modal" id="productionDetailModal">
+        <div id="productionDetailContent"></div>
+      </dialog>
+    </section>
 
     <section id="team" class="section">
       <div class="section-head"><div><div class="eyebrow">03 / TEAM</div><h1>TEAM</h1><p>Одна команда, две вселенные и пересекающиеся роли.</p></div><span class="section-dot blue"></span></div>
