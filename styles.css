@@ -1693,3 +1693,11 @@ html{scroll-behavior:smooth}
 .production-sync-state.sync-loading{color:#c9b8ef;border-color:rgba(157,101,255,.18);background:rgba(157,101,255,.05)}
 .production-sync-state.sync-ok{color:#7ce8b7;border-color:rgba(66,217,154,.18);background:rgba(66,217,154,.05)}
 .production-sync-state.sync-fallback{color:#f0b56d;border-color:rgba(244,163,64,.18);background:rgba(244,163,64,.05)}
+
+/* Production stage not applicable */
+.prod-stage-dot.stage-na{
+  background:transparent!important;
+  border-color:rgba(255,255,255,.035)!important;
+  color:#394352!important;
+  font-size:7px!important;
+}
