@@ -58,7 +58,7 @@ function esc(s){
   return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 function isDoneForDeadline(item){
-  if(item.kind==="episode") return Boolean(String(item.finalLink||"").trim());
+  // P = Final status. Q is only a link and does not affect deadline logic.
   return String(item.final||"").trim()==="Готово";
 }
 function lineFor(item,today,isOverdue){
