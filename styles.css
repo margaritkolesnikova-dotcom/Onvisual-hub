@@ -1780,3 +1780,54 @@ html{scroll-behavior:smooth}
   padding:10px;border:1px dashed rgba(255,255,255,.05);border-radius:8px;
   font-size:8px;color:#626e81;text-align:center
 }
+
+/* Production readability pass */
+#production .production-hero-copy p{font-size:14px!important}
+#production .production-kpis small{font-size:10px!important}
+#production .production-kpis strong{font-size:34px!important}
+#production .production-kpis span{font-size:10.5px!important;line-height:1.45!important}
+
+#production .production-block-head small{font-size:9.5px!important}
+#production .production-block-head h2{font-size:24px!important}
+#production .production-block-head h3{font-size:18px!important}
+#production .production-block-head>span{font-size:10.5px!important}
+
+#production .production-stage-strip button{padding:13px 10px!important;min-height:86px}
+#production .production-stage-strip i{font-size:9px!important}
+#production .production-stage-strip b{font-size:11px!important;margin-top:14px!important}
+#production .production-stage-strip strong{font-size:15px!important;margin-top:7px!important}
+
+#production .production-view-actions input,
+#production .production-view-actions select{
+  font-size:10.5px!important;
+  padding:10px 11px!important;
+}
+
+#production .production-table-header{
+  font-size:9px!important;
+  padding:11px 13px!important;
+}
+#production .production-row{
+  padding:14px 13px!important;
+  min-height:62px;
+}
+#production .prod-num{font-size:10.5px!important}
+#production .prod-title strong{font-size:13px!important}
+#production .prod-title small{font-size:9.5px!important;margin-top:4px!important}
+#production .prod-owner,
+#production .prod-due{font-size:11px!important}
+#production .prod-state{font-size:9.5px!important;padding:6px 8px!important}
+
+#production .production-rail>section{padding:16px!important}
+#production .deadline-list span b{font-size:11.5px!important}
+#production .deadline-list span small{font-size:9.5px!important}
+#production .deadline-list>button>strong{font-size:10.5px!important}
+#production .prod-team-row>div strong{font-size:11px!important}
+#production .prod-team-row>div small{font-size:9px!important}
+#production .prod-team-row>b{font-size:10.5px!important}
+#production .production-quicklinks>a{font-size:10.5px!important;padding:11px!important}
+
+#production .production-extra-task>div small{font-size:8.5px!important}
+#production .production-extra-task>div strong{font-size:12px!important}
+#production .production-extra-task>span{font-size:10.5px!important}
+#production .production-extra-task>b{font-size:9.5px!important}
