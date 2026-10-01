@@ -399,11 +399,12 @@ function prodDate(value){
 }
 function isProductionFinished(item){
   if(isProductionEpisode(item)){
-    const stages=normalizeProductionStages(item);
-    return stages[6]==="Готово" || stages[7]==="Опубликовано" || stages[7]==="Готово";
+    // Для контроля дедлайна ролик закрыт только когда есть реальная ссылка на Final в колонке Q.
+    return Boolean(String(item.finalLink||"").trim());
   }
-  const values=item.stages||[];
-  return values.some(v=>v==="Готово") && !values.some(v=>v==="В работе"||v==="На правках");
+  // Для дополнительных задач отдельного Final-файла может не быть:
+  // их закрываем по итоговому статусу P = "Готово".
+  return String(item.stages?.[6]||"").trim()==="Готово";
 }
 
 function renderProductionDeadlines(){
@@ -417,7 +418,7 @@ function renderProductionDeadlines(){
   upcomingLimit.setDate(upcomingLimit.getDate()+5);
 
   const withDue=productionItems
-    .filter(item=>item.due && item.title)
+    .filter(item=>item.due && item.title && !isProductionFinished(item))
     .map(item=>({...item,_due:new Date(item.due+"T00:00:00")}))
     .filter(item=>!isNaN(item._due));
 
