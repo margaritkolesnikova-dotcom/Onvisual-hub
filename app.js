@@ -397,6 +397,60 @@ function prodDate(value){
   if(!value)return "—";
   return new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"2-digit"}).format(new Date(value+"T12:00:00"));
 }
+function isProductionFinished(item){
+  if(isProductionEpisode(item)){
+    const stages=normalizeProductionStages(item);
+    return stages[6]==="Готово" || stages[7]==="Опубликовано" || stages[7]==="Готово";
+  }
+  const values=item.stages||[];
+  return values.some(v=>v==="Готово") && !values.some(v=>v==="В работе"||v==="На правках");
+}
+
+function renderProductionDeadlines(){
+  const overdueHost=document.getElementById("overdueDeadlineList");
+  const upcomingHost=document.getElementById("upcomingDeadlineList");
+  if(!overdueHost||!upcomingHost)return;
+
+  const today=new Date();
+  today.setHours(0,0,0,0);
+
+  const withDue=productionItems
+    .filter(item=>item.due && item.title && !isProductionFinished(item))
+    .map(item=>({...item,_due:new Date(item.due+"T00:00:00")}))
+    .filter(item=>!isNaN(item._due));
+
+  const overdue=withDue
+    .filter(item=>item._due<today)
+    .sort((a,b)=>a._due-b._due);
+
+  const upcoming=withDue
+    .filter(item=>item._due>=today)
+    .sort((a,b)=>a._due-b._due)
+    .slice(0,6);
+
+  const renderItem=(item,isOverdue)=>{
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className=isOverdue?"deadline-risk":"";
+    btn.innerHTML='<span><b>'+escapeHtml(item.title)+'</b><small>'+escapeHtml(item.creator||"Не назначен")+(isProductionExtraTask(item)?" · доп. задача":"")+'</small></span><strong>'+prodDate(item.due)+'</strong>';
+    btn.addEventListener("click",()=>openProductionDetail(item.id));
+    return btn;
+  };
+
+  overdueHost.innerHTML="";
+  upcomingHost.innerHTML="";
+  overdue.forEach(item=>overdueHost.appendChild(renderItem(item,true)));
+  upcoming.forEach(item=>upcomingHost.appendChild(renderItem(item,false)));
+
+  if(!overdue.length)overdueHost.innerHTML='<div class="deadline-empty">Просроченных задач нет</div>';
+  if(!upcoming.length)upcomingHost.innerHTML='<div class="deadline-empty">Ближайших дедлайнов нет</div>';
+
+  const overdueCount=document.getElementById("overdueDeadlineCount");
+  const upcomingCount=document.getElementById("upcomingDeadlineCount");
+  if(overdueCount)overdueCount.textContent=String(overdue.length);
+  if(upcomingCount)upcomingCount.textContent=String(upcoming.length);
+}
+
 function renderProductionExtraTasks(){
   const host=document.getElementById("productionExtraTasks");
   if(!host)return;
