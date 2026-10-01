@@ -302,3 +302,143 @@ eventForm?.addEventListener('submit',e=>{
 });
 
 renderCalendar();
+
+
+// ==========================================
+// PRODUCTION / Monster Zip
+// Snapshot from current source sheet, 01.10.2026
+// ==========================================
+const productionItems=[
+{id:"01",num:"1",title:"Башня из кубиков",creator:"Алексей",due:"2026-09-19",folder:"https://disk.yandex.ru/d/dPKrhMgOeoOtnQ",finalLink:"https://disk.yandex.ru/i/WboK8d03x7ii1A",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
+{id:"02",num:"2",title:"Воздушные шары",creator:"Алексей",due:"2026-09-21",folder:"https://disk.yandex.ru/d/z_IWMSGtCtmqhw",finalLink:"https://disk.yandex.ru/i/n_ahrIT1W_yQ7A",duration:"0:26",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
+{id:"03",num:"3",title:"Заплатка",creator:"Алексей",due:"2026-09-23",folder:"https://disk.yandex.ru/d/XciiwhSgDL8pOA",finalLink:"https://disk.yandex.ru/i/107v94tzWeaRYQ",duration:"0:26",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
+{id:"04",num:"4",title:"Качели",creator:"Дмитрий",due:"2026-09-18",folder:"https://disk.yandex.ru/d/Zxge1EUp5SHTHw",duration:"",stages:["Готово","Не начато","Не начато","Не начато","Не начато","Не начато","Не начато","Не опубликовано"]},
+{id:"05",num:"5",title:"Прятки",creator:"Дмитрий",due:"2026-09-20",folder:"https://disk.yandex.ru/d/tC1__WEOs7sG9A",finalLink:"https://disk.yandex.ru/i/v1lmATyJk0hcJw",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
+{id:"06",num:"6",title:"Солнечный зайчик",creator:"Дмитрий",due:"2026-09-22",folder:"https://disk.yandex.ru/d/ylBOte-1d7lkHw",finalLink:"https://disk.yandex.ru/i/HC0zv1mEBi7z7w",duration:"0:19",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
+{id:"07",num:"7",title:"Уборка",creator:"Анна",due:"2026-09-18",folder:"https://disk.yandex.ru/d/ZcessXq7FqRumw",duration:"",stages:["Готово","Готово","Готово","В работе","Готово","На правках","Не начато","Не опубликовано"]},
+{id:"08",num:"8",title:"Подарок",creator:"Анна",due:"2026-09-20",folder:"https://disk.yandex.ru/d/BbLJGuwaq3IaSQ",duration:"",stages:["Готово","В работе","В работе","Не начато","Не начато","Не начато","Не начато","Не опубликовано"]},
+{id:"09",num:"9",title:"Пружина",creator:"Алексей",due:"2026-09-25",folder:"https://disk.yandex.ru/d/IoIyEH3ceJSbVQ",finalLink:"https://disk.yandex.ru/i/lc2ARZ6TI3V9dQ",duration:"0:24",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово",""]},
+{id:"10",num:"10",title:"Осенний лист",creator:"Алексей",due:"2026-09-27",folder:"https://disk.yandex.ru/d/vugopTqxhyhTXQ",finalLink:"https://disk.yandex.ru/i/qRr2r2_34IeY1A",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово",""]},
+{id:"11",num:"11",title:"Карандаш",creator:"Анна",due:"2026-09-25",folder:"https://disk.yandex.ru/d/9lO-ZnTXEYZ8hQ",duration:"",stages:["Готово","В работе","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
+{id:"12",num:"12",title:"Найди звезду",creator:"Алексей",due:"2026-09-29",folder:"https://disk.yandex.ru/d/xthQfps4Wd80nw",duration:"",stages:["Готово","В работе","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
+{id:"13",num:"13",title:"Осенняя математика",creator:"Дмитрий",due:"2026-09-25",folder:"https://disk.yandex.ru/d/z9zI5ilXb4Y_BQ",duration:"",stages:["Готово","Готово","Готово","Готово","Готово","В работе","Не начато",""]},
+{id:"autumn-print",num:"14",title:"Осенний опечаток",creator:"Дмитрий",due:"2026-09-27",folder:"https://disk.yandex.ru/d/pDiHfMGBfqtTlw",duration:"",stages:["Готово","Готово","На правках","В работе","В работе","Не начато","Не начато",""]},
+{id:"foam-bath",num:"15",title:"Пенная ванна",creator:"Анна",due:"2026-09-29",folder:"https://disk.yandex.ru/d/QV1Kr27uU25aNA",duration:"",stages:["Готово","Не начато","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
+{id:"16",num:"16",title:"Крепость для двоих",creator:"",due:"",folder:"https://disk.yandex.ru/d/AqfyBNnpdnKneg",duration:"",stages:["","","","","","","",""]},
+{id:"17",num:"17",title:"Калькулятор",creator:"",due:"",folder:"https://disk.yandex.ru/d/z6XJTQTT6dfSeQ",duration:"",stages:["","","","","","","",""]},
+{id:"18",num:"DEV",title:"Проработка персонажей",creator:"Алексей",due:"2026-09-28",folder:"https://disk.yandex.ru/d/lPYDQselCV0eXA",finalLink:"https://disk.yandex.ru/i/dvfT0tD8U5kJNQ",duration:"",stages:["Готово","","","","","","Готово",""]},
+{id:"locations",num:"DEV",title:"Проработка локаций",creator:"Алексей",due:"2026-10-02",folder:"https://disk.yandex.ru/d/OUCaeCRE5XWa2g",duration:"",stages:["В работе","","","","","","Не начато",""]},
+{id:"20",num:"18",title:"Коробка кота",creator:"",due:"",folder:"https://disk.yandex.ru/d/OyQNpy8E6r3POg",duration:"",stages:["","","","","","","",""]},
+{id:"21",num:"19",title:"Чистим зубы",creator:"",due:"",folder:"https://disk.yandex.ru/d/ZabPGH-2UsHZ1Q",duration:"",stages:["","","","","","","",""]},
+{id:"22",num:"20",title:"Домино",creator:"Дмитрий",due:"",folder:"https://disk.yandex.ru/d/0nUYG0L3nxNE-A",duration:"",stages:["","В работе","","","","","",""]},
+{id:"23",num:"21",title:"Пузырчатая упаковка",creator:"Дмитрий",due:"",folder:"https://disk.yandex.ru/d/6DnY1fZQlmq4Xg",duration:"",stages:["","В работе","","","","","",""]},
+{id:"24",num:"22",title:"Краасная кнопка",creator:"",due:"",folder:"https://disk.yandex.ru/d/QofUZAanAhmkSw",duration:"",stages:["","","","","","","",""]}
+];
+
+const prodStageNames=["Сценарий","Кадры","Видео","Аудио","Монтаж","Правки","Final","Публикация"];
+let prodStageFilter=null;
+
+function productionClass(item){
+  const final=item.stages[6];
+  if(final==="Готово") return "ready";
+  const due=item.due?new Date(item.due+"T23:59:59"):null;
+  const now=new Date();
+  if(due && due<now) return "risk";
+  if(item.stages.includes("На правках")) return "revision";
+  if(item.stages.includes("В работе")) return "work";
+  return "plan";
+}
+function productionLabel(cls){
+  return ({ready:"Готово",risk:"Риск",revision:"На правках",work:"В работе",plan:"План"})[cls]||cls;
+}
+function productionProgress(item){
+  const completed=item.stages.slice(0,7).filter(x=>x==="Готово").length;
+  return Math.round(completed/7*100);
+}
+function productionStageDot(status,name){
+  const cls=status==="Готово"?"done":status==="В работе"?"work":status==="На правках"?"revision":status==="Не начато"?"empty":"blank";
+  const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":"·";
+  return '<span class="prod-stage-dot '+cls+'" title="'+name+': '+(status||'нет статуса')+'">'+symbol+'</span>';
+}
+function prodDate(value){
+  if(!value)return "—";
+  return new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"2-digit"}).format(new Date(value+"T12:00:00"));
+}
+function renderProductionRows(){
+  const host=document.getElementById("productionRows");
+  if(!host)return;
+  const search=(document.getElementById("prodSearch")?.value||"").trim().toLowerCase();
+  const creator=document.getElementById("prodCreatorFilter")?.value||"all";
+  const status=document.getElementById("prodStatusFilter")?.value||"all";
+  let rows=productionItems.filter(item=>{
+    if(search && !item.title.toLowerCase().includes(search))return false;
+    if(creator!=="all" && item.creator!==creator)return false;
+    if(status!=="all" && productionClass(item)!==status)return false;
+    if(prodStageFilter!==null && item.stages[prodStageFilter]==="Готово")return false;
+    return true;
+  });
+  host.innerHTML="";
+  if(!rows.length){
+    host.innerHTML='<div class="production-empty">По выбранным фильтрам ничего не найдено.</div>';
+    return;
+  }
+  rows.forEach(item=>{
+    const cls=productionClass(item);
+    const progress=productionProgress(item);
+    const row=document.createElement("button");
+    row.className="production-row";
+    row.type="button";
+    row.dataset.prodId=item.id;
+    row.innerHTML=`
+      <span class="prod-num">#${item.num}</span>
+      <span class="prod-title"><strong>${escapeHtml(item.title)}</strong><small>${progress}% готовности</small></span>
+      <span class="prod-stages">${item.stages.map((s,i)=>productionStageDot(s,prodStageNames[i])).join("")}</span>
+      <span class="prod-owner">${item.creator?escapeHtml(item.creator):"—"}</span>
+      <span class="prod-due ${cls==="risk"?"risk":""}">${prodDate(item.due)}</span>
+      <span class="prod-state state-${cls}">${productionLabel(cls)}</span>`;
+    row.addEventListener("click",()=>openProductionDetail(item.id));
+    host.appendChild(row);
+  });
+}
+function openProductionDetail(id){
+  const item=productionItems.find(x=>x.id===id);
+  if(!item)return;
+  const cls=productionClass(item);
+  const modal=document.getElementById("productionDetailModal");
+  const host=document.getElementById("productionDetailContent");
+  host.innerHTML=`
+    <div class="modal-head">
+      <div><small>MONSTER ZIP / ${item.num}</small><h2>${escapeHtml(item.title)}</h2></div>
+      <button type="button" class="modal-close" id="closeProductionDetail">×</button>
+    </div>
+    <div class="prod-detail-meta">
+      <div><span>Ответственный</span><strong>${item.creator?escapeHtml(item.creator):"Не назначен"}</strong></div>
+      <div><span>Дедлайн</span><strong>${item.due?new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"long",year:"numeric"}).format(new Date(item.due+"T12:00:00")):"Не задан"}</strong></div>
+      <div><span>Статус</span><strong class="detail-status state-${cls}">${productionLabel(cls)}</strong></div>
+      <div><span>Хронометраж</span><strong>${item.duration||"—"}</strong></div>
+    </div>
+    <div class="prod-detail-pipeline">
+      ${prodStageNames.map((name,i)=>'<div><span>'+String(i+1).padStart(2,"0")+'</span><strong>'+name+'</strong><small class="detail-stage '+(item.stages[i]==="Готово"?"done":item.stages[i]==="В работе"?"work":item.stages[i]==="На правках"?"revision":"")+'">'+(item.stages[i]||"Нет статуса")+'</small></div>').join("")}
+    </div>
+    <div class="prod-detail-actions">
+      ${item.folder?'<a href="'+item.folder+'" target="_blank" rel="noreferrer">Открыть рабочую папку ↗</a>':""}
+      ${item.finalLink?'<a href="'+item.finalLink+'" target="_blank" rel="noreferrer">Открыть Final ↗</a>':""}
+      <a class="secondary-modal" href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Редактировать в источнике ↗</a>
+    </div>`;
+  host.querySelector("#closeProductionDetail")?.addEventListener("click",()=>modal.close());
+  modal.showModal();
+}
+["prodSearch","prodCreatorFilter","prodStatusFilter"].forEach(id=>{
+  document.getElementById(id)?.addEventListener(id==="prodSearch"?"input":"change",renderProductionRows);
+});
+document.querySelectorAll("[data-prod-stage]").forEach((btn,i)=>{
+  btn.addEventListener("click",()=>{
+    const was=btn.classList.contains("active");
+    document.querySelectorAll("[data-prod-stage]").forEach(x=>x.classList.remove("active"));
+    prodStageFilter=was?null:i;
+    if(!was)btn.classList.add("active");
+    renderProductionRows();
+  });
+});
+document.querySelectorAll("[data-prod-open]").forEach(btn=>btn.addEventListener("click",()=>openProductionDetail(btn.dataset.prodOpen)));
+renderProductionRows();
