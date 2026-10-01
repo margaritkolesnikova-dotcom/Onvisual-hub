@@ -359,7 +359,15 @@ function productionProgress(item){
   const completed=stages.filter(x=>x==="Готово").length;
   return Math.round(completed/prodStageNames.length*100);
 }
-function productionStageDot(status,name){
+function productionStageDot(status,name,index){
+  if(index===6){
+    const ready=status==="Готово";
+    return '<span class="prod-stage-dot prod-stage-special stage-final '+(ready?'is-ready':'is-empty')+'" title="Final: '+status+'" aria-label="Final: '+status+'">'+(ready?'F':'')+'</span>';
+  }
+  if(index===7){
+    const published=status==="Опубликовано"||status==="Готово";
+    return '<span class="prod-stage-dot prod-stage-special stage-published '+(published?'is-ready':'is-empty')+'" title="Публикация: '+status+'" aria-label="Публикация: '+status+'">'+(published?'✓':'')+'</span>';
+  }
   const cls=status==="Готово"?"stage-done":status==="В работе"?"stage-work":status==="На правках"?"stage-revision":"stage-empty";
   const symbol=status==="Готово"?"✓":status==="В работе"?"◐":status==="На правках"?"↺":"";
   return '<span class="prod-stage-dot '+cls+'" title="'+name+': '+status+'" aria-label="'+name+': '+status+'">'+symbol+'</span>';
@@ -396,7 +404,7 @@ function renderProductionRows(){
     row.innerHTML=`
       <span class="prod-num">#${item.num}</span>
       <span class="prod-title"><strong>${escapeHtml(item.title)}</strong><small>${progress}% готовности</small></span>
-      <span class="prod-stages">${normalizeProductionStages(item).map((s,i)=>productionStageDot(s,prodStageNames[i])).join("")}</span>
+      <span class="prod-stages">${normalizeProductionStages(item).map((s,i)=>productionStageDot(s,prodStageNames[i],i)).join("")}</span>
       <span class="prod-owner">${item.creator?escapeHtml(item.creator):"—"}</span>
       <span class="prod-due ${cls==="risk"?"risk":""}">${prodDate(item.due)}</span>
       <span class="prod-state state-${cls}">${productionLabel(cls)}</span>`;
@@ -446,3 +454,102 @@ document.querySelectorAll("[data-prod-stage]").forEach((btn,i)=>{
 });
 document.querySelectorAll("[data-prod-open]").forEach(btn=>btn.addEventListener("click",()=>openProductionDetail(btn.dataset.prodOpen)));
 renderProductionRows();
+
+// Live Monster Zip production sync from Google Sheets.
+const PROD_SHEET_ID="1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw";
+const PROD_SHEET_NAME="Zip монстр ";
+const PROD_SYNC_MS=60000;
+
+function setProductionSyncState(state,label){
+  const el=document.getElementById("productionSyncState");
+  if(!el)return;
+  el.className="production-sync-state sync-"+state;
+  el.textContent=label;
+}
+
+function parseGvizResponse(raw){
+  const start=raw.indexOf("{");
+  const end=raw.lastIndexOf("}");
+  if(start<0||end<0)throw new Error("Invalid Google Sheets response");
+  return JSON.parse(raw.slice(start,end+1));
+}
+
+function gvizCell(row,index){
+  const cell=row&&row.c?row.c[index]:null;
+  if(!cell)return "";
+  if(cell.f!==undefined&&cell.f!==null)return cell.f;
+  return cell.v!==undefined&&cell.v!==null?cell.v:"";
+}
+
+function sheetDateToISO(value){
+  if(!value)return "";
+  const s=String(value).trim();
+  let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
+  if(m)return m[1]+"-"+String(Number(m[2])+1).padStart(2,"0")+"-"+m[3].padStart(2,"0");
+  m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+  if(m)return m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");
+  const d=new Date(s);
+  return isNaN(d)?"":d.toISOString().slice(0,10);
+}
+
+function mapZipRowsFromGviz(table){
+  const rows=(table&&table.rows)||[];
+  return rows.map((row,idx)=>{
+    const title=String(gvizCell(row,4)||"").trim();
+    if(!title)return null;
+    const publication=String(gvizCell(row,18)||"").trim()||"Не опубликовано";
+    return {
+      id:"live-"+(idx+1),
+      num:String(gvizCell(row,2)||"").trim()||"DEV",
+      title,
+      creator:String(gvizCell(row,8)||"").trim(),
+      due:sheetDateToISO(gvizCell(row,9)),
+      folder:String(gvizCell(row,3)||"").trim(),
+      finalLink:String(gvizCell(row,16)||"").trim(),
+      duration:String(gvizCell(row,20)||"").trim(),
+      stages:[
+        String(gvizCell(row,7)||"").trim()||"Не начато",
+        String(gvizCell(row,10)||"").trim()||"Не начато",
+        String(gvizCell(row,11)||"").trim()||"Не начато",
+        String(gvizCell(row,12)||"").trim()||"Не начато",
+        String(gvizCell(row,13)||"").trim()||"Не начато",
+        String(gvizCell(row,14)||"").trim()||"Не начато",
+        String(gvizCell(row,15)||"").trim()||"Не начато",
+        publication
+      ]
+    };
+  }).filter(Boolean);
+}
+
+function updateProductionKpisFromLive(){
+  const total=productionItems.length;
+  const finals=productionItems.filter(x=>normalizeProductionStages(x)[6]==="Готово").length;
+  const published=productionItems.filter(x=>["Опубликовано","Готово"].includes(normalizeProductionStages(x)[7])).length;
+  const values={total,final:finals,remaining:Math.max(0,total-finals),published};
+  Object.entries(values).forEach(([key,value])=>{
+    const el=document.querySelector("[data-prod-kpi=\""+key+"\"]");
+    if(el)el.textContent=String(value);
+  });
+}
+
+async function syncProductionFromSheet(){
+  setProductionSyncState("loading","Синхронизация…");
+  const url="https://docs.google.com/spreadsheets/d/"+PROD_SHEET_ID+"/gviz/tq?tqx=out:json&sheet="+encodeURIComponent(PROD_SHEET_NAME)+"&headers=1&_="+Date.now();
+  try{
+    const response=await fetch(url,{cache:"no-store",credentials:"omit"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const parsed=parseGvizResponse(await response.text());
+    const live=mapZipRowsFromGviz(parsed.table);
+    if(!live.length)throw new Error("No production rows");
+    productionItems.splice(0,productionItems.length,...live);
+    renderProductionRows();
+    updateProductionKpisFromLive();
+    setProductionSyncState("ok","Live · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}));
+  }catch(error){
+    console.warn("Monster Zip live sync unavailable",error);
+    setProductionSyncState("fallback","Последние сохранённые данные");
+  }
+}
+
+syncProductionFromSheet();
+setInterval(syncProductionFromSheet,PROD_SYNC_MS);
