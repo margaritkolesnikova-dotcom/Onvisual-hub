@@ -715,8 +715,8 @@
           <div class="production-hero-tags"><span>Основной проект</span><span>Сейчас в работе</span><span>Детский IP</span></div>
         </div>
         <div class="production-source-meta">
-          <span>Источник обновлён</span>
-          <strong>01.10.2026</strong>
+          <span>LIVE SOURCE</span>
+          <strong id="productionSyncState" class="production-sync-state sync-loading">Синхронизация…</strong>
           <a href="https://docs.google.com/spreadsheets/d/1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw/edit" target="_blank" rel="noreferrer">Открыть Google Sheet ↗</a>
         </div>
       </div>
@@ -724,10 +724,10 @@
       <div class="production-layout">
         <div class="production-main">
           <div class="production-kpis">
-            <article><small>ПОЗИЦИЙ ВСЕГО</small><strong>27</strong><span>24 с названием + 3 заготовки</span></article>
-            <article class="prod-kpi-green"><small>FINAL ГОТОВО</small><strong>8</strong><span>30% от общего пула</span></article>
-            <article class="prod-kpi-blue"><small>ДО FINAL</small><strong>19</strong><span>В производстве / планировании</span></article>
-            <article class="prod-kpi-pink"><small>ОПУБЛИКОВАНО</small><strong>0</strong><span>Публикации ещё не начаты</span></article>
+            <article><small>ПОЗИЦИЙ ВСЕГО</small><strong data-prod-kpi="total">27</strong><span>Активный production Monster Zip</span></article>
+            <article class="prod-kpi-green"><small>FINAL ГОТОВО</small><strong data-prod-kpi="final">8</strong><span>Финальные мастер-файлы</span></article>
+            <article class="prod-kpi-blue"><small>ДО FINAL</small><strong data-prod-kpi="remaining">19</strong><span>В производстве / планировании</span></article>
+            <article class="prod-kpi-pink"><small>ОПУБЛИКОВАНО</small><strong data-prod-kpi="published">0</strong><span>Вышло на площадках</span></article>
           </div>
 
           <section class="production-stage-section">
