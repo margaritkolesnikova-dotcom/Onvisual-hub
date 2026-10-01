@@ -363,13 +363,13 @@ function normalizeProductionStages(item){
     return prodStageNames.map(()=> "Не применимо");
   }
 
-  const scenarioRaw=item.stages?.[0];
-  const scenarioApplicable=Boolean(scenarioRaw && scenarioRaw!=="Не применимо");
-  const productionApplicable=scenarioApplicable && Boolean(item.due);
+  // Для реального ролика сценарий считается существующим по самому факту строки ролика.
+  const scenarioApplicable=true;
+  const productionApplicable=Boolean(item.due);
 
   return prodStageNames.map((_,i)=>{
     const value=item.stages?.[i];
-    if(i===0)return scenarioApplicable?(value||"Не начато"):"Не начато";
+    if(i===0)return "Готово";
     if(!productionApplicable)return "Не применимо";
     return value||"Не начато";
   });
