@@ -352,9 +352,19 @@ function productionLabel(cls){
   return ({ready:"Готово",risk:"Риск",revision:"На правках",work:"В работе",plan:"План"})[cls]||cls;
 }
 function normalizeProductionStages(item){
+  const scenarioRaw=item.stages?.[0];
+  const scenarioApplicable=Boolean(scenarioRaw && scenarioRaw!=="Не применимо");
+  const productionApplicable=scenarioApplicable && Boolean(item.due);
+
   return prodStageNames.map((_,i)=>{
     const value=item.stages?.[i];
-    if(i===0 && !value)return "Не применимо";
+
+    // Сценарий существует только там, где он реально указан в источнике.
+    if(i===0)return scenarioApplicable?(value||"Не начато"):"Не применимо";
+
+    // Остальные production-этапы считаем только после появления сценария + дедлайна ролика.
+    if(!productionApplicable)return "Не применимо";
+
     return value||"Не начато";
   });
 }
