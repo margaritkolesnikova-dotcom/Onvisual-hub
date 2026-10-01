@@ -1759,3 +1759,24 @@ html{scroll-behavior:smooth}
     grid-template-columns:1fr 1fr;
   }
 }
+
+/* Production deadline groups */
+.deadline-group{margin-top:12px}
+.deadline-group+.deadline-group{padding-top:12px;border-top:1px solid rgba(255,255,255,.05)}
+.deadline-group-title{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-bottom:7px;font-size:8px;letter-spacing:.8px;text-transform:uppercase
+}
+.deadline-group-title span{color:#788496}
+.deadline-group-title b{
+  min-width:20px;height:20px;border-radius:999px;display:grid;place-items:center;
+  font-size:8px;border:1px solid rgba(255,255,255,.08);background:#10151c;color:#9ba5b5
+}
+.deadline-group-title.overdue span{color:#ff858d}
+.deadline-group-title.overdue b{color:#ff858d;border-color:rgba(255,101,112,.20);background:rgba(255,101,112,.05)}
+.deadline-group-title.upcoming span{color:#7fb8ff}
+.deadline-group-title.upcoming b{color:#7fb8ff;border-color:rgba(80,167,255,.20);background:rgba(80,167,255,.05)}
+.deadline-empty{
+  padding:10px;border:1px dashed rgba(255,255,255,.05);border-radius:8px;
+  font-size:8px;color:#626e81;text-align:center
+}
