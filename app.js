@@ -776,7 +776,7 @@ function salesTodayIso(){return new Date().toISOString().slice(0,10)}
 function salesCompanyById(id){return salesCompanies.find(c=>c.id===id)}
 function salesContactById(id){return salesContacts.find(c=>c.id===id)}
 function salesContactsForCompany(id){return salesContacts.filter(c=>c.companyId===id)}
-function salesContactIsReady(p){return Boolean(p&&p.name&&p.role&&p.sourceUrl&&(p.email||p.phone||p.profile||p.social))}
+function salesContactIsReady(p){return Boolean(p&&p.name&&p.role&&p.sourceUrl&&(p.email||p.phone||p.profile||p.social)&&!salesNorm(p.priority).includes("неактуал"))}
 function salesCompanyReadyContacts(id){return salesContactsForCompany(id).filter(salesContactIsReady)}
 function salesCompanyCompleteness(c){let n=0;if(c.website)n++;if(c.instagram||c.social)n++;if(c.signal)n++;if((Number(c.score)||0)>=12)n++;if(salesCompanyReadyContacts(c.id).length)n++;return n}
 function salesLink(url,label){if(!url)return "";const safe=escapeHtml(url);return '<a class="sales-company-link" href="'+safe+'" target="_blank" rel="noreferrer">'+label+' ↗</a>'}
@@ -931,7 +931,7 @@ function renderSalesContacts(){
     const initials=p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();
     card.innerHTML='<div class="sales-contact-top"><div class="sales-contact-avatar">'+escapeHtml(initials||"?")+'</div><button class="sales-icon-btn edit-contact">✎</button></div>'+
       '<h4>'+escapeHtml(p.name)+'</h4><div class="role">'+escapeHtml(p.role||"Должность не указана")+'</div><div class="company">'+escapeHtml(c?.name||"—")+'</div>'+
-      '<div class="sales-contact-badges"><span class="'+(salesContactIsReady(p)?"contact-ready":"contact-missing")+'">'+(salesContactIsReady(p)?"Готов к связи":"Нужно дополнить")+'</span><span>'+escapeHtml(p.priority==="primary"?"Основной ЛПР":p.priority==="influencer"?"Influencer":"Резерв")+'</span>'+(p.preferredChannel?'<span>'+escapeHtml(p.preferredChannel)+'</span>':"")+'</div>'+
+      '<div class="sales-contact-badges"><span class="'+(salesContactIsReady(p)?"contact-ready":"contact-missing")+'">'+(salesContactIsReady(p)?"Готов к связи":"Нужно дополнить")+'</span><span>'+escapeHtml(p.priority==="primary"?"Основной ЛПР":p.priority==="influencer"?"Influencer":p.priority==="inactive"?"Неактуален":"Резерв")+'</span>'+(p.preferredChannel?'<span>'+escapeHtml(p.preferredChannel)+'</span>':"")+'</div>'+
       '<p>'+escapeHtml(p.reason||"")+'</p><div class="sales-contact-links">'+
       (p.email?'<a href="mailto:'+escapeHtml(p.email)+'">Email</a>':"")+
       (p.profile?'<a href="'+escapeHtml(p.profile)+'" target="_blank" rel="noreferrer">Профиль ↗</a>':"")+
@@ -1098,7 +1098,7 @@ function mergeSalesResearchRows(table){
           const socialUrl=extractFirstUrl(r.phoneOrIg+" "+r.emailOrTg);
           const email=(r.emailOrTg.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||"";
           const profile=r.contactProfile||extractFirstUrl(r.comment)||socialUrl;
-          const priority=salesNorm(r.contactPriority).includes("основ")?"primary":salesNorm(r.contactPriority).includes("влият")||salesNorm(r.contactPriority).includes("influ")?"influencer":"backup";
+          const priority=salesNorm(r.contactPriority).includes("неактуал")?"inactive":salesNorm(r.contactPriority).includes("основ")?"primary":salesNorm(r.contactPriority).includes("влият")||salesNorm(r.contactPriority).includes("influ")?"influencer":"backup";
           salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile,social:!email?r.emailOrTg:r.phoneOrIg,priority,preferredChannel:r.preferredChannel||(email?"Email":socialUrl?"Social":""),sourceUrl:r.roleSource||profile||"",verified:(r.roleSource||profile||email)?"yes":"no",reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
           contactsAdded++;
         }
