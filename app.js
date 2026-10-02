@@ -780,6 +780,36 @@ function salesContactIsReady(p){return Boolean(p&&p.name&&p.role&&p.sourceUrl&&(
 function salesCompanyReadyContacts(id){return salesContactsForCompany(id).filter(salesContactIsReady)}
 function salesCompanyCompleteness(c){let n=0;if(c.website)n++;if(c.instagram||c.social)n++;if(c.signal)n++;if((Number(c.score)||0)>=12)n++;if(salesCompanyReadyContacts(c.id).length)n++;return n}
 function salesLink(url,label){if(!url)return "";const safe=escapeHtml(url);return '<a class="sales-company-link" href="'+safe+'" target="_blank" rel="noreferrer">'+label+' ↗</a>'}
+function salesIsEmployeeProfileUrl(url){
+  if(!url)return false;
+  try{
+    const h=new URL(url).hostname.replace(/^www\./,"").toLowerCase();
+    return /(^|\.)(linkedin\.com|instagram\.com|vk\.com|t\.me|telegram\.me|setka\.ru|behance\.net|hh\.ru)$/.test(h);
+  }catch{return false}
+}
+function salesIsNewsOrSourceUrl(url){
+  if(!url)return false;
+  try{
+    const h=new URL(url).hostname.replace(/^www\./,"").toLowerCase();
+    return /(adindex\.ru|sostav\.ru|eplus\.marketing|winners\.eplus\.marketing|retail-life\.ru|oborot\.ru|theblueprint\.ru|hse\.ru|medsi\.ru|nspk\.ru|companies\.rbc\.ru|rdt-info\.ru|rutube\.ru)/.test(h);
+  }catch{return false}
+}
+function migrateSalesContactLinks(){
+  let changed=false;
+  salesContacts.forEach(p=>{
+    if(p.profile && salesIsNewsOrSourceUrl(p.profile)){
+      if(!p.sourceUrl)p.sourceUrl=p.profile;
+      p.profile="";
+      changed=true;
+    }
+    if(p.profile && !salesIsEmployeeProfileUrl(p.profile) && p.sourceUrl===p.profile){
+      p.profile="";
+      changed=true;
+    }
+  });
+  if(changed)saveSales();
+}
+
 function salesLatestTouch(companyId){return salesTouches.filter(t=>t.companyId===companyId).sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0]}
 function salesStatusLabel(status){return salesStatusMeta[status]?.label||status||"Новый"}
 function saveSales(){
@@ -919,7 +949,7 @@ function renderSalesContacts(){
   const roleFilter=document.getElementById("salesContactRoleFilter")?.value||"all";
   const rows=salesContacts.filter(p=>{
     const c=salesCompanyById(p.companyId);
-    if(q&&!salesNorm([p.name,p.role,c?.name,p.email,p.social].join(" ")).includes(q))return false;
+    if(q&&!salesNorm([p.name,p.role,c?.name,p.email,p.phone,p.social,p.profile].join(" ")).includes(q))return false;
     if(roleFilter!=="all"&&p.roleGroup!==roleFilter)return false;
     return true;
   }).sort((a,b)=>(salesCompanyById(a.companyId)?.name||"").localeCompare(salesCompanyById(b.companyId)?.name||"","ru"));
@@ -929,14 +959,25 @@ function renderSalesContacts(){
     const c=salesCompanyById(p.companyId);
     const card=document.createElement("article");card.className="sales-contact-card";
     const initials=p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();
+    const employeeLinks=[
+      p.email?'<a class="employee-email" href="mailto:'+escapeHtml(p.email)+'">✉ '+escapeHtml(p.email)+'</a>':"",
+      p.phone?'<a href="tel:'+escapeHtml(p.phone.replace(/\s+/g,""))+'">☎ '+escapeHtml(p.phone)+'</a>':"",
+      (p.profile&&salesIsEmployeeProfileUrl(p.profile))?'<a href="'+escapeHtml(p.profile)+'" target="_blank" rel="noreferrer">Профиль сотрудника ↗</a>':"",
+      (p.social&&/^https?:\/\//.test(p.social))?'<a href="'+escapeHtml(p.social)+'" target="_blank" rel="noreferrer">Соцсеть сотрудника ↗</a>':p.social?'<span class="sales-contact-handle">'+escapeHtml(p.social)+'</span>':""
+    ].join("");
+    const companyLinks=[
+      c?.website?'<a href="'+escapeHtml(c.website)+'" target="_blank" rel="noreferrer">Сайт компании ↗</a>':"",
+      c?.instagram?'<a href="'+escapeHtml(c.instagram)+'" target="_blank" rel="noreferrer">Instagram компании ↗</a>':"",
+      (c?.social&&c.social!==c.instagram)?'<a href="'+escapeHtml(c.social)+'" target="_blank" rel="noreferrer">Соцсеть компании ↗</a>':""
+    ].join("");
     card.innerHTML='<div class="sales-contact-top"><div class="sales-contact-avatar">'+escapeHtml(initials||"?")+'</div><button class="sales-icon-btn edit-contact">✎</button></div>'+
       '<h4>'+escapeHtml(p.name)+'</h4><div class="role">'+escapeHtml(p.role||"Должность не указана")+'</div><div class="company">'+escapeHtml(c?.name||"—")+'</div>'+
       '<div class="sales-contact-badges"><span class="'+(salesContactIsReady(p)?"contact-ready":"contact-missing")+'">'+(salesContactIsReady(p)?"Готов к связи":"Нужно дополнить")+'</span><span>'+escapeHtml(p.priority==="primary"?"Основной ЛПР":p.priority==="influencer"?"Influencer":p.priority==="inactive"?"Неактуален":"Резерв")+'</span>'+(p.preferredChannel?'<span>'+escapeHtml(p.preferredChannel)+'</span>':"")+'</div>'+
-      '<p>'+escapeHtml(p.reason||"")+'</p><div class="sales-contact-links">'+
-      (p.email?'<a href="mailto:'+escapeHtml(p.email)+'">Email</a>':"")+
-      (p.profile?'<a href="'+escapeHtml(p.profile)+'" target="_blank" rel="noreferrer">Профиль ↗</a>':"")+
-      (p.sourceUrl?'<a href="'+escapeHtml(p.sourceUrl)+'" target="_blank" rel="noreferrer">Источник ↗</a>':"")+
-      (p.social&&/^https?:\/\//.test(p.social)?'<a href="'+escapeHtml(p.social)+'" target="_blank" rel="noreferrer">Social ↗</a>':p.social?'<button type="button" title="'+escapeHtml(p.social)+'">Social</button>':"")+
+      '<div class="sales-contact-section"><small>КОНТАКТЫ СОТРУДНИКА</small><div class="sales-contact-links">'+(employeeLinks||'<span class="sales-contact-missing-copy">Прямой контакт пока не найден</span>')+'</div></div>'+
+      '<div class="sales-contact-section company-section"><small>КОМПАНИЯ</small><div class="sales-contact-links">'+(companyLinks||'<span class="sales-contact-missing-copy">Сайт/соцсети компании нужно заполнить</span>')+'</div></div>'+
+      (p.reason?'<p>'+escapeHtml(p.reason||"")+'</p>':"")+
+      '<div class="sales-contact-footer">'+
+      (p.sourceUrl?'<a class="sales-source-proof" href="'+escapeHtml(p.sourceUrl)+'" target="_blank" rel="noreferrer">Подтверждение должности ↗</a>':"")+
       '<button type="button" class="contact-touch">+ касание</button></div>';
     card.querySelector(".edit-contact").addEventListener("click",()=>openSalesContact(p.id));
     card.querySelector(".contact-touch").addEventListener("click",()=>openSalesTouch(p.companyId,p.id));
@@ -946,16 +987,31 @@ function renderSalesContacts(){
 function renderSalesPipeline(){
   const host=document.getElementById("salesPipelineBoard");if(!host)return;
   host.innerHTML="";
+  const dropStatus={lead:"new",contact:"ready",outreach:"contacted",reply:"reply",meeting:"meeting",proposal:"proposal",won:"won"};
   salesPipelineStages.forEach(stage=>{
     const companies=salesCompanies.filter(c=>salesStatusMeta[c.status]?.stage===stage.key);
-    const col=document.createElement("div");col.className="sales-pipeline-column";
-    col.innerHTML='<div class="sales-pipeline-column-head">'+stage.label+' <span>'+companies.length+'</span></div><div class="sales-pipeline-cards"></div>';
+    const col=document.createElement("div");col.className="sales-pipeline-column";col.dataset.stage=stage.key;
+    col.innerHTML='<div class="sales-pipeline-column-head">'+stage.label+' <span>'+companies.length+'</span></div><div class="sales-pipeline-cards" data-stage="'+stage.key+'"></div>';
     const list=col.querySelector(".sales-pipeline-cards");
+    list.addEventListener("dragover",e=>{e.preventDefault();col.classList.add("drag-over")});
+    list.addEventListener("dragleave",e=>{if(!col.contains(e.relatedTarget))col.classList.remove("drag-over")});
+    list.addEventListener("drop",e=>{
+      e.preventDefault();col.classList.remove("drag-over");
+      const companyId=e.dataTransfer.getData("text/onvisual-company")||e.dataTransfer.getData("text/plain");
+      const company=salesCompanyById(companyId);if(!company)return;
+      const newStatus=dropStatus[stage.key];if(!newStatus)return;
+      company.status=newStatus;
+      if(newStatus==="contacted"&&!company.nextAction)company.nextAction="Follow-up";
+      saveSales();renderSales();
+    });
     companies.sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).forEach(c=>{
-      const card=document.createElement("article");card.className="sales-pipeline-card";
+      const card=document.createElement("article");card.className="sales-pipeline-card";card.draggable=true;card.dataset.companyId=c.id;
       const next=c.nextDate?(" · "+salesDateLabel(c.nextDate)):"";
-      card.innerHTML='<strong>'+escapeHtml(c.name)+'</strong><small>'+salesStatusLabel(c.status)+next+'</small><div class="pipeline-score">'+(c.score||"—")+'/20 · '+salesContactsForCompany(c.id).length+' контактов</div>';
-      card.addEventListener("click",()=>openSalesCompany(c.id));list.appendChild(card);
+      card.innerHTML='<div class="pipeline-drag-handle" title="Перетащить">⋮⋮</div><strong>'+escapeHtml(c.name)+'</strong><small>'+salesStatusLabel(c.status)+next+'</small><div class="pipeline-score">'+(c.score||"—")+'/20 · '+salesContactsForCompany(c.id).length+' контактов</div>';
+      card.addEventListener("dragstart",e=>{card.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/onvisual-company",c.id);e.dataTransfer.setData("text/plain",c.id)});
+      card.addEventListener("dragend",()=>{card.classList.remove("dragging");document.querySelectorAll(".sales-pipeline-column").forEach(x=>x.classList.remove("drag-over"))});
+      card.addEventListener("click",e=>{if(card.classList.contains("dragging"))return;openSalesCompany(c.id)});
+      list.appendChild(card);
     });
     host.appendChild(col);
   });
@@ -1097,9 +1153,9 @@ function mergeSalesResearchRows(table){
         if(!exists){
           const socialUrl=extractFirstUrl(r.phoneOrIg+" "+r.emailOrTg);
           const email=(r.emailOrTg.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||"";
-          const profile=r.contactProfile||extractFirstUrl(r.comment)||socialUrl;
+          const profile=r.contactProfile||(socialUrl&&salesIsEmployeeProfileUrl(socialUrl)?socialUrl:"");
           const priority=salesNorm(r.contactPriority).includes("неактуал")?"inactive":salesNorm(r.contactPriority).includes("основ")?"primary":salesNorm(r.contactPriority).includes("влият")||salesNorm(r.contactPriority).includes("influ")?"influencer":"backup";
-          salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile,social:!email?r.emailOrTg:r.phoneOrIg,priority,preferredChannel:r.preferredChannel||(email?"Email":socialUrl?"Social":""),sourceUrl:r.roleSource||profile||"",verified:(r.roleSource||profile||email)?"yes":"no",reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
+          salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile,social:!email?r.emailOrTg:r.phoneOrIg,priority,preferredChannel:r.preferredChannel||(email?"Email":socialUrl?"Social":""),sourceUrl:r.roleSource||extractFirstUrl(r.comment)||profile||"",verified:(r.roleSource||profile||email)?"yes":"no",reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
           contactsAdded++;
         }
       }
@@ -1128,5 +1184,6 @@ function syncSalesResearch(){
   document.head.appendChild(script);
 }
 document.getElementById("salesSyncBtn")?.addEventListener("click",syncSalesResearch);
+migrateSalesContactLinks();
 renderSales();
 setTimeout(syncSalesResearch,800);
