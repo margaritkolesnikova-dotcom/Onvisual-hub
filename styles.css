@@ -2198,3 +2198,23 @@ html{scroll-behavior:smooth}
 .sales-completeness{display:inline-flex;margin-top:6px;padding:3px 6px;border-radius:999px;background:rgba(255,184,93,.08);color:#d7a964;font-size:9px;font-weight:850}.sales-completeness.ready{background:rgba(109,240,181,.1);color:#7eebba}
 .sales-contact-badges{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0 1px}.sales-contact-badges span{padding:4px 6px;border-radius:999px;background:#161e29;color:#8190a4;font-size:9px;font-weight:850}.sales-contact-badges .contact-ready{background:rgba(109,240,181,.11);color:#88efc0}.sales-contact-badges .contact-missing{background:rgba(255,146,96,.1);color:#f2a47e}
 .sales-table td:nth-child(3){min-width:150px}.sales-table td:nth-child(5){min-width:180px}
+
+/* SALES CRM contact clarity + drag/drop pipeline */
+.sales-contact-card{min-height:320px}
+.sales-contact-section{margin-top:12px;padding:10px;border:1px solid rgba(255,255,255,.055);border-radius:11px;background:rgba(255,255,255,.018)}
+.sales-contact-section.company-section{background:rgba(88,155,255,.025)}
+.sales-contact-section>small{display:block;margin-bottom:7px;color:#677488;font-size:9px;font-weight:900;letter-spacing:.12em}
+.sales-contact-links{align-items:center}
+.sales-contact-links .employee-email{color:#9df0c7}
+.sales-contact-handle,.sales-contact-missing-copy{font-size:10px;color:#8390a3}
+.sales-contact-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+.sales-source-proof{color:#6f7d91;text-decoration:none;font-size:9px}
+.sales-source-proof:hover{color:#a8b6c9}
+.sales-contact-footer .contact-touch{border:1px solid rgba(109,240,181,.14);background:rgba(109,240,181,.05);color:#8ceabd;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
+.sales-pipeline-board{grid-template-columns:repeat(7,minmax(220px,1fr))}
+.sales-pipeline-card{position:relative;cursor:grab;user-select:none;padding-left:29px;transition:transform .15s ease,opacity .15s ease,border-color .15s ease}
+.sales-pipeline-card:active{cursor:grabbing}
+.sales-pipeline-card.dragging{opacity:.42;transform:scale(.98)}
+.pipeline-drag-handle{position:absolute;left:9px;top:11px;color:#536174;font-size:12px;letter-spacing:-2px;cursor:grab}
+.sales-pipeline-column.drag-over{border-color:rgba(109,240,181,.45);background:rgba(109,240,181,.035);box-shadow:inset 0 0 0 1px rgba(109,240,181,.08)}
+.sales-pipeline-column.drag-over .sales-pipeline-cards{min-height:360px}
