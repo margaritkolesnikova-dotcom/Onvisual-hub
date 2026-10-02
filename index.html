@@ -224,7 +224,7 @@
           </div>
           <div class="sales-table-wrap">
             <table class="sales-table">
-              <thead><tr><th>Компания</th><th>Score</th><th>Сигнал / контекст</th><th>Контакты</th><th>Статус</th><th>Следующее действие</th><th></th></tr></thead>
+              <thead><tr><th>Компания</th><th>Score</th><th>Сайт / соцсети</th><th>Сигнал / контекст</th><th>Контакты сотрудников</th><th>Статус</th><th>Следующее действие</th><th></th></tr></thead>
               <tbody id="salesCompaniesBody"></tbody>
             </table>
           </div>
@@ -242,7 +242,7 @@
               <option value="other">Другое</option>
             </select>
           </div>
-          <div id="salesContactsGrid" class="sales-contacts-grid"></div>
+          <div class="sales-rule-note"><b>Контакт считается рабочим для outreach, если:</b> есть конкретное ФИО + актуальная должность + подтверждающий источник + хотя бы один реальный канал связи или публичный профиль.</div><div id="salesContactsGrid" class="sales-contacts-grid"></div>
         </section>
 
         <section class="sales-view" data-sales-pane="pipeline">
@@ -278,6 +278,9 @@
               <label>Компания<input name="name" required /></label>
               <label>Сегмент<input name="segment" placeholder="Fashion / FMCG / Retail…" /></label>
               <label>Score (0–20)<input name="score" type="number" min="0" max="20" /></label>
+              <label>Сайт<input name="website" type="url" placeholder="https://brand.ru" /></label>
+              <label>Instagram<input name="instagram" placeholder="https://instagram.com/..." /></label>
+              <label>Telegram / VK / другая соцсеть<input name="social" placeholder="https://t.me/... / https://vk.com/..." /></label>
               <label>Статус<select name="status"><option value="new">Новый</option><option value="researched">Исследован</option><option value="contacts">Контакты найдены</option><option value="ready">Готов к касанию</option><option value="contacted">1 касание</option><option value="followup">Follow-up</option><option value="reply">Ответ</option><option value="dialog">Диалог</option><option value="meeting">Встреча</option><option value="brief">Бриф</option><option value="proposal">КП</option><option value="won">WON</option><option value="lost">LOST</option></select></label>
               <label class="wide">Сигнал / почему сейчас<textarea name="signal" rows="3"></textarea></label>
               <label>Следующее действие<input name="nextAction" placeholder="Написать / follow-up / отправить кейс…" /></label>
@@ -300,6 +303,10 @@
               <label>Телефон<input name="phone" /></label>
               <label>LinkedIn / профиль<input name="profile" type="url" /></label>
               <label>Telegram / Instagram<input name="social" /></label>
+              <label>Приоритет<select name="priority"><option value="primary">Основной ЛПР</option><option value="influencer">Влиятельный контакт</option><option value="backup">Резерв</option></select></label>
+              <label>Лучший канал<select name="preferredChannel"><option value="">Не определён</option><option>Email</option><option>Telegram</option><option>Instagram</option><option>LinkedIn</option><option>Телефон</option></select></label>
+              <label>Источник подтверждения<input name="sourceUrl" type="url" placeholder="Ссылка на профиль / публикацию" /></label>
+              <label>Контакт проверен<select name="verified"><option value="yes">Да</option><option value="no">Нет</option></select></label>
               <label class="wide">Почему это точка входа<textarea name="reason" rows="2"></textarea></label>
             </div>
             <div class="sales-modal-actions"><button type="button" class="sales-secondary" data-sales-close="salesContactModal">Отмена</button><button class="sales-primary" value="save">Сохранить</button></div>
