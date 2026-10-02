@@ -1068,21 +1068,24 @@ function mergeSalesResearchRows(table){
     const v=i=>String(gvizCell(row,i)||"").trim();
     const name=v(1);if(!name)return null;
     const personRaw=v(2),phoneOrIg=v(3),emailOrTg=v(4),direction=v(5),position=v(6),owner=v(7),comment=v(8);
+    const website=v(16),companySocial=v(17),contactProfile=v(18),roleSource=v(19),contactPriority=v(20),preferredChannel=v(21);
     const scores=[11,12,13,14].map(i=>Number(String(gvizCell(row,i)||"").replace(",", "."))||0);
     const total=Number(String(gvizCell(row,15)||"").replace(",", "."))||scores.reduce((a,b)=>a+b,0);
-    return {row:idx+2,name,personRaw,phoneOrIg,emailOrTg,direction,position,owner,comment,scores,total};
+    return {row:idx+2,name,personRaw,phoneOrIg,emailOrTg,direction,position,owner,comment,website,companySocial,contactProfile,roleSource,contactPriority,preferredChannel,scores,total};
   }).filter(Boolean);
   let companiesAdded=0,contactsAdded=0;
   rows.forEach(r=>{
     const key=salesNorm(r.name);
     let company=salesCompanies.find(c=>salesNorm(c.name)===key);
     if(!company){
-      company={id:"co-sheet-"+r.row,name:r.name,segment:r.direction||"",score:r.total||0,status:r.personRaw?"contacts":"researched",website:"",instagram:"",social:"",signal:r.comment||"",offer:"",nextAction:"",nextDate:"",source:"sheet",sourceRow:r.row,createdAt:new Date().toISOString()};
+      company={id:"co-sheet-"+r.row,name:r.name,segment:r.direction||"",score:r.total||0,status:r.personRaw?"contacts":"researched",website:r.website||"",instagram:(/instagram\.com/i.test(r.companySocial)?r.companySocial:""),social:r.companySocial||"",signal:r.comment||"",offer:"",nextAction:"",nextDate:"",source:"sheet",sourceRow:r.row,createdAt:new Date().toISOString()};
       salesCompanies.push(company);companiesAdded++;
     }else if(company.source==="sheet"||!company.source){
       company.score=r.total||company.score||0;
       if(r.direction)company.segment=r.direction;
       if(r.comment)company.signal=r.comment;
+      if(r.website)company.website=r.website;
+      if(r.companySocial){company.social=r.companySocial;if(/instagram\.com/i.test(r.companySocial))company.instagram=r.companySocial;}
       company.source="sheet";company.sourceRow=r.row;
     }
     if(r.personRaw){
@@ -1094,8 +1097,9 @@ function mergeSalesResearchRows(table){
         if(!exists){
           const socialUrl=extractFirstUrl(r.phoneOrIg+" "+r.emailOrTg);
           const email=(r.emailOrTg.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||"";
-          const profile=extractFirstUrl(r.comment);
-          salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile:profile||socialUrl,social:!email?r.emailOrTg:r.phoneOrIg,priority:"backup",preferredChannel:email?"Email":socialUrl?"Social":"",sourceUrl:profile||socialUrl||"",verified:(profile||socialUrl||email)?"yes":"no",reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
+          const profile=r.contactProfile||extractFirstUrl(r.comment)||socialUrl;
+          const priority=salesNorm(r.contactPriority).includes("основ")?"primary":salesNorm(r.contactPriority).includes("влият")||salesNorm(r.contactPriority).includes("influ")?"influencer":"backup";
+          salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile,social:!email?r.emailOrTg:r.phoneOrIg,priority,preferredChannel:r.preferredChannel||email?"Email":socialUrl?"Social":"",sourceUrl:r.roleSource||profile||"",verified:(r.roleSource||profile||email)?"yes":"no",reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
           contactsAdded++;
         }
       }
