@@ -723,3 +723,396 @@ function syncProductionFromSheet(){
 
 syncProductionFromSheet();
 setInterval(syncProductionFromSheet,PROD_SYNC_MS);
+
+
+// ==========================================
+// ONVISUAL SALES CRM
+// Research DB + contacts + touches + follow-ups
+// ==========================================
+const SALES_COMPANIES_KEY="onvisualSalesCompaniesV2";
+const SALES_CONTACTS_KEY="onvisualSalesContactsV2";
+const SALES_TOUCHES_KEY="onvisualSalesTouchesV2";
+const SALES_SOURCE_SHEET_ID="1_MAbTWCWxirEF_5gBAnbCjh-kIo92D_beZZFp9X1hIY";
+const SALES_SOURCE_SHEET="Контакты компаний ";
+let salesCompanies=readStore(SALES_COMPANIES_KEY);
+let salesContacts=readStore(SALES_CONTACTS_KEY);
+let salesTouches=readStore(SALES_TOUCHES_KEY);
+let editingSalesCompanyId=null;
+let editingSalesContactId=null;
+
+const salesStatusMeta={
+  new:{label:"Новый",stage:"lead"},
+  researched:{label:"Исследован",stage:"lead"},
+  contacts:{label:"Контакты найдены",stage:"contact"},
+  ready:{label:"Готов к касанию",stage:"contact"},
+  contacted:{label:"1 касание",stage:"outreach"},
+  followup:{label:"Follow-up",stage:"outreach"},
+  reply:{label:"Ответ",stage:"reply"},
+  dialog:{label:"Диалог",stage:"reply"},
+  meeting:{label:"Встреча",stage:"meeting"},
+  brief:{label:"Бриф",stage:"meeting"},
+  proposal:{label:"КП",stage:"proposal"},
+  won:{label:"WON",stage:"won"},
+  lost:{label:"LOST",stage:"lost"}
+};
+const salesPipelineStages=[
+  {key:"lead",label:"Новые"},
+  {key:"contact",label:"Контакты"},
+  {key:"outreach",label:"Касание"},
+  {key:"reply",label:"Ответ / диалог"},
+  {key:"meeting",label:"Встреча / бриф"},
+  {key:"proposal",label:"КП"},
+  {key:"won",label:"WON"}
+];
+
+function salesNorm(value){return String(value||"").trim().toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ")}
+function salesDateLabel(value){
+  if(!value)return "—";
+  const d=new Date(value+"T12:00:00");
+  if(isNaN(d))return value;
+  return new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"short"}).format(d);
+}
+function salesTodayIso(){return new Date().toISOString().slice(0,10)}
+function salesCompanyById(id){return salesCompanies.find(c=>c.id===id)}
+function salesContactById(id){return salesContacts.find(c=>c.id===id)}
+function salesContactsForCompany(id){return salesContacts.filter(c=>c.companyId===id)}
+function salesLatestTouch(companyId){return salesTouches.filter(t=>t.companyId===companyId).sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0]}
+function salesStatusLabel(status){return salesStatusMeta[status]?.label||status||"Новый"}
+function saveSales(){
+  writeStore(SALES_COMPANIES_KEY,salesCompanies);
+  writeStore(SALES_CONTACTS_KEY,salesContacts);
+  writeStore(SALES_TOUCHES_KEY,salesTouches);
+}
+function extractFirstUrl(value){
+  const m=String(value||"").match(/https?:\/\/[^\s)\]}>,;]+/i);
+  return m?m[0]:"";
+}
+function splitContactField(value){
+  const s=String(value||"").trim();
+  if(!s)return {name:"",role:""};
+  const separators=[" — "," – "," - "," / "," | "];
+  for(const sep of separators){
+    if(s.includes(sep)){
+      const [a,...rest]=s.split(sep);
+      return {name:a.trim(),role:rest.join(sep).trim()};
+    }
+  }
+  return {name:s,role:""};
+}
+function guessRoleGroup(role){
+  const r=salesNorm(role);
+  if(/creative|креатив|art director|арт.директор/.test(r))return "creative";
+  if(/brand|бренд/.test(r))return "brand";
+  if(/production|producer|продюсер|продакш/.test(r))return "production";
+  if(/marketing|маркет|cmo|digital|smm|content/.test(r))return "marketing";
+  return "other";
+}
+function nextStatusFromTouch(result){
+  return ({reply:"reply",meeting:"meeting",brief:"brief",proposal:"proposal",sent:"contacted",no_reply:"followup"})[result]||null;
+}
+
+function renderSales(){
+  if(!document.querySelector('[data-pane="salesstudio"]'))return;
+  renderSalesKpis();
+  renderSalesDashboard();
+  renderSalesCompanies();
+  renderSalesContacts();
+  renderSalesPipeline();
+  renderSalesTouches();
+  renderSalesFollowups();
+  refreshSalesCompanySelects();
+}
+function renderSalesKpis(){
+  const active=salesCompanies.filter(c=>c.status!=="lost");
+  const replies=active.filter(c=>["reply","dialog"].includes(c.status)).length;
+  const meetings=active.filter(c=>["meeting","brief","proposal"].includes(c.status)).length;
+  const won=active.filter(c=>c.status==="won").length;
+  const today=salesTodayIso();
+  const actions=active.filter(c=>c.nextDate && c.nextDate<=today).length;
+  const values={salesKpiCompanies:active.length,salesKpiContacts:salesContacts.length,salesKpiActions:actions,salesKpiReplies:replies,salesKpiMeetings:meetings,salesKpiWon:won};
+  Object.entries(values).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.textContent=String(val)});
+  const badge=document.getElementById("salesActionBadge");if(badge)badge.textContent=String(actions);
+  const summary=document.getElementById("salesTodaySummary");
+  if(summary)summary.textContent=actions?("Сегодня / просрочено: "+actions+" действий"):"Сегодня действий нет";
+}
+function renderSalesDashboard(){
+  const actionHost=document.getElementById("salesActionList");
+  const priorityHost=document.getElementById("salesPriorityCompanies");
+  const recentHost=document.getElementById("salesRecentTouches");
+  const funnelHost=document.getElementById("salesMiniFunnel");
+  if(!actionHost)return;
+  const today=salesTodayIso();
+  const actions=salesCompanies.filter(c=>c.status!=="lost"&&c.status!=="won"&&c.nextDate&&c.nextDate<=today).sort((a,b)=>a.nextDate.localeCompare(b.nextDate));
+  actionHost.innerHTML=actions.length?"":'<div class="sales-empty">На сегодня обязательных действий нет.</div>';
+  actions.slice(0,8).forEach(c=>{
+    const row=document.createElement("article");row.className="sales-action-card";
+    const overdue=c.nextDate<today;
+    row.innerHTML='<div><strong>'+escapeHtml(c.name)+'</strong><small>'+escapeHtml(c.nextAction||"Следующее действие не указано")+' · '+salesStatusLabel(c.status)+'</small></div><div class="due '+(!overdue?"today":"")+'">'+(overdue?"Просрочено · ":"Сегодня · ")+salesDateLabel(c.nextDate)+'</div>';
+    row.addEventListener("click",()=>openSalesCompany(c.id));actionHost.appendChild(row);
+  });
+  const priority=[...salesCompanies].filter(c=>c.status!=="lost").sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).slice(0,7);
+  priorityHost.innerHTML=priority.length?"":'<div class="sales-empty">После синхронизации здесь появятся приоритетные компании.</div>';
+  priority.forEach(c=>{
+    const row=document.createElement("article");row.className="sales-company-row";
+    row.innerHTML='<div><strong>'+escapeHtml(c.name)+'</strong><small>'+escapeHtml((c.signal||"Нет сигнала").slice(0,110))+'</small></div><span class="sales-status-pill '+c.status+'">'+salesStatusLabel(c.status)+'</span><span class="sales-score '+((Number(c.score)||0)>=16?"hot":"")+'">'+(c.score||"—")+'/20</span>';
+    row.addEventListener("click",()=>openSalesCompany(c.id));priorityHost.appendChild(row);
+  });
+  const recent=[...salesTouches].sort((a,b)=>((b.date||"")+" "+(b.createdAt||"")).localeCompare((a.date||"")+" "+(a.createdAt||""))).slice(0,7);
+  recentHost.innerHTML=recent.length?"":'<div class="sales-empty">Касания ещё не зафиксированы.</div>';
+  recent.forEach(t=>{
+    const c=salesCompanyById(t.companyId),p=salesContactById(t.contactId);
+    const row=document.createElement("article");row.className="sales-touch-row";
+    row.innerHTML='<div><strong>'+escapeHtml(c?.name||"Компания")+'</strong><small>'+escapeHtml(t.channel||"Касание")+(p?" · "+escapeHtml(p.name):"")+' · '+salesDateLabel(t.date)+'</small></div>';
+    recentHost.appendChild(row);
+  });
+  funnelHost.innerHTML="";
+  const max=Math.max(1,...salesPipelineStages.map(s=>salesCompanies.filter(c=>salesStatusMeta[c.status]?.stage===s.key).length));
+  salesPipelineStages.forEach(s=>{
+    const count=salesCompanies.filter(c=>salesStatusMeta[c.status]?.stage===s.key).length;
+    const row=document.createElement("div");row.className="sales-mini-stage";
+    row.innerHTML='<span>'+s.label+'</span><strong>'+count+'</strong><div class="sales-mini-bar"><i style="width:'+Math.round(count/max*100)+'%"></i></div>';
+    funnelHost.appendChild(row);
+  });
+}
+function renderSalesCompanies(){
+  const host=document.getElementById("salesCompaniesBody");if(!host)return;
+  const q=salesNorm(document.getElementById("salesCompanySearch")?.value);
+  const status=document.getElementById("salesCompanyStatusFilter")?.value||"all";
+  const priority=document.getElementById("salesCompanyPriorityFilter")?.value||"all";
+  const rows=salesCompanies.filter(c=>{
+    if(q&&!salesNorm([c.name,c.segment,c.signal,c.offer].join(" ")).includes(q))return false;
+    if(status!=="all"&&c.status!==status)return false;
+    const score=Number(c.score)||0;
+    if(priority==="hot"&&score<16)return false;
+    if(priority==="qualified"&&(score<12||score>=16))return false;
+    return true;
+  }).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0));
+  host.innerHTML="";
+  if(!rows.length){host.innerHTML='<tr><td colspan="7"><div class="sales-empty">Компании не найдены.</div></td></tr>';return}
+  rows.forEach(c=>{
+    const contacts=salesContactsForCompany(c.id);
+    const tr=document.createElement("tr");
+    tr.innerHTML='<td><div class="company-name">'+escapeHtml(c.name)+'</div><small>'+escapeHtml(c.segment||"")+'</small></td>'+
+      '<td><span class="sales-score '+((Number(c.score)||0)>=16?"hot":"")+'">'+(c.score||"—")+'/20</span></td>'+
+      '<td class="signal-copy">'+escapeHtml(c.signal||"—")+'</td>'+
+      '<td>'+contacts.length+(contacts.length?'<small>'+escapeHtml(contacts.slice(0,2).map(x=>x.name).join(", "))+'</small>':"")+'</td>'+
+      '<td><select class="sales-status-select">'+Object.entries(salesStatusMeta).map(([key,val])=>'<option value="'+key+'" '+(c.status===key?"selected":"")+'>'+val.label+'</option>').join("")+'</select></td>'+
+      '<td><b>'+escapeHtml(c.nextAction||"—")+'</b><small>'+salesDateLabel(c.nextDate)+'</small></td>'+
+      '<td><div class="sales-row-actions"><button class="sales-icon-btn edit-company" title="Редактировать">✎</button><button class="sales-icon-btn add-touch" title="Касание">↗</button></div></td>';
+    tr.querySelector(".sales-status-select").addEventListener("change",e=>{c.status=e.target.value;saveSales();renderSales()});
+    tr.querySelector(".edit-company").addEventListener("click",()=>openSalesCompany(c.id));
+    tr.querySelector(".add-touch").addEventListener("click",()=>openSalesTouch(c.id));
+    host.appendChild(tr);
+  });
+}
+function renderSalesContacts(){
+  const host=document.getElementById("salesContactsGrid");if(!host)return;
+  const q=salesNorm(document.getElementById("salesContactSearch")?.value);
+  const roleFilter=document.getElementById("salesContactRoleFilter")?.value||"all";
+  const rows=salesContacts.filter(p=>{
+    const c=salesCompanyById(p.companyId);
+    if(q&&!salesNorm([p.name,p.role,c?.name,p.email,p.social].join(" ")).includes(q))return false;
+    if(roleFilter!=="all"&&p.roleGroup!==roleFilter)return false;
+    return true;
+  }).sort((a,b)=>(salesCompanyById(a.companyId)?.name||"").localeCompare(salesCompanyById(b.companyId)?.name||"","ru"));
+  host.innerHTML="";
+  if(!rows.length){host.innerHTML='<div class="sales-empty">Конкретных контактов пока нет. Добавь их вручную или синхронизируй research database.</div>';return}
+  rows.forEach(p=>{
+    const c=salesCompanyById(p.companyId);
+    const card=document.createElement("article");card.className="sales-contact-card";
+    const initials=p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();
+    card.innerHTML='<div class="sales-contact-top"><div class="sales-contact-avatar">'+escapeHtml(initials||"?")+'</div><button class="sales-icon-btn edit-contact">✎</button></div>'+
+      '<h4>'+escapeHtml(p.name)+'</h4><div class="role">'+escapeHtml(p.role||"Должность не указана")+'</div><div class="company">'+escapeHtml(c?.name||"—")+'</div>'+
+      '<p>'+escapeHtml(p.reason||"")+'</p><div class="sales-contact-links">'+
+      (p.email?'<a href="mailto:'+escapeHtml(p.email)+'">Email</a>':"")+
+      (p.profile?'<a href="'+escapeHtml(p.profile)+'" target="_blank" rel="noreferrer">Профиль ↗</a>':"")+
+      (p.social&&/^https?:\/\//.test(p.social)?'<a href="'+escapeHtml(p.social)+'" target="_blank" rel="noreferrer">Social ↗</a>':p.social?'<button type="button" title="'+escapeHtml(p.social)+'">Social</button>':"")+
+      '<button type="button" class="contact-touch">+ касание</button></div>';
+    card.querySelector(".edit-contact").addEventListener("click",()=>openSalesContact(p.id));
+    card.querySelector(".contact-touch").addEventListener("click",()=>openSalesTouch(p.companyId,p.id));
+    host.appendChild(card);
+  });
+}
+function renderSalesPipeline(){
+  const host=document.getElementById("salesPipelineBoard");if(!host)return;
+  host.innerHTML="";
+  salesPipelineStages.forEach(stage=>{
+    const companies=salesCompanies.filter(c=>salesStatusMeta[c.status]?.stage===stage.key);
+    const col=document.createElement("div");col.className="sales-pipeline-column";
+    col.innerHTML='<div class="sales-pipeline-column-head">'+stage.label+' <span>'+companies.length+'</span></div><div class="sales-pipeline-cards"></div>';
+    const list=col.querySelector(".sales-pipeline-cards");
+    companies.sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).forEach(c=>{
+      const card=document.createElement("article");card.className="sales-pipeline-card";
+      const next=c.nextDate?(" · "+salesDateLabel(c.nextDate)):"";
+      card.innerHTML='<strong>'+escapeHtml(c.name)+'</strong><small>'+salesStatusLabel(c.status)+next+'</small><div class="pipeline-score">'+(c.score||"—")+'/20 · '+salesContactsForCompany(c.id).length+' контактов</div>';
+      card.addEventListener("click",()=>openSalesCompany(c.id));list.appendChild(card);
+    });
+    host.appendChild(col);
+  });
+}
+function renderSalesTouches(){
+  const host=document.getElementById("salesTouchesTimeline");if(!host)return;
+  const rows=[...salesTouches].sort((a,b)=>((b.date||"")+" "+(b.createdAt||"")).localeCompare((a.date||"")+" "+(a.createdAt||"")));
+  host.innerHTML="";
+  if(!rows.length){host.innerHTML='<div class="sales-empty">Пока нет касаний. Фиксируй каждое письмо, DM, звонок и встречу — это история отношений с брендом.</div>';return}
+  rows.forEach(t=>{
+    const c=salesCompanyById(t.companyId),p=salesContactById(t.contactId);
+    const row=document.createElement("article");row.className="sales-touch-entry";
+    row.innerHTML='<div class="sales-touch-date">'+salesDateLabel(t.date)+'</div><div class="sales-touch-channel">'+escapeHtml((t.channel||"").slice(0,4))+'</div><div><h4>'+escapeHtml(c?.name||"Компания")+(p?" · "+escapeHtml(p.name):"")+'</h4><p>'+escapeHtml(t.note||"")+'</p>'+(t.nextAction?'<div class="next">Следующее: '+escapeHtml(t.nextAction)+(t.nextDate?" · "+salesDateLabel(t.nextDate):"")+'</div>':"")+'</div><span class="sales-status-pill">'+escapeHtml(t.result||"")+'</span>';
+    host.appendChild(row);
+  });
+}
+function renderSalesFollowups(){
+  const today=salesTodayIso();
+  const rows=salesCompanies.filter(c=>c.status!=="lost"&&c.status!=="won"&&c.nextDate).sort((a,b)=>a.nextDate.localeCompare(b.nextDate));
+  const groups={overdue:rows.filter(c=>c.nextDate<today),today:rows.filter(c=>c.nextDate===today),upcoming:rows.filter(c=>c.nextDate>today)};
+  const mapping={overdue:["salesFollowupOverdue","salesFollowupOverdueCount"],today:["salesFollowupToday","salesFollowupTodayCount"],upcoming:["salesFollowupUpcoming","salesFollowupUpcomingCount"]};
+  Object.entries(groups).forEach(([key,list])=>{
+    const [hostId,countId]=mapping[key],host=document.getElementById(hostId),count=document.getElementById(countId);
+    if(count)count.textContent=String(list.length);if(!host)return;host.innerHTML="";
+    if(!list.length){host.innerHTML='<div class="sales-empty">Пусто</div>';return}
+    list.forEach(c=>{
+      const card=document.createElement("article");card.className="sales-followup-card";
+      card.innerHTML='<strong>'+escapeHtml(c.name)+'</strong><small>'+salesStatusLabel(c.status)+' · '+salesDateLabel(c.nextDate)+'</small><p>'+escapeHtml(c.nextAction||"Следующее действие")+'</p>';
+      card.addEventListener("click",()=>openSalesCompany(c.id));host.appendChild(card);
+    });
+  });
+}
+function refreshSalesCompanySelects(){
+  const options=salesCompanies.slice().sort((a,b)=>a.name.localeCompare(b.name,"ru")).map(c=>'<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>').join("");
+  ["salesContactCompanySelect","salesTouchCompanySelect"].forEach(id=>{const el=document.getElementById(id);if(el){const prev=el.value;el.innerHTML='<option value="">Выбрать…</option>'+options;if(prev)el.value=prev}});
+}
+function refreshTouchContacts(companyId,selected=""){
+  const el=document.getElementById("salesTouchContactSelect");if(!el)return;
+  const list=salesContactsForCompany(companyId);
+  el.innerHTML='<option value="">Без конкретного контакта</option>'+list.map(p=>'<option value="'+p.id+'">'+escapeHtml(p.name)+(p.role?" · "+escapeHtml(p.role):"")+'</option>').join("");
+  if(selected)el.value=selected;
+}
+
+function openSalesCompany(id=null){
+  const modal=document.getElementById("salesCompanyModal"),form=document.getElementById("salesCompanyForm");if(!modal||!form)return;
+  editingSalesCompanyId=id;form.reset();
+  const c=id?salesCompanyById(id):null;
+  document.getElementById("salesCompanyModalTitle").textContent=c?"Редактировать компанию":"Добавить компанию";
+  if(c){["name","segment","score","status","signal","nextAction","nextDate","offer"].forEach(k=>{if(form.elements[k])form.elements[k].value=c[k]||""})}
+  modal.showModal();
+}
+function openSalesContact(id=null,companyId=""){
+  const modal=document.getElementById("salesContactModal"),form=document.getElementById("salesContactForm");if(!modal||!form)return;
+  editingSalesContactId=id;form.reset();refreshSalesCompanySelects();
+  const p=id?salesContactById(id):null;
+  document.getElementById("salesContactModalTitle").textContent=p?"Редактировать контакт":"Добавить контакт";
+  if(p){["companyId","name","role","roleGroup","email","phone","profile","social","reason"].forEach(k=>{if(form.elements[k])form.elements[k].value=p[k]||""})}
+  else if(companyId)form.elements.companyId.value=companyId;
+  modal.showModal();
+}
+function openSalesTouch(companyId="",contactId=""){
+  const modal=document.getElementById("salesTouchModal"),form=document.getElementById("salesTouchForm");if(!modal||!form)return;
+  form.reset();refreshSalesCompanySelects();form.elements.date.value=salesTodayIso();
+  if(companyId)form.elements.companyId.value=companyId;
+  refreshTouchContacts(form.elements.companyId.value,contactId);
+  modal.showModal();
+}
+
+document.getElementById("salesCompanyForm")?.addEventListener("submit",e=>{
+  e.preventDefault();const fd=new FormData(e.currentTarget);
+  const payload={name:String(fd.get("name")||"").trim(),segment:String(fd.get("segment")||"").trim(),score:Number(fd.get("score"))||0,status:fd.get("status")||"new",signal:String(fd.get("signal")||"").trim(),nextAction:String(fd.get("nextAction")||"").trim(),nextDate:fd.get("nextDate")||"",offer:String(fd.get("offer")||"").trim()};
+  if(editingSalesCompanyId){const c=salesCompanyById(editingSalesCompanyId);if(c)Object.assign(c,payload)}
+  else salesCompanies.unshift({id:"co-"+uid(),source:"manual",...payload,createdAt:new Date().toISOString()});
+  editingSalesCompanyId=null;saveSales();document.getElementById("salesCompanyModal").close();renderSales();
+});
+document.getElementById("salesContactForm")?.addEventListener("submit",e=>{
+  e.preventDefault();const fd=new FormData(e.currentTarget);
+  const payload={companyId:fd.get("companyId"),name:String(fd.get("name")||"").trim(),role:String(fd.get("role")||"").trim(),roleGroup:fd.get("roleGroup")||"other",email:String(fd.get("email")||"").trim(),phone:String(fd.get("phone")||"").trim(),profile:String(fd.get("profile")||"").trim(),social:String(fd.get("social")||"").trim(),reason:String(fd.get("reason")||"").trim()};
+  if(editingSalesContactId){const p=salesContactById(editingSalesContactId);if(p)Object.assign(p,payload)}
+  else salesContacts.unshift({id:"ct-"+uid(),source:"manual",...payload,createdAt:new Date().toISOString()});
+  const company=salesCompanyById(payload.companyId);if(company&&["new","researched"].includes(company.status))company.status="contacts";
+  editingSalesContactId=null;saveSales();document.getElementById("salesContactModal").close();renderSales();
+});
+document.getElementById("salesTouchForm")?.addEventListener("submit",e=>{
+  e.preventDefault();const fd=new FormData(e.currentTarget);
+  const payload={companyId:fd.get("companyId"),contactId:fd.get("contactId")||"",channel:fd.get("channel"),date:fd.get("date"),note:String(fd.get("note")||"").trim(),result:fd.get("result"),nextAction:String(fd.get("nextAction")||"").trim(),nextDate:fd.get("nextDate")||"",createdAt:new Date().toISOString()};
+  salesTouches.unshift({id:"touch-"+uid(),...payload});
+  const c=salesCompanyById(payload.companyId);
+  if(c){const ns=nextStatusFromTouch(payload.result);if(ns)c.status=ns;if(payload.nextAction)c.nextAction=payload.nextAction;if(payload.nextDate)c.nextDate=payload.nextDate}
+  saveSales();document.getElementById("salesTouchModal").close();renderSales();
+});
+document.getElementById("salesTouchCompanySelect")?.addEventListener("change",e=>refreshTouchContacts(e.target.value));
+
+document.getElementById("salesAddCompanyBtn")?.addEventListener("click",()=>openSalesCompany());
+document.getElementById("salesAddContactBtn")?.addEventListener("click",()=>openSalesContact());
+document.getElementById("salesAddTouchBtn")?.addEventListener("click",()=>openSalesTouch());
+document.querySelectorAll("[data-sales-close]").forEach(btn=>btn.addEventListener("click",()=>document.getElementById(btn.dataset.salesClose)?.close()));
+["salesCompanySearch","salesContactSearch"].forEach(id=>document.getElementById(id)?.addEventListener("input",renderSales));
+["salesCompanyStatusFilter","salesCompanyPriorityFilter","salesContactRoleFilter"].forEach(id=>document.getElementById(id)?.addEventListener("change",renderSales));
+document.getElementById("salesSubnav")?.querySelectorAll("[data-sales-view]").forEach(btn=>btn.addEventListener("click",()=>{
+  document.getElementById("salesSubnav").querySelectorAll("[data-sales-view]").forEach(x=>x.classList.toggle("active",x===btn));
+  document.querySelectorAll("[data-sales-pane]").forEach(p=>p.classList.toggle("active",p.dataset.salesPane===btn.dataset.salesView));
+}));
+document.querySelectorAll("[data-open-sales-view]").forEach(btn=>btn.addEventListener("click",()=>{
+  const target=btn.dataset.openSalesView,nav=document.querySelector('#salesSubnav [data-sales-view="'+target+'"]');nav?.click();
+}));
+
+function mergeSalesResearchRows(table){
+  const rows=(table?.rows||[]).map((row,idx)=>{
+    const v=i=>String(gvizCell(row,i)||"").trim();
+    const name=v(1);if(!name)return null;
+    const personRaw=v(2),phoneOrIg=v(3),emailOrTg=v(4),direction=v(5),position=v(6),owner=v(7),comment=v(8);
+    const scores=[11,12,13,14].map(i=>Number(String(gvizCell(row,i)||"").replace(",", "."))||0);
+    const total=Number(String(gvizCell(row,15)||"").replace(",", "."))||scores.reduce((a,b)=>a+b,0);
+    return {row:idx+2,name,personRaw,phoneOrIg,emailOrTg,direction,position,owner,comment,scores,total};
+  }).filter(Boolean);
+  let companiesAdded=0,contactsAdded=0;
+  rows.forEach(r=>{
+    const key=salesNorm(r.name);
+    let company=salesCompanies.find(c=>salesNorm(c.name)===key);
+    if(!company){
+      company={id:"co-sheet-"+r.row,name:r.name,segment:r.direction||"",score:r.total||0,status:r.personRaw?"contacts":"researched",signal:r.comment||"",offer:"",nextAction:"",nextDate:"",source:"sheet",sourceRow:r.row,createdAt:new Date().toISOString()};
+      salesCompanies.push(company);companiesAdded++;
+    }else if(company.source==="sheet"||!company.source){
+      company.score=r.total||company.score||0;
+      if(r.direction)company.segment=r.direction;
+      if(r.comment)company.signal=r.comment;
+      company.source="sheet";company.sourceRow=r.row;
+    }
+    if(r.personRaw){
+      const parsed=splitContactField(r.personRaw);
+      const name=parsed.name;
+      const role=r.position||parsed.role;
+      if(name){
+        const exists=salesContacts.some(p=>p.companyId===company.id&&salesNorm(p.name)===salesNorm(name));
+        if(!exists){
+          const socialUrl=extractFirstUrl(r.phoneOrIg+" "+r.emailOrTg);
+          const email=(r.emailOrTg.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[])[0]||"";
+          const profile=extractFirstUrl(r.comment);
+          salesContacts.push({id:"ct-sheet-"+r.row+"-"+uid(),companyId:company.id,name,role,roleGroup:guessRoleGroup(role),email,phone:/^[+\d\s()-]{7,}$/.test(r.phoneOrIg)?r.phoneOrIg:"",profile:profile||socialUrl,social:!email?r.emailOrTg:r.phoneOrIg,reason:"Импортировано из research database. "+(r.comment?r.comment.slice(0,240):""),source:"sheet",createdAt:new Date().toISOString()});
+          contactsAdded++;
+        }
+      }
+    }
+  });
+  saveSales();renderSales();
+  return {companiesAdded,contactsAdded,totalRows:rows.length};
+}
+function syncSalesResearch(){
+  const state=document.getElementById("salesSyncState");if(state)state.textContent="Research database: синхронизация…";
+  const btn=document.getElementById("salesSyncBtn");if(btn)btn.disabled=true;
+  const callback="onvisualSalesSync_"+Date.now(),script=document.createElement("script");
+  const done=()=>{if(btn)btn.disabled=false;delete window[callback];script.remove()};
+  const timer=setTimeout(()=>{if(state)state.textContent="Research database: источник временно недоступен";done()},12000);
+  window[callback]=(payload)=>{
+    clearTimeout(timer);
+    try{
+      if(!payload?.table)throw new Error("Invalid payload");
+      const result=mergeSalesResearchRows(payload.table);
+      if(state)state.textContent="Research database: "+result.totalRows+" строк · +"+result.companiesAdded+" компаний · +"+result.contactsAdded+" контактов · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    }catch(err){console.warn("Sales sync error",err);if(state)state.textContent="Research database: не удалось прочитать данные"}
+    finally{done()}
+  };
+  script.onerror=()=>{clearTimeout(timer);if(state)state.textContent="Research database: ошибка подключения";done()};
+  script.src="https://docs.google.com/spreadsheets/d/"+SALES_SOURCE_SHEET_ID+"/gviz/tq?tqx=responseHandler:"+callback+"&sheet="+encodeURIComponent(SALES_SOURCE_SHEET)+"&headers=1&_="+Date.now();
+  document.head.appendChild(script);
+}
+document.getElementById("salesSyncBtn")?.addEventListener("click",syncSalesResearch);
+renderSales();
+setTimeout(syncSalesResearch,800);
