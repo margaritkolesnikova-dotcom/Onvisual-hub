@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261005-knowledge1" />
+  <link rel="stylesheet" href="styles.css?v=20261005-knowledge2" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1293,12 +1293,6 @@
         </div>
       </div>
 
-      <div class="knowledge-summary">
-        <article><small>МАТЕРИАЛОВ</small><strong id="knowledgeCount">1</strong><span>База будет пополняться</span></article>
-        <article><small>КАТЕГОРИЙ</small><strong>5</strong><span>Единая структура для команды</span></article>
-        <article class="knowledge-summary-accent"><small>ПОСЛЕДНЕЕ ДОБАВЛЕНИЕ</small><strong>AI / ChatGPT</strong><span>Как выбирать модель для работы студии</span></article>
-      </div>
-
       <div class="knowledge-grid" id="knowledgeGrid">
         <article class="knowledge-card featured" data-knowledge-category="ai" data-knowledge-title="Как выбирать ChatGPT для работы студии генеративного контента GPT 6.1 Sol Luna Astra модели усилие">
           <div class="knowledge-card-top">
@@ -1313,7 +1307,7 @@
             <span>Luna — быстрые операции</span>
             <span>Astra — сложные решения</span>
           </div>
-          <button class="knowledge-open" data-knowledge-open="chatgpt-guide">Открыть материал →</button>
+          <a class="knowledge-open" href="assets/knowledge/chatgpt-guide.html" target="_blank" rel="noreferrer">Открыть файл →</a>
         </article>
 
         <article class="knowledge-placeholder" data-knowledge-category="production">
@@ -1330,71 +1324,8 @@
         </article>
       </div>
     </section>
-
-    <dialog class="knowledge-modal" id="chatgptGuideModal">
-      <div class="knowledge-modal-shell">
-        <div class="knowledge-modal-head">
-          <div><small>AI / CHATGPT · WORKING GUIDE</small><h2>Как выбирать ChatGPT для работы студии</h2></div>
-          <button type="button" class="modal-close" data-close="chatgptGuideModal">×</button>
-        </div>
-        <div class="knowledge-article">
-          <div class="knowledge-lead">
-            <strong>Базовая настройка команды — GPT‑6.1 Sol · Medium.</strong>
-            <p>Модель выбирается под конкретный этап работы. Для быстрых операций — Luna, для сложных концепций, исследований и ответственных решений — Astra.</p>
-          </div>
-
-          <h3>Уровни усилия</h3>
-          <div class="knowledge-table-wrap"><table class="knowledge-table">
-            <thead><tr><th>Усилие</th><th>Когда использовать</th><th>Пример</th></tr></thead>
-            <tbody>
-              <tr><td><b>Low / Light</b></td><td>Короткая операция с небольшим количеством условий</td><td>Перевести промпт, исправить формулировку, извлечь даты</td></tr>
-              <tr><td><b>Medium</b></td><td>Обычная профессиональная работа</td><td>Сценарий по брифу, промпт сцены, таблица с формулами</td></tr>
-              <tr><td><b>High</b></td><td>Много требований и зависимостей</td><td>Согласовать движения героя и камеры, сложная диагностика</td></tr>
-              <tr><td><b>Extra high</b></td><td>Сложная проверка и итоговая сборка</td><td>Проверить сценарий на логику, собрать большое исследование</td></tr>
-            </tbody>
-          </table></div>
-
-          <div class="knowledge-model-grid">
-            <article><span>LUNA</span><h4>Повседневные операции</h4><p>Короткие и чёткие задачи: извлечение данных, сокращение текста, простая переписка, быстрый поиск фактов.</p><b>Low / Medium</b></article>
-            <article class="main"><span>6.1 SOL</span><h4>Основная рабочая модель</h4><p>Сценарии, раскадровки, промпты, презентации, таблицы, документы, сайты и рабочие приложения.</p><b>Medium / High</b></article>
-            <article><span>ASTRA</span><h4>Сложные решения</h4><p>Концепции миров, драматургия, стратегия, архитектура, исследования и проверка важных материалов.</p><b>High / Extra high</b></article>
-          </div>
-
-          <h3>Быстрый выбор по направлениям</h3>
-          <div class="knowledge-direction-list">
-            <div><b>Режиссура и сценарии</b><span>6.1 Sol · Medium</span><em>Astra · High — концепция и драматургия</em></div>
-            <div><b>Персонажи, миры, дизайн</b><span>6.1 Sol · Medium</span><em>Astra · High — единая система мира</em></div>
-            <div><b>Изображения и видео-промпты</b><span>6.1 Sol · Medium</span><em>High — сложная камера, тайминг, несколько действий</em></div>
-            <div><b>Сайты и приложения</b><span>6.1 Sol · Medium / High</span><em>Astra — архитектура и сложная диагностика</em></div>
-            <div><b>Таблицы и данные</b><span>Luna · Low / 6.1 Sol · Medium</span><em>Astra — сложные расчёты и проверка выводов</em></div>
-            <div><b>Продюсирование и стратегия</b><span>6.1 Sol · Medium</span><em>Astra · High — выбор стратегии и последствия</em></div>
-          </div>
-
-          <h3>Рабочий процесс</h3>
-          <ol class="knowledge-steps">
-            <li><b>Собрать исходные данные</b><span>Luna · Low / Medium</span></li>
-            <li><b>Согласовать понимание</b><span>6.1 Sol · Medium</span></li>
-            <li><b>Подготовить рабочую версию</b><span>6.1 Sol · Medium / High</span></li>
-            <li><b>Проверить сложные места</b><span>Astra · High / Extra high</span></li>
-            <li><b>Внести небольшие правки</b><span>Luna · Low или 6.1 Sol · Medium</span></li>
-          </ol>
-
-          <div class="knowledge-note">
-            <b>Важно для креаторов</b>
-            <p>GPT и генератор изображения — разные инструменты. GPT помогает понять задачу, подготовить описание и руководить правками; само изображение или видео создаёт отдельная генеративная модель.</p>
-          </div>
-
-          <div class="knowledge-source">
-            <span>ИСТОЧНИК</span>
-            <strong>Рабочая инструкция ONVISUAL · Markdown · 148 строк</strong>
-            <p>Исходный материал хранится в базе команды; при обновлении инструкции карточка в Hub будет актуализироваться.</p>
-          </div>
-        </div>
-      </div>
-    </dialog>
-
-    <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">08 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
+<section id="files" class="section"><div class="section-head"><div><div class="eyebrow">08 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261005-knowledge1"></script>
+  <script src="app.js?v=20261005-knowledge2"></script>
 </body>
 </html>
