@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261002-modalbig" />
+  <link rel="stylesheet" href="styles.css?v=20261005-knowledge1" />
 </head>
 <body>
   <div class="noise"></div>
@@ -24,7 +24,8 @@
       <a class="nav-link" data-target="team"><span>04</span> КОМАНДА</a>
       <a class="nav-link" data-target="tasks"><span>05</span> ЗАДАЧИ</a>
       <a class="nav-link" data-target="calendar"><span>06</span> КАЛЕНДАРЬ</a>
-      <a class="nav-link" data-target="files"><span>07</span> ФАЙЛЫ</a>
+      <a class="nav-link knowledge-nav-link" data-target="knowledge"><span>07</span> БАЗА ЗНАНИЙ</a>
+      <a class="nav-link" data-target="files"><span>08</span> ФАЙЛЫ</a>
     </nav>
     <div class="sidebar-foot">ONVISUAL • 2026</div>
   </aside>
@@ -67,6 +68,7 @@
         <article class="shared-card" data-go="team"><span>04</span><h3>Общая команда</h3><p>Люди могут работать сразу в двух направлениях.</p></article>
         <article class="shared-card" data-go="tasks"><span>05</span><h3>Общие задачи</h3><p>С тегами ONVISUAL / Мультвселенная / Общее.</p></article>
         <article class="shared-card" data-go="calendar"><span>06</span><h3>Календарь</h3><p>Встречи, дедлайны, релизы и общие события.</p></article>
+        <article class="shared-card knowledge-home-card" data-go="knowledge"><span>07</span><h3>База знаний</h3><p>Регламенты, AI-инструкции, промпты, исследования и рабочие методики.</p></article>
       </div>
       <div class="dashboard-grid">
         <div class="panel accent-purple"><div class="panel-title">Маршрут адаптации</div><div class="timeline">
@@ -1269,8 +1271,130 @@
       <option value="Кодин Дмитрий"><option value="Ярошенко Екатерина"><option value="Колесникова Маргарита"><option value="Подкорытов Александр">
       <option value="Иван"><option value="Дмитрий"><option value="Алексей"><option value="Анна"><option value="Павел"><option value="Ксения">
     </datalist>
-    <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">06 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
+    <section id="knowledge" class="section knowledge-section">
+      <div class="section-head knowledge-head">
+        <div>
+          <div class="eyebrow">07 / KNOWLEDGE</div>
+          <h1>БАЗА ЗНАНИЙ</h1>
+          <p>Рабочие инструкции, AI-методики, промпты, исследования и регламенты команды.</p>
+        </div>
+        <span class="section-dot knowledge-dot"></span>
+      </div>
+
+      <div class="knowledge-toolbar">
+        <div class="knowledge-search"><span>⌕</span><input id="knowledgeSearch" placeholder="Поиск по базе знаний..." /></div>
+        <div class="knowledge-filters" id="knowledgeFilters">
+          <button class="active" data-knowledge-filter="all">Все</button>
+          <button data-knowledge-filter="ai">AI / ChatGPT</button>
+          <button data-knowledge-filter="production">Production</button>
+          <button data-knowledge-filter="prompts">Промпты</button>
+          <button data-knowledge-filter="research">Исследования</button>
+          <button data-knowledge-filter="process">Процессы</button>
+        </div>
+      </div>
+
+      <div class="knowledge-summary">
+        <article><small>МАТЕРИАЛОВ</small><strong id="knowledgeCount">1</strong><span>База будет пополняться</span></article>
+        <article><small>КАТЕГОРИЙ</small><strong>5</strong><span>Единая структура для команды</span></article>
+        <article class="knowledge-summary-accent"><small>ПОСЛЕДНЕЕ ДОБАВЛЕНИЕ</small><strong>AI / ChatGPT</strong><span>Как выбирать модель для работы студии</span></article>
+      </div>
+
+      <div class="knowledge-grid" id="knowledgeGrid">
+        <article class="knowledge-card featured" data-knowledge-category="ai" data-knowledge-title="Как выбирать ChatGPT для работы студии генеративного контента GPT 6.1 Sol Luna Astra модели усилие">
+          <div class="knowledge-card-top">
+            <span class="knowledge-icon">AI</span>
+            <div class="knowledge-badges"><span>AI / ChatGPT</span><span>Инструкция</span></div>
+          </div>
+          <small class="knowledge-meta">ONVISUAL KNOWLEDGE · 05.10.2026</small>
+          <h2>Как выбирать ChatGPT для работы студии генеративного контента</h2>
+          <p>Практическая инструкция для команды: какую модель и уровень усилия выбирать для сценариев, промптов, разработки, исследований и оперативной работы.</p>
+          <div class="knowledge-highlights">
+            <span>6.1 Sol · Medium — база</span>
+            <span>Luna — быстрые операции</span>
+            <span>Astra — сложные решения</span>
+          </div>
+          <button class="knowledge-open" data-knowledge-open="chatgpt-guide">Открыть материал →</button>
+        </article>
+
+        <article class="knowledge-placeholder" data-knowledge-category="production">
+          <span>PRODUCTION</span><h3>Следующий материал</h3><p>Регламенты, пайплайны и производственные инструкции.</p>
+        </article>
+        <article class="knowledge-placeholder" data-knowledge-category="prompts">
+          <span>PROMPTS</span><h3>Библиотека промптов</h3><p>Рабочие шаблоны для изображения, видео и сцен.</p>
+        </article>
+        <article class="knowledge-placeholder" data-knowledge-category="research">
+          <span>RESEARCH</span><h3>Исследования</h3><p>Методики, отчёты и полезные материалы.</p>
+        </article>
+        <article class="knowledge-placeholder" data-knowledge-category="process">
+          <span>PROCESS</span><h3>Процессы и регламенты</h3><p>Внутренние правила и инструкции команды.</p>
+        </article>
+      </div>
+    </section>
+
+    <dialog class="knowledge-modal" id="chatgptGuideModal">
+      <div class="knowledge-modal-shell">
+        <div class="knowledge-modal-head">
+          <div><small>AI / CHATGPT · WORKING GUIDE</small><h2>Как выбирать ChatGPT для работы студии</h2></div>
+          <button type="button" class="modal-close" data-close="chatgptGuideModal">×</button>
+        </div>
+        <div class="knowledge-article">
+          <div class="knowledge-lead">
+            <strong>Базовая настройка команды — GPT‑6.1 Sol · Medium.</strong>
+            <p>Модель выбирается под конкретный этап работы. Для быстрых операций — Luna, для сложных концепций, исследований и ответственных решений — Astra.</p>
+          </div>
+
+          <h3>Уровни усилия</h3>
+          <div class="knowledge-table-wrap"><table class="knowledge-table">
+            <thead><tr><th>Усилие</th><th>Когда использовать</th><th>Пример</th></tr></thead>
+            <tbody>
+              <tr><td><b>Low / Light</b></td><td>Короткая операция с небольшим количеством условий</td><td>Перевести промпт, исправить формулировку, извлечь даты</td></tr>
+              <tr><td><b>Medium</b></td><td>Обычная профессиональная работа</td><td>Сценарий по брифу, промпт сцены, таблица с формулами</td></tr>
+              <tr><td><b>High</b></td><td>Много требований и зависимостей</td><td>Согласовать движения героя и камеры, сложная диагностика</td></tr>
+              <tr><td><b>Extra high</b></td><td>Сложная проверка и итоговая сборка</td><td>Проверить сценарий на логику, собрать большое исследование</td></tr>
+            </tbody>
+          </table></div>
+
+          <div class="knowledge-model-grid">
+            <article><span>LUNA</span><h4>Повседневные операции</h4><p>Короткие и чёткие задачи: извлечение данных, сокращение текста, простая переписка, быстрый поиск фактов.</p><b>Low / Medium</b></article>
+            <article class="main"><span>6.1 SOL</span><h4>Основная рабочая модель</h4><p>Сценарии, раскадровки, промпты, презентации, таблицы, документы, сайты и рабочие приложения.</p><b>Medium / High</b></article>
+            <article><span>ASTRA</span><h4>Сложные решения</h4><p>Концепции миров, драматургия, стратегия, архитектура, исследования и проверка важных материалов.</p><b>High / Extra high</b></article>
+          </div>
+
+          <h3>Быстрый выбор по направлениям</h3>
+          <div class="knowledge-direction-list">
+            <div><b>Режиссура и сценарии</b><span>6.1 Sol · Medium</span><em>Astra · High — концепция и драматургия</em></div>
+            <div><b>Персонажи, миры, дизайн</b><span>6.1 Sol · Medium</span><em>Astra · High — единая система мира</em></div>
+            <div><b>Изображения и видео-промпты</b><span>6.1 Sol · Medium</span><em>High — сложная камера, тайминг, несколько действий</em></div>
+            <div><b>Сайты и приложения</b><span>6.1 Sol · Medium / High</span><em>Astra — архитектура и сложная диагностика</em></div>
+            <div><b>Таблицы и данные</b><span>Luna · Low / 6.1 Sol · Medium</span><em>Astra — сложные расчёты и проверка выводов</em></div>
+            <div><b>Продюсирование и стратегия</b><span>6.1 Sol · Medium</span><em>Astra · High — выбор стратегии и последствия</em></div>
+          </div>
+
+          <h3>Рабочий процесс</h3>
+          <ol class="knowledge-steps">
+            <li><b>Собрать исходные данные</b><span>Luna · Low / Medium</span></li>
+            <li><b>Согласовать понимание</b><span>6.1 Sol · Medium</span></li>
+            <li><b>Подготовить рабочую версию</b><span>6.1 Sol · Medium / High</span></li>
+            <li><b>Проверить сложные места</b><span>Astra · High / Extra high</span></li>
+            <li><b>Внести небольшие правки</b><span>Luna · Low или 6.1 Sol · Medium</span></li>
+          </ol>
+
+          <div class="knowledge-note">
+            <b>Важно для креаторов</b>
+            <p>GPT и генератор изображения — разные инструменты. GPT помогает понять задачу, подготовить описание и руководить правками; само изображение или видео создаёт отдельная генеративная модель.</p>
+          </div>
+
+          <div class="knowledge-source">
+            <span>ИСТОЧНИК</span>
+            <strong>Рабочая инструкция ONVISUAL · Markdown · 148 строк</strong>
+            <p>Исходный материал хранится в базе команды; при обновлении инструкции карточка в Hub будет актуализироваться.</p>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">08 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261002-0030"></script>
+  <script src="app.js?v=20261005-knowledge1"></script>
 </body>
 </html>
