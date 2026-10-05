@@ -2374,3 +2374,61 @@ html{scroll-behavior:smooth}
   .knowledge-steps{grid-template-columns:1fr}.knowledge-modal-shell{padding:17px}
   .knowledge-modal-head h2{font-size:23px}
 }
+
+/* Knowledge base readability pass */
+#knowledge .section-head h1{font-size:42px!important}
+#knowledge .section-head p{font-size:14px!important;line-height:1.5!important}
+#knowledge .knowledge-search{height:44px!important}
+#knowledge .knowledge-search input{font-size:13px!important}
+#knowledge .knowledge-filters button{font-size:11.5px!important;padding:9px 12px!important}
+
+#knowledge .knowledge-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+#knowledge .knowledge-card{
+  grid-column:span 2!important;
+  min-height:330px!important;
+  padding:22px!important;
+}
+#knowledge .knowledge-meta{font-size:9.5px!important}
+#knowledge .knowledge-card h2{
+  font-size:27px!important;
+  line-height:1.14!important;
+  margin-top:10px!important;
+}
+#knowledge .knowledge-card p{
+  font-size:13.5px!important;
+  line-height:1.6!important;
+  color:#9aa4b6!important;
+}
+#knowledge .knowledge-badges span{font-size:9.5px!important;padding:6px 8px!important}
+#knowledge .knowledge-highlights span{
+  font-size:10.5px!important;
+  padding:7px 9px!important;
+}
+#knowledge .knowledge-open{
+  display:inline-flex!important;
+  align-items:center!important;
+  text-decoration:none!important;
+  font-size:12px!important;
+  padding:11px 14px!important;
+  margin-top:20px!important;
+}
+#knowledge .knowledge-placeholder{
+  min-height:160px!important;
+  padding:18px!important;
+}
+#knowledge .knowledge-placeholder span{font-size:9px!important}
+#knowledge .knowledge-placeholder h3{font-size:16px!important}
+#knowledge .knowledge-placeholder p{font-size:11.5px!important;line-height:1.5!important}
+
+@media(max-width:1000px){
+  #knowledge .knowledge-grid{grid-template-columns:1fr 1fr!important}
+  #knowledge .knowledge-card{grid-column:span 2!important}
+}
+@media(max-width:650px){
+  #knowledge .knowledge-grid{grid-template-columns:1fr!important}
+  #knowledge .knowledge-card{grid-column:auto!important}
+  #knowledge .section-head h1{font-size:34px!important}
+}
