@@ -1187,3 +1187,55 @@ document.getElementById("salesSyncBtn")?.addEventListener("click",syncSalesResea
 migrateSalesContactLinks();
 renderSales();
 setTimeout(syncSalesResearch,800);
+
+
+// ==========================================
+// KNOWLEDGE BASE interactions
+// ==========================================
+const knowledgeSearch=document.getElementById('knowledgeSearch');
+const knowledgeFilters=document.getElementById('knowledgeFilters');
+const knowledgeItems=[...document.querySelectorAll('.knowledge-card,.knowledge-placeholder')];
+let knowledgeCategory='all';
+
+function renderKnowledge(){
+  const q=(knowledgeSearch?.value||'').trim().toLowerCase();
+  let visible=0;
+  knowledgeItems.forEach(item=>{
+    const category=item.dataset.knowledgeCategory||'';
+    const hay=(item.dataset.knowledgeTitle||item.textContent||'').toLowerCase();
+    const categoryOk=knowledgeCategory==='all'||category===knowledgeCategory;
+    const searchOk=!q||hay.includes(q);
+    const showItem=categoryOk&&searchOk;
+    item.classList.toggle('is-hidden',!showItem);
+    if(showItem&&!item.classList.contains('knowledge-placeholder'))visible++;
+  });
+  const count=document.getElementById('knowledgeCount');
+  if(count)count.textContent=String(visible);
+}
+
+knowledgeSearch?.addEventListener('input',renderKnowledge);
+knowledgeFilters?.querySelectorAll('[data-knowledge-filter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    knowledgeCategory=btn.dataset.knowledgeFilter;
+    knowledgeFilters.querySelectorAll('[data-knowledge-filter]').forEach(x=>x.classList.toggle('active',x===btn));
+    renderKnowledge();
+  });
+});
+
+document.querySelectorAll('[data-knowledge-open]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.dataset.knowledgeOpen==='chatgpt-guide'){
+      document.getElementById('chatgptGuideModal')?.showModal();
+    }
+  });
+});
+
+document.querySelectorAll('.knowledge-modal [data-close]').forEach(btn=>{
+  btn.addEventListener('click',()=>document.getElementById(btn.dataset.close)?.close());
+});
+
+document.querySelectorAll('.knowledge-modal').forEach(modal=>{
+  modal.addEventListener('click',e=>{
+    if(e.target===modal)modal.close();
+  });
+});
