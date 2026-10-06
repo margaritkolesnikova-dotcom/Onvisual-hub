@@ -70,16 +70,27 @@ function lineFor(item,today,isOverdue){
     "   📅 <b>"+dateLabel(item.due)+"</b> · 👤 "+esc(item.creator||"не назначен")+extra+"\n"+
     "   <i>"+esc(when)+"</i>";
 }
+function configuredRecipients(){
+  const raw=String(process.env.TELEGRAM_CHAT_ID||"").trim();
+  if(!raw)return [];
+  return [...new Set(
+    raw.split(/[;,\s]+/)
+      .map(x=>x.trim())
+      .filter(x=>/^-?\d+$/.test(x))
+  )];
+}
 async function getRecipients(base){
+  const configured=configuredRecipients();
+  if(configured.length)return {ids:configured,source:"env"};
   const r=await fetch(base+"/getUpdates?limit=100&timeout=0");
   const j=await r.json();
   if(!j.ok)throw new Error("telegram_updates_failed");
   const map=new Map();
   for(const u of j.result||[]){
     const m=u.message||u.edited_message;
-    if(m?.chat?.type==="private")map.set(m.chat.id,m.chat.id);
+    if(m?.chat?.type==="private")map.set(String(m.chat.id),String(m.chat.id));
   }
-  return [...map.values()];
+  return {ids:[...map.values()],source:"updates"};
 }
 async function send(base,chatId,text){
   const r=await fetch(base+"/sendMessage",{
@@ -168,8 +179,13 @@ export default async function handler(req,res){
     }
 
     const base="https://api.telegram.org/bot"+token;
-    const recipients=await getRecipients(base);
-    if(!recipients.length)return res.status(404).json({ok:false,error:"no_recipients"});
+    const recipientInfo=await getRecipients(base);
+    const recipients=recipientInfo.ids;
+    if(!recipients.length)return res.status(404).json({
+      ok:false,
+      error:"no_recipients",
+      hint:"Set TELEGRAM_CHAT_ID in Vercel for permanent daily delivery."
+    });
 
     for(const chatId of recipients){
       await send(base,chatId,summary.join("\n"));
@@ -180,6 +196,7 @@ export default async function handler(req,res){
     return res.status(200).json({
       ok:true,
       recipients:recipients.length,
+      recipient_source:recipientInfo.source,
       episodes:episodes.length,
       overdue:overdue.length,
       upcoming:upcoming.length,
