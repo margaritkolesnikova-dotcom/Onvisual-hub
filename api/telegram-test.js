@@ -1,4 +1,3 @@
-import crypto from "crypto";
 export default async function handler(req, res) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return res.status(500).json({ ok:false, error:"token_missing" });
@@ -41,7 +40,7 @@ export default async function handler(req, res) {
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         chat_id:last.chat.id,
-        text:"✅ ONVISUAL Production Bot подключён\n\nТестовое сообщение успешно. Дальше подключим дедлайны и Monster Zip."
+        text:"✅ ONVISUAL Production Bot подключён\n\nВаш Chat ID: "+last.chat.id+"\n\nПришлите эти цифры в ChatGPT — я закреплю их для ежедневной автоматической рассылки."
       })
     });
     const sent = await sendRes.json();
@@ -53,25 +52,10 @@ export default async function handler(req, res) {
       });
     }
 
-    const publicKey=`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAieihaXBK5NrZTd3wgkng
-Wsrldy1Rfq6nx8cxY48ILLfC1lNo6Dc8CJWxBiJX/eIPKvWvXgKF0VsvLC6Pl3Z5
-lbRCTRirVfxsgLfP26gXZIySjJpI88ziz/nolmWH/lDqXF7qIQoj9Hcv6OesqqEZ
-J9krLpGa36Q5tBAca3HSAsuniurg8KHpuEIJuGZOTe32Pxr6mrLaQBC9rMMuFFzp
-06kkZqI+2eXzDH5T0buEFKsRt8rZ2DJPEixuMkAxtzW9jnnPTlkvmoykNXQWLO8H
-jLW26jKfl27vOjn7OidQ/Rk5qxqCi1vfc8oW4yeXWQbgavTQmoDFK/+HEz++hkm5
-ewIDAQAB
------END PUBLIC KEY-----`;
-    const chatCipher=crypto.publicEncrypt(
-      {key:publicKey,padding:crypto.constants.RSA_PKCS1_OAEP_PADDING,oaepHash:"sha256"},
-      Buffer.from(String(last.chat.id),"utf8")
-    ).toString("base64");
-
     return res.status(200).json({
       ok:true,
       bot:"@"+(me.result?.username||"unknown"),
-      message:"Test message sent successfully",
-      chat_cipher:chatCipher
+      message:"Test message sent successfully"
     });
   } catch (e) {
     return res.status(500).json({ ok:false, error:"internal_error" });
