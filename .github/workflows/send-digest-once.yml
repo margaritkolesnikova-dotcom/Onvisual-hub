@@ -1,0 +1,18 @@
+name: Send Telegram digest once
+
+on:
+  push:
+    branches:
+      - chatgpt-send-digest-20261009
+    paths:
+      - ".github/workflows/send-digest-once.yml"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger ONVISUAL Telegram digest
+        run: |
+          set -e
+          response=$(curl -fsS --retry 2 --max-time 30 "https://onvisual-hub.vercel.app/api/telegram-digest")
+          echo "$response"
