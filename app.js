@@ -306,33 +306,649 @@ renderCalendar();
 
 // ==========================================
 // PRODUCTION / Monster Zip
-// Snapshot from current source sheet, 01.10.2026
+// Verified Google Sheet snapshot as of 09.10.2026; fallback when live source is unavailable.
 // ==========================================
 const productionItems=[
-{id:"01",num:"1",title:"Башня из кубиков",creator:"Алексей",due:"2026-09-19",folder:"https://disk.yandex.ru/d/dPKrhMgOeoOtnQ",finalLink:"https://disk.yandex.ru/i/WboK8d03x7ii1A",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
-{id:"02",num:"2",title:"Воздушные шары",creator:"Алексей",due:"2026-09-21",folder:"https://disk.yandex.ru/d/z_IWMSGtCtmqhw",finalLink:"https://disk.yandex.ru/i/n_ahrIT1W_yQ7A",duration:"0:26",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
-{id:"03",num:"3",title:"Заплатка",creator:"Алексей",due:"2026-09-23",folder:"https://disk.yandex.ru/d/XciiwhSgDL8pOA",finalLink:"https://disk.yandex.ru/i/107v94tzWeaRYQ",duration:"0:26",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
-{id:"04",num:"4",title:"Качели",creator:"Дмитрий",due:"2026-09-18",folder:"https://disk.yandex.ru/d/Zxge1EUp5SHTHw",duration:"",stages:["Готово","Не начато","Не начато","Не начато","Не начато","Не начато","Не начато","Не опубликовано"]},
-{id:"05",num:"5",title:"Прятки",creator:"Дмитрий",due:"2026-09-20",folder:"https://disk.yandex.ru/d/tC1__WEOs7sG9A",finalLink:"https://disk.yandex.ru/i/v1lmATyJk0hcJw",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
-{id:"06",num:"6",title:"Солнечный зайчик",creator:"Дмитрий",due:"2026-09-22",folder:"https://disk.yandex.ru/d/ylBOte-1d7lkHw",finalLink:"https://disk.yandex.ru/i/HC0zv1mEBi7z7w",duration:"0:19",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово","Не опубликовано"]},
-{id:"07",num:"7",title:"Уборка",creator:"Анна",due:"2026-09-18",folder:"https://disk.yandex.ru/d/ZcessXq7FqRumw",duration:"",stages:["Готово","Готово","Готово","В работе","Готово","На правках","Не начато","Не опубликовано"]},
-{id:"08",num:"8",title:"Подарок",creator:"Анна",due:"2026-09-20",folder:"https://disk.yandex.ru/d/BbLJGuwaq3IaSQ",duration:"",stages:["Готово","В работе","В работе","Не начато","Не начато","Не начато","Не начато","Не опубликовано"]},
-{id:"09",num:"9",title:"Пружина",creator:"Алексей",due:"2026-09-25",folder:"https://disk.yandex.ru/d/IoIyEH3ceJSbVQ",finalLink:"https://disk.yandex.ru/i/lc2ARZ6TI3V9dQ",duration:"0:24",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово",""]},
-{id:"10",num:"10",title:"Осенний лист",creator:"Алексей",due:"2026-09-27",folder:"https://disk.yandex.ru/d/vugopTqxhyhTXQ",finalLink:"https://disk.yandex.ru/i/qRr2r2_34IeY1A",duration:"0:25",stages:["Готово","Готово","Готово","Готово","Готово","Готово","Готово",""]},
-{id:"11",num:"11",title:"Карандаш",creator:"Анна",due:"2026-09-25",folder:"https://disk.yandex.ru/d/9lO-ZnTXEYZ8hQ",duration:"",stages:["Готово","В работе","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
-{id:"12",num:"12",title:"Найди звезду",creator:"Алексей",due:"2026-09-29",folder:"https://disk.yandex.ru/d/xthQfps4Wd80nw",duration:"",stages:["Готово","В работе","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
-{id:"13",num:"13",title:"Осенняя математика",creator:"Дмитрий",due:"2026-09-25",folder:"https://disk.yandex.ru/d/z9zI5ilXb4Y_BQ",duration:"",stages:["Готово","Готово","Готово","Готово","Готово","В работе","Не начато",""]},
-{id:"autumn-print",num:"14",title:"Осенний опечаток",creator:"Дмитрий",due:"2026-09-27",folder:"https://disk.yandex.ru/d/pDiHfMGBfqtTlw",duration:"",stages:["Готово","Готово","На правках","В работе","В работе","Не начато","Не начато",""]},
-{id:"foam-bath",num:"15",title:"Пенная ванна",creator:"Анна",due:"2026-09-29",folder:"https://disk.yandex.ru/d/QV1Kr27uU25aNA",duration:"",stages:["Готово","Не начато","Не начато","Не начато","Не начато","Не начато","Не начато",""]},
-{id:"16",num:"16",title:"Крепость для двоих",creator:"",due:"",folder:"https://disk.yandex.ru/d/AqfyBNnpdnKneg",duration:"",stages:["","","","","","","",""]},
-{id:"17",num:"17",title:"Калькулятор",creator:"",due:"",folder:"https://disk.yandex.ru/d/z6XJTQTT6dfSeQ",duration:"",stages:["","","","","","","",""]},
-{id:"18",num:"DEV",title:"Проработка персонажей",creator:"Алексей",due:"2026-09-28",folder:"https://disk.yandex.ru/d/lPYDQselCV0eXA",finalLink:"https://disk.yandex.ru/i/dvfT0tD8U5kJNQ",duration:"",stages:["Готово","","","","","","Готово",""]},
-{id:"locations",num:"DEV",title:"Проработка локаций",creator:"Алексей",due:"2026-10-02",folder:"https://disk.yandex.ru/d/OUCaeCRE5XWa2g",duration:"",stages:["В работе","","","","","","Не начато",""]},
-{id:"20",num:"18",title:"Коробка кота",creator:"",due:"",folder:"https://disk.yandex.ru/d/OyQNpy8E6r3POg",duration:"",stages:["","","","","","","",""]},
-{id:"21",num:"19",title:"Чистим зубы",creator:"",due:"",folder:"https://disk.yandex.ru/d/ZabPGH-2UsHZ1Q",duration:"",stages:["","","","","","","",""]},
-{id:"22",num:"20",title:"Домино",creator:"Дмитрий",due:"",folder:"https://disk.yandex.ru/d/0nUYG0L3nxNE-A",duration:"",stages:["","В работе","","","","","",""]},
-{id:"23",num:"21",title:"Пузырчатая упаковка",creator:"Дмитрий",due:"",folder:"https://disk.yandex.ru/d/6DnY1fZQlmq4Xg",duration:"",stages:["","В работе","","","","","",""]},
-{id:"24",num:"22",title:"Краасная кнопка",creator:"",due:"",folder:"https://disk.yandex.ru/d/QofUZAanAhmkSw",duration:"",stages:["","","","","","","",""]}
+  {
+    "id": "sheet-001",
+    "num": "1",
+    "title": "Башня из кубиков",
+    "creator": "Алексей",
+    "due": "2026-09-19",
+    "folder": "https://disk.yandex.ru/d/dPKrhMgOeoOtnQ",
+    "finalLink": "https://disk.yandex.ru/i/WboK8d03x7ii1A",
+    "duration": "25",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-002",
+    "num": "2",
+    "title": "Воздушные шары",
+    "creator": "Алексей",
+    "due": "2026-09-21",
+    "folder": "https://disk.yandex.ru/d/z_IWMSGtCtmqhw",
+    "finalLink": "https://disk.yandex.ru/i/n_ahrIT1W_yQ7A",
+    "duration": "26",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-003",
+    "num": "3",
+    "title": "Заплатка",
+    "creator": "Алексей",
+    "due": "2026-09-23",
+    "folder": "https://disk.yandex.ru/d/XciiwhSgDL8pOA",
+    "finalLink": "https://disk.yandex.ru/i/107v94tzWeaRYQ",
+    "duration": "26",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-004",
+    "num": "4",
+    "title": "Качели",
+    "creator": "Дмитрий",
+    "due": "",
+    "folder": "https://disk.yandex.ru/d/Zxge1EUp5SHTHw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-005",
+    "num": "5",
+    "title": "Прятки",
+    "creator": "Дмитрий",
+    "due": "2026-09-20",
+    "folder": "https://disk.yandex.ru/d/tC1__WEOs7sG9A",
+    "finalLink": "https://disk.yandex.ru/i/CE55xgxbZWnDOQ",
+    "duration": "25",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-006",
+    "num": "6",
+    "title": "Солнечный зайчик",
+    "creator": "Дмитрий",
+    "due": "2026-09-22",
+    "folder": "https://disk.yandex.ru/d/ylBOte-1d7lkHw",
+    "finalLink": "https://disk.yandex.ru/i/HC0zv1mEBi7z7w",
+    "duration": "19",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-007",
+    "num": "7",
+    "title": "Уборка",
+    "creator": "Анна",
+    "due": "2026-09-18",
+    "folder": "https://disk.yandex.ru/d/ZcessXq7FqRumw",
+    "finalLink": "https://disk.yandex.ru/i/mKXBdEhU1qEzug",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-008",
+    "num": "8",
+    "title": "Подарок",
+    "creator": "Анна",
+    "due": "2026-09-20",
+    "folder": "https://disk.yandex.ru/d/BbLJGuwaq3IaSQ",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-009",
+    "num": "9",
+    "title": "Пружина",
+    "creator": "Алексей",
+    "due": "2026-09-25",
+    "folder": "https://disk.yandex.ru/d/IoIyEH3ceJSbVQ",
+    "finalLink": "https://disk.yandex.ru/i/lc2ARZ6TI3V9dQ",
+    "duration": "24",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-010",
+    "num": "10",
+    "title": "Осенний лист",
+    "creator": "Алексей",
+    "due": "2026-09-27",
+    "folder": "https://disk.yandex.ru/d/vugopTqxhyhTXQ",
+    "finalLink": "https://disk.yandex.ru/i/qRr2r2_34IeY1A",
+    "duration": "25",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-011",
+    "num": "11",
+    "title": "Карандаш",
+    "creator": "Анна",
+    "due": "2026-09-25",
+    "folder": "https://disk.yandex.ru/d/9lO-ZnTXEYZ8hQ",
+    "finalLink": "https://disk.yandex.ru/i/kc5d-3LhiTMtLw",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-012",
+    "num": "12",
+    "title": "Найди звезду",
+    "creator": "Алексей",
+    "due": "2026-09-29",
+    "folder": "https://disk.yandex.ru/d/xthQfps4Wd80nw",
+    "finalLink": "https://disk.yandex.ru/i/60g3L5DhJmSQxQ",
+    "duration": "24",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-013",
+    "num": "13",
+    "title": "Осенняя математика",
+    "creator": "Дмитрий",
+    "due": "2026-09-25",
+    "folder": "https://disk.yandex.ru/d/z9zI5ilXb4Y_BQ",
+    "finalLink": "https://disk.yandex.ru/i/Mi_T8zelq3Z7Nw",
+    "duration": "24",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-014",
+    "num": "14",
+    "title": "Осенний опечаток",
+    "creator": "Дмитрий",
+    "due": "2026-09-27",
+    "folder": "https://disk.yandex.ru/d/pDiHfMGBfqtTlw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-015",
+    "num": "15",
+    "title": "Пенная ванна",
+    "creator": "Анна",
+    "due": "2026-09-29",
+    "folder": "https://disk.yandex.ru/d/QV1Kr27uU25aNA",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-016",
+    "num": "16",
+    "title": "Крепость для двоих",
+    "creator": "Анна",
+    "due": "2026-10-01",
+    "folder": "https://disk.yandex.ru/d/AqfyBNnpdnKneg",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-017",
+    "num": "17",
+    "title": "Калькулятор",
+    "creator": "Анна",
+    "due": "2026-10-03",
+    "folder": "https://disk.yandex.ru/d/z6XJTQTT6dfSeQ",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-018",
+    "num": "",
+    "title": "Проработка персонажей",
+    "creator": "Алексей",
+    "due": "2026-09-28",
+    "folder": "https://disk.yandex.ru/d/lPYDQselCV0eXA",
+    "finalLink": "https://disk.yandex.ru/i/dvfT0tD8U5kJNQ",
+    "duration": "",
+    "stages": [
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-019",
+    "num": "",
+    "title": "Проработка локаций",
+    "creator": "Иван",
+    "due": "2026-10-07",
+    "folder": "https://disk.yandex.ru/d/OUCaeCRE5XWa2g",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "На правках",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-020",
+    "num": "18",
+    "title": "Коробка кота",
+    "creator": "Алексей",
+    "due": "2026-10-01",
+    "folder": "https://disk.yandex.ru/d/OyQNpy8E6r3POg",
+    "finalLink": "https://disk.yandex.ru/i/Mha3v17sPEKRBw",
+    "duration": "23",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-021",
+    "num": "19",
+    "title": "Чистим зубы",
+    "creator": "Алексей",
+    "due": "2026-10-03",
+    "folder": "https://disk.yandex.ru/d/ZabPGH-2UsHZ1Q",
+    "finalLink": "https://disk.yandex.ru/i/3QNgBWi-FZgYuA",
+    "duration": "21",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-022",
+    "num": "20",
+    "title": "Домино",
+    "creator": "Дмитрий",
+    "due": "2026-10-01",
+    "folder": "https://disk.yandex.ru/d/0nUYG0L3nxNE-A",
+    "finalLink": "https://disk.yandex.ru/i/2e2_yBmqljwE6w",
+    "duration": "21",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-023",
+    "num": "21",
+    "title": "Пузырчатая упаковка",
+    "creator": "Дмитрий",
+    "due": "2026-10-03",
+    "folder": "https://disk.yandex.ru/d/6DnY1fZQlmq4Xg",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-024",
+    "num": "22",
+    "title": "Красная кнопка",
+    "creator": "Ксения",
+    "due": "2026-10-09",
+    "folder": "https://disk.yandex.ru/d/QofUZAanAhmkSw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-025",
+    "num": "23",
+    "title": "Мыльные пузыри",
+    "creator": "Анна",
+    "due": "2026-10-07",
+    "folder": "https://disk.yandex.ru/d/ktzb06JP3KhQVQ",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-026",
+    "num": "24",
+    "title": "Последний кусок",
+    "creator": "Дмитрий",
+    "due": "2026-10-07",
+    "folder": "https://disk.yandex.ru/d/14xQYSl16A-vVQ",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-027",
+    "num": "25",
+    "title": "Зеркало",
+    "creator": "Алексей",
+    "due": "2026-10-07",
+    "folder": "https://disk.yandex.ru/d/UkQjT4LMLHeq2w",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-028",
+    "num": "26",
+    "title": "Мороженое",
+    "creator": "Дмитрий",
+    "due": "2026-10-09",
+    "folder": "https://disk.yandex.ru/d/Id-ei7Y24PmtFw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-029",
+    "num": "27",
+    "title": "Пол-это лава",
+    "creator": "Алексей",
+    "due": "2026-10-09",
+    "folder": "https://disk.yandex.ru/d/FllpLD-VfQeySw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-030",
+    "num": "28",
+    "title": "Торт",
+    "creator": "Анна",
+    "due": "2026-10-09",
+    "folder": "https://disk.yandex.ru/d/S0HI0X0Nk_9zvg",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-031",
+    "num": "29",
+    "title": "Боулинг",
+    "creator": "Дмитрий",
+    "due": "2026-10-11",
+    "folder": "https://disk.yandex.ru/d/FVWd8M1hLGFDiw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  },
+  {
+    "id": "sheet-032",
+    "num": "30",
+    "title": "Игра Замри",
+    "creator": "Алексей",
+    "due": "2026-10-11",
+    "folder": "https://disk.yandex.ru/d/RYJUtjzKt-b3Iw",
+    "finalLink": "",
+    "duration": "",
+    "stages": [
+      "Готово",
+      "Готово",
+      "В работе",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не начато",
+      "Не опубликовано"
+    ]
+  }
 ];
 
 const prodStageNames=["Сценарий","Кадры","Видео","Аудио","Монтаж","Правки","Final","Публикация"];
@@ -570,11 +1186,14 @@ document.querySelectorAll("[data-prod-stage]").forEach((btn,i)=>{
 });
 document.querySelectorAll("[data-prod-open]").forEach(btn=>btn.addEventListener("click",()=>openProductionDetail(btn.dataset.prodOpen)));
 renderProductionRows();
+renderProductionExtraTasks();
+renderProductionDeadlines();
 
 // Live Monster Zip production sync from Google Sheets.
 const PROD_SHEET_ID="1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw";
 const PROD_SHEET_NAME="Zip монстр ";
 const PROD_SYNC_MS=60000;
+const PROD_SNAPSHOT_DATE="09.10.2026";
 
 function setProductionSyncState(state,label){
   const el=document.getElementById("productionSyncState");
@@ -690,7 +1309,7 @@ function syncProductionFromSheet(){
   const timer=setTimeout(()=>{
     delete window[callback];
     script.remove();
-    setProductionSyncState("fallback","Последние сохранённые данные");
+    setProductionSyncState("fallback","Снимок от "+PROD_SNAPSHOT_DATE+" · Live недоступен");
   },12000);
 
   window[callback]=(payload)=>{
@@ -700,7 +1319,7 @@ function syncProductionFromSheet(){
       applyLiveProductionTable(payload.table);
     }catch(error){
       console.warn("Monster Zip live sync unavailable",error);
-      setProductionSyncState("fallback","Последние сохранённые данные");
+      setProductionSyncState("fallback","Снимок от "+PROD_SNAPSHOT_DATE+" · Live недоступен");
     }finally{
       delete window[callback];
       script.remove();
@@ -711,7 +1330,7 @@ function syncProductionFromSheet(){
     clearTimeout(timer);
     delete window[callback];
     script.remove();
-    setProductionSyncState("fallback","Последние сохранённые данные");
+    setProductionSyncState("fallback","Снимок от "+PROD_SNAPSHOT_DATE+" · Live недоступен");
   };
 
   script.src="https://docs.google.com/spreadsheets/d/"+PROD_SHEET_ID+
@@ -721,6 +1340,8 @@ function syncProductionFromSheet(){
   document.head.appendChild(script);
 }
 
+updateProductionKpisFromLive();
+updateProductionStageCounts();
 syncProductionFromSheet();
 setInterval(syncProductionFromSheet,PROD_SYNC_MS);
 
