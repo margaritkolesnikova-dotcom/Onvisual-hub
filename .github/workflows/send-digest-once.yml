@@ -1,4 +1,4 @@
-name: Send Telegram digest once
+name: Diagnose ONVISUAL endpoints
 
 on:
   push:
@@ -8,11 +8,19 @@ on:
       - ".github/workflows/send-digest-once.yml"
 
 jobs:
-  send:
+  diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger ONVISUAL Telegram digest
+      - name: Check ONVISUAL endpoints
         run: |
-          set -e
-          response=$(curl -fsS --retry 2 --max-time 30 "https://onvisual-hub.vercel.app/api/telegram-digest")
-          echo "$response"
+          echo "ROOT"
+          curl -sS -o /tmp/root -w "%{http_code}\n" "https://onvisual-hub.vercel.app/"
+          head -c 300 /tmp/root || true
+          echo
+          echo "DIGEST"
+          curl -sS -o /tmp/digest -w "%{http_code}\n" "https://onvisual-hub.vercel.app/api/telegram-digest"
+          cat /tmp/digest || true
+          echo
+          echo "TEST"
+          curl -sS -o /tmp/test -w "%{http_code}\n" "https://onvisual-hub.vercel.app/api/telegram-test"
+          cat /tmp/test || true
