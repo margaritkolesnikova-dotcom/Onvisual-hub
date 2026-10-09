@@ -1,4 +1,4 @@
-name: Diagnose ONVISUAL endpoints
+name: Read ONVISUAL digest data
 
 on:
   push:
@@ -8,19 +8,47 @@ on:
       - ".github/workflows/send-digest-once.yml"
 
 jobs:
-  diagnose:
+  digest-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Check ONVISUAL endpoints
+      - name: Read current Monster ZIP production data
+        shell: bash
         run: |
-          echo "ROOT"
-          curl -sS -o /tmp/root -w "%{http_code}\n" "https://onvisual-hub.vercel.app/"
-          head -c 300 /tmp/root || true
-          echo
-          echo "DIGEST"
-          curl -sS -o /tmp/digest -w "%{http_code}\n" "https://onvisual-hub.vercel.app/api/telegram-digest"
-          cat /tmp/digest || true
-          echo
-          echo "TEST"
-          curl -sS -o /tmp/test -w "%{http_code}\n" "https://onvisual-hub.vercel.app/api/telegram-test"
-          cat /tmp/test || true
+          node <<'NODE'
+          const SHEET_ID="1sj5Y5YBakIK51-sx0DzFD-zfItjBWwnpf8WKK-mK1Zw";
+          const SHEET_NAME="Zip монстр ";
+          const url="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json&sheet="+encodeURIComponent(SHEET_NAME)+"&headers=1&_="+Date.now();
+          const raw=await (await fetch(url)).text();
+          const a=raw.indexOf("{"), b=raw.lastIndexOf("}");
+          const table=JSON.parse(raw.slice(a,b+1)).table;
+          const cell=(row,i)=>{const c=row?.c?.[i]; return c?(c.f??c.v??""):"";};
+          const toISO=(v)=>{
+            if(!v)return "";
+            const s=String(v).trim();
+            let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
+            if(m)return m[1]+"-"+String(Number(m[2])+1).padStart(2,"0")+"-"+m[3].padStart(2,"0");
+            m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+            if(m)return m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");
+            const d=new Date(s); return isNaN(d)?"":d.toISOString().slice(0,10);
+          };
+          const items=(table.rows||[]).map((row,idx)=>{
+            const num=String(cell(row,2)||"").trim();
+            const title=String(cell(row,4)||"").trim();
+            if(!title)return null;
+            return {id:idx+1,num,title,kind:num?"episode":"task",scenario:String(cell(row,7)||"").trim(),creator:String(cell(row,8)||"").trim(),due:toISO(cell(row,9)),final:String(cell(row,15)||"").trim(),publication:String(cell(row,18)||"").trim()};
+          }).filter(Boolean);
+          const episodes=items.filter(x=>x.kind==="episode");
+          const today="2026-10-09";
+          const limit="2026-10-14";
+          const overdue=items.filter(x=>x.due&&x.due<today&&x.final!=="Готово").sort((a,b)=>a.due.localeCompare(b.due));
+          const upcoming=items.filter(x=>x.due&&x.due>=today&&x.due<=limit&&x.final!=="Готово").sort((a,b)=>a.due.localeCompare(b.due));
+          const out={
+            episodes:episodes.length,
+            scenarioReady:episodes.filter(x=>x.scenario==="Готово").length,
+            finalReady:episodes.filter(x=>x.final==="Готово").length,
+            published:episodes.filter(x=>x.publication==="Опубликовано"||x.publication==="Готово").length,
+            overdue:overdue.map(x=>({title:x.title,due:x.due,creator:x.creator,kind:x.kind})),
+            upcoming:upcoming.map(x=>({title:x.title,due:x.due,creator:x.creator,kind:x.kind}))
+          };
+          console.log(JSON.stringify(out,null,2));
+          NODE
