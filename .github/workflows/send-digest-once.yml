@@ -1,4 +1,4 @@
-name: Send ONVISUAL digest now
+name: Send ONVISUAL digest now - retry 2
 
 on:
   push:
