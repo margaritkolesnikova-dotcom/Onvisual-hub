@@ -71,7 +71,7 @@ function lineFor(item,today,isOverdue){
     "   <i>"+esc(when)+"</i>";
 }
 function configuredRecipients(){
-  const raw=String(process.env.TELEGRAM_CHAT_ID||process.env.Value||"").trim();
+  const raw=String(process.env.TELEGRAM_CHAT_ID||"").trim();
   if(!raw)return [];
   return [...new Set(
     raw.split(/[;,\s]+/)
