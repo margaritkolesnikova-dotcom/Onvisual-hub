@@ -1,4 +1,4 @@
-name: Send ONVISUAL digest now - retry 2
+name: Verify ONVISUAL persistent Telegram delivery
 
 on:
   push:
