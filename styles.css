@@ -2432,3 +2432,7 @@ html{scroll-behavior:smooth}
   #knowledge .knowledge-card{grid-column:auto!important}
   #knowledge .section-head h1{font-size:34px!important}
 }
+
+/* Role-based team workspace navigation */
+.team-workspace-link{display:block;margin:16px 12px;padding:13px 15px;border:1px solid #53604a;border-radius:12px;color:#d6fa78!important;background:#1d2926;text-decoration:none;font-size:12px;font-weight:750;letter-spacing:.025em}
+.team-workspace-link:hover{background:#263a32}
