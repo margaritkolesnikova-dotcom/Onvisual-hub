@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ONVISUAL · Команда</title>
+<link rel="stylesheet" href="/team.css?v=1">
+</head><body>
+<div id="setup" class="center-screen"><div class="auth-card"><div class="brand"><span class="mark">◉</span> ONVISUAL <span class="muted">/ TEAM</span></div><p>Загрузка кабинета…</p></div></div>
+<div id="login" class="center-screen hidden">
+  <div class="auth-card">
+    <div class="brand"><span class="mark">◉</span> ONVISUAL <span class="muted">/ TEAM</span></div>
+    <div class="eyebrow">PRIVATE WORKSPACE</div><h1>Рабочее пространство команды</h1>
+    <p>Войдите через рабочую почту, на которую вам выдали доступ. Каждый сотрудник видит только свои задачи и разрешённые разделы.</p>
+    <form id="loginForm"><label>Рабочая почта<input id="loginEmail" type="email" autocomplete="email" placeholder="name@company.ru" required></label><button class="primary" type="submit">Получить ссылку для входа ↗</button></form>
+    <p id="loginMessage" class="message" role="status"></p>
+    <small class="muted">Регистрация без приглашения закрыта.</small>
+  </div>
+</div>
+<div id="app" class="layout hidden">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">◉</span> ONVISUAL <span class="muted">/ HUB</span></div>
+    <div class="side-caption">WORKSPACE / 2026</div>
+    <nav id="sectionNav" class="section-nav" aria-label="Разделы"></nav>
+    <div class="side-bottom"><div id="userBadge"></div><button id="logout" class="ghost">Выйти →</button></div>
+  </aside>
+  <main class="main">
+    <header class="top"><div class="eyebrow">ONVISUAL / TEAM ACCESS</div><a id="adminHubLink" class="top-link hidden" href="/" target="_blank" rel="noopener">Основной HUB ↗</a></header>
+    <div class="heading"><div><div id="sectionEyebrow" class="eyebrow">MY WORKSPACE</div><h1 id="sectionTitle">Мои задачи</h1><p id="sectionDescription">Рабочие задачи и статусы</p></div><button id="newTaskBtn" class="primary hidden">+ Поставить задачу</button></div>
+    <div id="stats" class="stats"></div>
+    <div id="notice" class="notice hidden" role="status"></div>
+    <div id="taskGrid" class="task-grid"></div>
+    <div id="cardsView" class="cards hidden"></div>
+    <section id="teamView" class="hidden">
+      <div class="two-col">
+        <article class="panel">
+          <div class="eyebrow">ADMIN / ACCESS</div><h2>Пригласить сотрудника</h2>
+          <p class="hint">Сотруднику придёт письмо со ссылкой. Доступ к чужим задачам не выдаётся.</p>
+          <form id="inviteForm" class="stack">
+            <label>Имя и фамилия<input name="displayName" required maxlength="120" placeholder="Павел"></label>
+            <label>Рабочая почта<input name="email" type="email" required placeholder="pavel@example.com"></label>
+            <label>Роль<select name="role" id="inviteRole">
+              <option value="editor">Монтажёр</option><option value="creator">Креатор</option>
+              <option value="creative">Креативный продюсер</option><option value="producer">Линейный продюсер</option>
+              <option value="smm">SMM / Контент</option><option value="viewer">Наблюдатель</option>
+            </select></label>
+            <div class="check-title">Разрешённые рабочие блоки</div><div id="inviteSections" class="checklist"></div>
+            <button class="primary" type="submit">Отправить приглашение ↗</button>
+          </form>
+        </article>
+        <article class="panel">
+          <div class="eyebrow">ACCESS MATRIX</div><h2>Роли и права</h2>
+          <p class="hint">Все сотрудники видят только назначенные им записи. Дополнительные блоки включаются отдельно. Только администратор управляет исполнителями и задачами.</p>
+          <div id="memberList" class="members"></div>
+        </article>
+      </div>
+      <article class="panel migration"><h2>Перенос из прежнего задачника</h2>
+        <p class="hint">Задачи, сохранённые в этом браузере в старом HUB, можно перенести после приглашения сотрудников. Совпадение исполнителя проверяется по имени или email; неопознанные задачи пропускаются.</p>
+        <button id="importTasks" class="secondary">Проверить и перенести задачи</button>
+      </article>
+    </section>
+  </main>
+</div>
+<dialog id="taskDialog" class="dialog">
+  <form id="taskForm" class="stack">
+    <div class="dialog-header"><h2 id="taskDialogTitle">Новая задача</h2><button class="icon-btn" type="button" id="closeTask">×</button></div>
+    <input name="id" type="hidden">
+    <label>Задача<input name="title" maxlength="220" required placeholder="Собрать ролик v02"></label>
+    <label>Описание / ТЗ<textarea name="details" rows="4" placeholder="Что нужно сделать и критерии готовности"></textarea></label>
+    <div class="two-col-fields">
+      <label>Исполнитель<select name="assigned_to" id="assignee" required></select></label>
+      <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+      <label>Категория<select name="category">
+        <option>Монтаж</option><option>Креатив</option><option>Генерация</option><option>Публикация</option><option>Общее</option></select></label>
+      <label>Дедлайн<input name="due_at" type="date"></label>
+      <label>Приоритет<select name="priority"><option value="normal">Обычный</option><option value="high">Срочно</option><option value="low">Низкий</option></select></label>
+      <label>Статус<select name="status"><option value="new">Новая</option><option value="progress">В работе</option><option value="review">На проверке</option><option value="done">Готово</option></select></label>
+    </div>
+    <label>Ссылка на материалы / ТЗ<input name="reference_url" type="url" placeholder="https://..."></label>
+    <div class="dialog-actions"><button class="secondary" type="button" id="cancelTask">Отмена</button><button class="primary" type="submit">Сохранить</button></div>
+  </form>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/team.js?v=1" defer></script>
+</body></html>
