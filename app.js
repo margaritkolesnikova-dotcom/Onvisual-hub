@@ -2194,7 +2194,7 @@ const roadmapForm=document.getElementById('roadmapForm');
 const addRoadmapBtn=document.getElementById('addRoadmapBtn');
 const deleteRoadmapBtn=document.getElementById('deleteRoadmapBtn');
 
-const rmStatusLabel={planned:'Следующая',progress:'В работе',blocked:'Заблокировано',done:'Закрыто',rolled:'Перенесено'};
+const rmStatusLabel={planned:'План',progress:'В работе',risk:'Риск',blocked:'Риск',done:'Закрыто',rolled:'Перенос'};
 
 function rmToday(){
   const d=new Date();
@@ -2213,7 +2213,8 @@ function rmDays(a,b){
 function rmHealth(item){
   if(item.status==='done')return 'done';
   if(item.status==='rolled')return 'rolled';
-  if(item.status==='blocked')return 'blocked';
+  if(item.status==='risk')return 'risk';
+  if(item.status==='blocked')return 'risk';
   const today=rmToday();
   if(item.due && item.due<today)return 'overdue';
   const left=rmDays(today,item.due);
@@ -2307,10 +2308,14 @@ function renderRoadmapTimeline(){
   host.innerHTML=items.length?items.map(rmTimelineRow).join(''):'<div class="roadmap-empty">Нет процессов по выбранному фильтру. Добавь первый большой процесс.</div>';
 }
 function rmSprintCard(item){
+  const resource=item.resource?'<a class="rm-resource-link" href="'+escapeHtml(item.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">Файл / ссылка ↗</a>':'';
+  const note=item.note?'<div class="rm-card-note">'+escapeHtml(item.note)+'</div>':'';
   return '<article class="rm-sprint-card health-'+rmHealth(item)+'" data-rm-edit="'+item.id+'">'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
     '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
+    note+
+    resource+
     '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
     '<small>'+Number(item.progress||0)+'% · '+rmHealthLabel(item)+'</small>'+
   '</article>';
@@ -2378,6 +2383,7 @@ function openRoadmapModal(id=null){
     form.subtasks.value=(item.subtasks||[]).map(s=>(s.done?'[x] ':'')+s.title).join('\n');
     form.dependency.value=item.dependency||'';
     form.note.value=item.note||'';
+    if(form.elements.resource)form.elements.resource.value=item.resource||'';
   }else{
     form.scope.value=roadmapProject;
     rmPopulateGoalSelect(form.scope.value,'');
@@ -2410,7 +2416,8 @@ roadmapForm?.addEventListener('submit',e=>{
     progress:Number(fd.get('progress')||0),
     subtasks:parseRoadmapSubtasks(fd.get('subtasks'), editingRoadmapId?(roadmapItems.find(x=>x.id===editingRoadmapId)?.subtasks||[]):[]),
     dependency:String(fd.get('dependency')||'').trim(),
-    note:String(fd.get('note')||'').trim()
+    note:String(fd.get('note')||'').trim(),
+    resource:String(fd.get('resource')||'').trim()
   };
   if(data.status==='done')data.progress=100;
   if(editingRoadmapId){
@@ -2688,13 +2695,17 @@ function rmUpdateWeekHeader(items){
 function renderRoadmapSprint(){
   const items=rmItemsForWeek();
   rmUpdateWeekHeader(items);
-  const next=items.filter(x=>x.status==='planned');
+  const plan=items.filter(x=>x.status==='planned');
   const work=items.filter(x=>x.status==='progress'&&!['risk','overdue'].includes(rmHealth(x)));
-  const blocked=items.filter(x=>x.status==='blocked'||['risk','overdue'].includes(rmHealth(x)));
-  const done=items.filter(x=>['done','rolled'].includes(x.status));
+  const risk=items.filter(x=>x.status==='risk'||x.status==='blocked'||['risk','overdue'].includes(rmHealth(x)));
+  const done=items.filter(x=>x.status==='done');
+  const rolled=items.filter(x=>x.status==='rolled');
   const sets=[
-    ['rmNextList','rmNextCount',next],['rmWorkList','rmWorkCount',work],
-    ['rmBlockedList','rmBlockedCount',blocked],['rmClosedList','rmClosedCount',done]
+    ['rmPlanList','rmPlanCount',plan],
+    ['rmWorkList','rmWorkCount',work],
+    ['rmRiskSprintList','rmRiskSprintCount',risk],
+    ['rmClosedList','rmClosedCount',done],
+    ['rmRolledList','rmRolledCount',rolled]
   ];
   sets.forEach(([listId,countId,data])=>{
     const host=document.getElementById(listId),count=document.getElementById(countId);
@@ -2749,7 +2760,7 @@ function rmCloseSelectedWeek(){
       sprintWeek:nextStart,
       start:rmShiftDate(item.start||rmSelectedWeekStart,7),
       due:rmShiftDate(item.due||rmWeekEnd(rmSelectedWeekStart),7),
-      status:item.status==='blocked'?'blocked':(Number(item.progress||0)>0?'progress':'planned'),
+      status:(item.status==='risk'||item.status==='blocked')?'risk':(Number(item.progress||0)>0?'progress':'planned'),
       rolledFrom:item.id
     };
     item.status='rolled';
