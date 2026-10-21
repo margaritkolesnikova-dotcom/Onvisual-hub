@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261021-roadmapowners3" />
+  <link rel="stylesheet" href="styles.css?v=20261021-roadmapdrag4" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1133,7 +1133,19 @@
             <select name="goalId" id="roadmapGoalSelect"></select>
           </label>
           <label>Ответственный за глобальную задачу
-            <input name="owner" list="roadmapPeople" value="Николай" placeholder="Фамилия Имя">
+            <select name="owner" id="roadmapOwnerSelect">
+              <option value="Николай">Николай</option>
+              <option value="Колесникова Маргарита">Колесникова Маргарита</option>
+              <option value="Кодин Дмитрий">Кодин Дмитрий</option>
+              <option value="Ярошенко Екатерина">Ярошенко Екатерина</option>
+              <option value="Подкорытов Александр">Подкорытов Александр</option>
+              <option value="Иван">Иван</option>
+              <option value="Дмитрий">Дмитрий</option>
+              <option value="Алексей">Алексей</option>
+              <option value="Анна">Анна</option>
+              <option value="Павел">Павел</option>
+              <option value="Ксения">Ксения</option>
+            </select>
           </label>
           <label>Дата старта<input name="start" type="date"></label>
           <label>Дедлайн<input name="due" type="date"></label>
@@ -1148,10 +1160,14 @@
           </label>
           <label>Прогресс, %<input name="progress" type="number" min="0" max="100" step="5" value="0"></label>
         </div>
-        <label>Подзадачи
-          <textarea name="subtasks" rows="3" placeholder="Можно быстро внести список. После сохранения каждой подзадаче можно назначить своего ответственного, дату и статус."></textarea>
-          <small class="rm-field-hint">Персональные ответственные настраиваются через кнопку «＋ Подзадача» в карточке процесса.</small>
-        </label>
+        <div class="rm-modal-subtasks">
+          <div class="rm-modal-subtasks-head">
+            <div><small>ПОДЗАДАЧИ</small><strong>Отдельные действия команды</strong></div>
+            <button type="button" id="addRoadmapSubtaskFromMain">＋ Добавить подзадачу</button>
+          </div>
+          <div id="roadmapModalSubtaskList" class="rm-modal-subtask-list"></div>
+          <small class="rm-field-hint">У каждой подзадачи свой ответственный, срок, статус и рабочая ссылка. Новую основную задачу сначала сохрани — затем добавляй подзадачи.</small>
+        </div>
         <label>Зависит от
           <input name="dependency" placeholder="Например: утверждение оффера Екатериной / задача другого сотрудника">
         </label>
@@ -1178,8 +1194,21 @@
         <label>Действие<input name="title" required placeholder="Что конкретно нужно сделать"></label>
         <div class="form-grid">
           <label>Ответственный
-            <input name="owner" id="roadmapSubtaskOwner" list="roadmapPeople" placeholder="Фамилия Имя">
-            <small class="rm-field-hint">Выбираем конкретного человека, не должность.</small>
+            <select name="owner" id="roadmapSubtaskOwner">
+              <option value="">Не назначен</option>
+              <option value="Николай">Николай</option>
+              <option value="Колесникова Маргарита">Колесникова Маргарита</option>
+              <option value="Кодин Дмитрий">Кодин Дмитрий</option>
+              <option value="Ярошенко Екатерина">Ярошенко Екатерина</option>
+              <option value="Подкорытов Александр">Подкорытов Александр</option>
+              <option value="Иван">Иван</option>
+              <option value="Дмитрий">Дмитрий</option>
+              <option value="Алексей">Алексей</option>
+              <option value="Анна">Анна</option>
+              <option value="Павел">Павел</option>
+              <option value="Ксения">Ксения</option>
+            </select>
+            <small class="rm-field-hint">Выбираем конкретного человека по ФИО, не должность.</small>
           </label>
           <label>Дата<input name="due" type="date"></label>
           <label>Статус
@@ -1529,6 +1558,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261021-roadmapowners3"></script>
+  <script src="app.js?v=20261021-roadmapdrag4"></script>
 </body>
 </html>
