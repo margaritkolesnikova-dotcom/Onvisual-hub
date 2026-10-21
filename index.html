@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261005-knowledge2" />
+  <link rel="stylesheet" href="styles.css?v=20261021-roadmap1" />
 </head>
 <body>
   <div class="noise"></div>
@@ -21,11 +21,12 @@
       <a class="nav-link" data-target="multiverse"><span>02</span> МУЛЬТВСЕЛЕННАЯ</a>
       <div class="nav-label">Общее</div>
       <a class="nav-link production-nav-link" data-target="production"><span>03</span> PRODUCTION</a>
-      <a class="nav-link" data-target="team"><span>04</span> КОМАНДА</a>
-      <a class="nav-link" data-target="tasks"><span>05</span> ЗАДАЧИ</a>
-      <a class="nav-link" data-target="calendar"><span>06</span> КАЛЕНДАРЬ</a>
-      <a class="nav-link knowledge-nav-link" data-target="knowledge"><span>07</span> БАЗА ЗНАНИЙ</a>
-      <a class="nav-link" data-target="files"><span>08</span> ФАЙЛЫ</a>
+      <a class="nav-link roadmap-nav-link" data-target="roadmap"><span>04</span> ROADMAP / SPRINT</a>
+      <a class="nav-link" data-target="team"><span>05</span> КОМАНДА</a>
+      <a class="nav-link" data-target="tasks"><span>06</span> ЗАДАЧИ</a>
+      <a class="nav-link" data-target="calendar"><span>07</span> КАЛЕНДАРЬ</a>
+      <a class="nav-link knowledge-nav-link" data-target="knowledge"><span>08</span> БАЗА ЗНАНИЙ</a>
+      <a class="nav-link" data-target="files"><span>09</span> ФАЙЛЫ</a>
     </nav>
     <div class="sidebar-foot">ONVISUAL • 2026</div>
   </aside>
@@ -65,6 +66,7 @@
       </div>
       <div class="shared-grid">
         <article class="shared-card production-home-card" data-go="production"><span>03</span><h3>Production</h3><p>Monster Zip: ролики, этапы, дедлайны и загрузка команды.</p></article>
+        <article class="shared-card roadmap-home-card" data-go="roadmap"><span>04</span><h3>Roadmap / Sprint</h3><p>Крупные процессы, зависимости, сроки и загрузка команды.</p></article>
         <article class="shared-card" data-go="team"><span>04</span><h3>Общая команда</h3><p>Люди могут работать сразу в двух направлениях.</p></article>
         <article class="shared-card" data-go="tasks"><span>05</span><h3>Общие задачи</h3><p>С тегами ONVISUAL / Мультвселенная / Общее.</p></article>
         <article class="shared-card" data-go="calendar"><span>06</span><h3>Календарь</h3><p>Встречи, дедлайны, релизы и общие события.</p></article>
@@ -1018,6 +1020,123 @@
       </dialog>
     </section>
 
+    <section id="roadmap" class="section roadmap-section">
+      <div class="section-head section-head-action roadmap-head">
+        <div>
+          <div class="eyebrow">04 / OPERATING ROADMAP</div>
+          <h1>ROADMAP / SPRINT</h1>
+          <p>Крупные рабочие процессы: действие → ответственный → подзадачи → зависимости → срок → результат.</p>
+        </div>
+        <button class="hub-action-btn roadmap-add-btn" id="addRoadmapBtn">＋ Добавить процесс</button>
+      </div>
+
+      <div class="roadmap-statusbar">
+        <article><small>АКТИВНО</small><strong id="roadmapActiveCount">0</strong><span>процессов сейчас в работе</span></article>
+        <article class="rm-risk"><small>РИСК / ПРОСРОЧЕНО</small><strong id="roadmapRiskCount">0</strong><span>требуют внимания</span></article>
+        <article class="rm-done"><small>ЗАКРЫТО</small><strong id="roadmapDoneCount">0</strong><span>завершённых процессов</span></article>
+        <article class="rm-focus"><small>ФОКУС</small><strong id="roadmapFocusText">—</strong><span>ближайший активный дедлайн</span></article>
+      </div>
+
+      <div class="roadmap-controls">
+        <div class="roadmap-view-switch" id="roadmapViewSwitch">
+          <button class="active" data-roadmap-view="timeline">Roadmap</button>
+          <button data-roadmap-view="sprint">Sprint</button>
+          <button data-roadmap-view="team">Team</button>
+        </div>
+        <div class="roadmap-filters">
+          <select id="roadmapScopeFilter">
+            <option value="all">Все направления</option>
+            <option value="ONVISUAL">ONVISUAL</option>
+            <option value="Мультвселенная">Мультвселенная</option>
+            <option value="Общее">Общее</option>
+          </select>
+          <select id="roadmapOwnerFilter"><option value="all">Все ответственные</option></select>
+          <label class="roadmap-done-toggle"><input id="roadmapShowDone" type="checkbox" checked> Показывать закрытые</label>
+        </div>
+      </div>
+
+      <div class="roadmap-legend">
+        <span><i class="dot ontrack"></i> Успеваем</span>
+        <span><i class="dot risk"></i> Риск</span>
+        <span><i class="dot overdue"></i> Просрочено</span>
+        <span><i class="dot blocked"></i> Заблокировано</span>
+        <span><i class="dot done"></i> Закрыто</span>
+      </div>
+
+      <div id="roadmapTimelineView" class="roadmap-view active">
+        <div class="roadmap-timeline-head">
+          <div>ПРОЦЕСС / ДЕЙСТВИЕ</div>
+          <div>ОТВЕТСТВЕННЫЙ</div>
+          <div>ПЕРИОД</div>
+          <div>ПРОГРЕСС</div>
+          <div>СТАТУС</div>
+        </div>
+        <div id="roadmapTimeline" class="roadmap-timeline"></div>
+      </div>
+
+      <div id="roadmapSprintView" class="roadmap-view">
+        <div class="roadmap-sprint-grid">
+          <section><header><span>01</span><h3>Следующие</h3><b id="rmNextCount">0</b></header><div id="rmNextList" class="roadmap-sprint-list"></div></section>
+          <section><header><span>02</span><h3>В работе</h3><b id="rmWorkCount">0</b></header><div id="rmWorkList" class="roadmap-sprint-list"></div></section>
+          <section><header><span>03</span><h3>Заблокировано / риск</h3><b id="rmBlockedCount">0</b></header><div id="rmBlockedList" class="roadmap-sprint-list"></div></section>
+          <section><header><span>04</span><h3>Закрыто</h3><b id="rmClosedCount">0</b></header><div id="rmClosedList" class="roadmap-sprint-list"></div></section>
+        </div>
+      </div>
+
+      <div id="roadmapTeamView" class="roadmap-view">
+        <div class="roadmap-team-intro">
+          <div><small>TEAM LOAD</small><h2>Кто над чем работает сейчас</h2></div>
+          <p>Помогает понять, кому можно отдать следующий процесс, а кто уже участвует в нескольких активных задачах.</p>
+        </div>
+        <div id="roadmapTeamGrid" class="roadmap-team-grid"></div>
+      </div>
+    </section>
+
+    <dialog class="hub-modal roadmap-modal" id="roadmapModal">
+      <form method="dialog" id="roadmapForm">
+        <div class="modal-head">
+          <div><small>ROADMAP ITEM</small><h2 id="roadmapModalTitle">Добавить процесс</h2></div>
+          <button type="button" class="modal-close" data-close="roadmapModal">×</button>
+        </div>
+        <label>Действие / большой процесс
+          <input name="title" required placeholder="Например: Запустить новую гипотезу лидогенерации">
+        </label>
+        <div class="form-grid">
+          <label>Направление
+            <select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select>
+          </label>
+          <label>Ответственный
+            <input name="owner" list="teamNames" placeholder="Кто ведёт процесс">
+          </label>
+          <label>Дата старта<input name="start" type="date"></label>
+          <label>Дедлайн<input name="due" type="date"></label>
+          <label>Статус
+            <select name="status">
+              <option value="planned">Следующая</option>
+              <option value="progress">В работе</option>
+              <option value="blocked">Заблокировано</option>
+              <option value="done">Закрыто</option>
+            </select>
+          </label>
+          <label>Прогресс, %<input name="progress" type="number" min="0" max="100" step="5" value="0"></label>
+        </div>
+        <label>Подзадачи
+          <textarea name="subtasks" rows="4" placeholder="Каждая подзадача с новой строки"></textarea>
+        </label>
+        <label>Зависит от
+          <input name="dependency" placeholder="Например: утверждение оффера Екатериной / задача другого сотрудника">
+        </label>
+        <label>Комментарий / ожидаемый результат
+          <textarea name="note" rows="3" placeholder="Что должно быть получено на выходе"></textarea>
+        </label>
+        <div class="modal-actions roadmap-modal-actions">
+          <button type="button" class="danger-modal" id="deleteRoadmapBtn">Удалить</button>
+          <button type="button" class="secondary-modal" data-close="roadmapModal">Отмена</button>
+          <button type="submit" class="primary-modal">Сохранить</button>
+        </div>
+      </form>
+    </dialog>
+
     <section id="team" class="section">
       <div class="section-head"><div><div class="eyebrow">03 / TEAM</div><h1>TEAM</h1><p>Одна команда, две вселенные и пересекающиеся роли.</p></div><span class="section-dot blue"></span></div>
       <div class="team-hero">
@@ -1329,6 +1448,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">08 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261009-pipeline30"></script>
+  <script src="app.js?v=20261021-roadmap1"></script>
 </body>
 </html>
