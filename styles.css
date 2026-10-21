@@ -2837,3 +2837,70 @@ html{scroll-behavior:smooth}
   .roadmap-week-nav{justify-content:space-between}
   .roadmap-week-nav>div{text-align:center;min-width:0}
 }
+
+/* =========================================================
+   SPRINT BOARD — PLAN / WORK / RISK / DONE / CARRY
+   ========================================================= */
+.roadmap-sprint-grid-five{
+  grid-template-columns:repeat(5,minmax(205px,1fr))!important;
+  gap:9px!important;
+  overflow-x:auto;
+  padding-bottom:7px;
+}
+.roadmap-sprint-grid-five>section{
+  min-width:205px;
+}
+.roadmap-sprint-grid-five .rm-col-plan header span{color:#8d98aa}
+.roadmap-sprint-grid-five .rm-col-work{border-color:rgba(85,186,255,.12)}
+.roadmap-sprint-grid-five .rm-col-work header h3{color:#8ecfff}
+.roadmap-sprint-grid-five .rm-col-risk{border-color:rgba(255,179,79,.16)}
+.roadmap-sprint-grid-five .rm-col-risk header h3{color:#ffc36e}
+.roadmap-sprint-grid-five .rm-col-done{border-color:rgba(88,219,157,.14)}
+.roadmap-sprint-grid-five .rm-col-done header h3{color:#72d9a0}
+.roadmap-sprint-grid-five .rm-col-roll{border-color:rgba(156,114,255,.15)}
+.roadmap-sprint-grid-five .rm-col-roll header h3{color:#c1a8ff}
+
+.rm-sprint-card.health-rolled{border-left-color:#9c72ff!important}
+.rm-health-badge.rolled{color:#c1a8ff;background:rgba(156,114,255,.06);border-color:rgba(156,114,255,.18)}
+
+.rm-card-note{
+  margin-top:9px;
+  padding:8px 9px;
+  border-radius:8px;
+  background:#0b1016;
+  border:1px solid rgba(255,255,255,.045);
+  color:#8f9aaa;
+  font-size:10px;
+  line-height:1.45;
+}
+.rm-resource-link{
+  display:inline-flex;
+  margin-top:8px;
+  padding:6px 8px;
+  border-radius:7px;
+  border:1px solid rgba(85,186,255,.16);
+  background:rgba(85,186,255,.045);
+  color:#8fcfff;
+  font-size:9.5px;
+  font-weight:700;
+  text-decoration:none;
+}
+.rm-resource-link:hover{
+  background:rgba(85,186,255,.09);
+  color:#cfeeff;
+}
+
+.roadmap-modal label{
+  font-size:11.5px!important;
+}
+.roadmap-modal input,
+.roadmap-modal select,
+.roadmap-modal textarea{
+  font-size:12px!important;
+}
+
+@media(max-width:1300px){
+  .roadmap-sprint-grid-five{
+    grid-template-columns:repeat(5,minmax(220px,1fr))!important;
+  }
+}
