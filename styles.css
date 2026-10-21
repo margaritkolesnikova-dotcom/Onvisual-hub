@@ -2432,3 +2432,107 @@ html{scroll-behavior:smooth}
   #knowledge .knowledge-card{grid-column:auto!important}
   #knowledge .section-head h1{font-size:34px!important}
 }
+
+/* =========================================================
+   ROADMAP / SPRINT
+   ========================================================= */
+.roadmap-head{
+  background:
+    radial-gradient(circle at 88% 8%,rgba(255,174,76,.14),transparent 28%),
+    radial-gradient(circle at 72% 88%,rgba(79,130,255,.12),transparent 34%),
+    linear-gradient(135deg,#10141c,#0b0f15)!important;
+}
+.roadmap-add-btn{background:linear-gradient(135deg,#ffae4c,#ff7a59)!important;color:#111!important;border:0!important;font-weight:800!important}
+.roadmap-statusbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.roadmap-statusbar article{padding:15px 16px;border:1px solid var(--line);border-radius:14px;background:#0d1117;min-height:95px}
+.roadmap-statusbar small{font-size:9px;letter-spacing:1px;color:#778195}
+.roadmap-statusbar strong{display:block;font-size:28px;line-height:1;margin-top:10px}
+.roadmap-statusbar span{display:block;font-size:10.5px;color:#7f8999;margin-top:7px}
+.roadmap-statusbar .rm-risk{border-color:rgba(255,95,108,.16)}
+.roadmap-statusbar .rm-risk strong{color:#ff7f89}
+.roadmap-statusbar .rm-done{border-color:rgba(69,215,151,.14)}
+.roadmap-statusbar .rm-done strong{color:#62e4a8}
+.roadmap-statusbar .rm-focus{border-color:rgba(255,174,76,.16)}
+.roadmap-statusbar .rm-focus strong{color:#ffc36e;font-size:22px}
+
+.roadmap-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:13px 0}
+.roadmap-view-switch{display:flex;gap:5px;padding:4px;border:1px solid var(--line);border-radius:11px;background:#0b0f14}
+.roadmap-view-switch button{border:0;background:transparent;color:#727c8d;padding:8px 13px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}
+.roadmap-view-switch button.active{background:#171d27;color:#fff}
+.roadmap-filters{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.roadmap-filters select{border:1px solid var(--line);background:#0d1117;color:#aab2c1;border-radius:9px;padding:9px 11px;font-size:10.5px}
+.roadmap-done-toggle{font-size:10px;color:#8490a0;display:flex;gap:6px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#0d1117}
+.roadmap-done-toggle input{accent-color:#62e4a8}
+.roadmap-legend{display:flex;gap:14px;flex-wrap:wrap;margin:9px 0 12px;font-size:9.5px;color:#788395}
+.roadmap-legend span{display:flex;align-items:center;gap:6px}
+.roadmap-legend .dot{width:8px;height:8px;border-radius:50%}
+.dot.ontrack{background:#55baff}.dot.risk{background:#ffb34f}.dot.overdue{background:#ff6372}.dot.blocked{background:#9c72ff}.dot.done{background:#58db9d}
+
+.roadmap-view{display:none}.roadmap-view.active{display:block}
+.roadmap-timeline-head{display:grid;grid-template-columns:minmax(360px,1.7fr) minmax(150px,.65fr) minmax(170px,.7fr) minmax(120px,.55fr) minmax(120px,.5fr);gap:10px;padding:10px 13px;color:#6c7788;font-size:9px;letter-spacing:.8px;border-bottom:1px solid var(--line)}
+.roadmap-timeline{display:grid;gap:8px;margin-top:8px}
+.roadmap-row{display:grid;grid-template-columns:minmax(360px,1.7fr) minmax(150px,.65fr) minmax(170px,.7fr) minmax(120px,.55fr) minmax(120px,.5fr);gap:10px;align-items:center;border:1px solid var(--line);border-left:3px solid #55baff;border-radius:13px;background:#0d1117;padding:14px;cursor:pointer;transition:.2s}
+.roadmap-row:hover{background:#111722;border-color:rgba(255,255,255,.10);transform:translateY(-1px)}
+.roadmap-row.health-risk{border-left-color:#ffb34f}.roadmap-row.health-overdue{border-left-color:#ff6372}.roadmap-row.health-blocked{border-left-color:#9c72ff}.roadmap-row.health-done{border-left-color:#58db9d;opacity:.78}
+.rm-scope{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:8px;font-weight:800;letter-spacing:.5px;margin-bottom:8px;border:1px solid var(--line);color:#8e98aa}
+.rm-scope.studio{color:#b79cff;border-color:rgba(141,98,255,.22);background:rgba(141,98,255,.06)}
+.rm-scope.mv{color:#ff9bd6;border-color:rgba(250,110,198,.22);background:rgba(250,110,198,.05)}
+.rm-scope.shared{color:#8ce8df;border-color:rgba(55,214,208,.20);background:rgba(55,214,208,.05)}
+.rm-main h3{font-size:14px;line-height:1.25;margin:0 0 7px}
+.rm-dependency{font-size:9.5px;color:#7e8999;margin:5px 0 8px}.rm-dependency b{color:#c1c8d4;font-weight:600}
+.rm-subtask-summary{display:flex;gap:6px;align-items:center;font-size:9px;color:#748091;margin-top:7px}.rm-subtask-summary b{color:#d3d8df}
+.rm-subtask-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.rm-subtask-chip{border:1px solid rgba(255,255,255,.06);background:#10151d;color:#8c96a6;padding:5px 7px;border-radius:7px;font-size:8.5px;cursor:pointer;text-align:left}
+.rm-subtask-chip.done{color:#72d9a0;background:rgba(69,215,151,.05);border-color:rgba(69,215,151,.14)}
+.rm-more{font-size:8.5px;color:#677182;padding:5px}
+.rm-no-subtasks{font-size:9px;color:#596272}
+.rm-owner span{display:block;font-size:8px;color:#687385;letter-spacing:.7px}.rm-owner b{display:block;font-size:11.5px;margin-top:6px}
+.rm-period{display:grid;grid-template-columns:auto 12px auto;gap:5px;align-items:center}.rm-period span,.rm-period b{font-size:10.5px}.rm-period i{font-style:normal;color:#566071}.rm-period small{grid-column:1/-1;font-size:9px;color:#7a8596;margin-top:5px}
+.rm-progress{display:flex;gap:8px;align-items:center}.rm-progress>div{height:7px;border-radius:99px;background:#171d27;overflow:hidden;flex:1}.rm-progress>div i{display:block;height:100%;background:linear-gradient(90deg,#5aa7ff,#52d6c9);border-radius:99px}.rm-progress>b{font-size:10px;min-width:34px}
+.rm-health{display:flex;flex-direction:column;align-items:flex-start;gap:5px}.rm-health small{font-size:8.5px;color:#6e7888}
+.rm-health-badge{font-size:9px;font-weight:700;border-radius:999px;padding:5px 8px;border:1px solid var(--line)}
+.rm-health-badge.ontrack{color:#75c8ff;background:rgba(85,186,255,.06);border-color:rgba(85,186,255,.18)}
+.rm-health-badge.risk{color:#ffc36e;background:rgba(255,179,79,.06);border-color:rgba(255,179,79,.18)}
+.rm-health-badge.overdue{color:#ff8993;background:rgba(255,99,114,.06);border-color:rgba(255,99,114,.18)}
+.rm-health-badge.blocked{color:#c1a8ff;background:rgba(156,114,255,.06);border-color:rgba(156,114,255,.18)}
+.rm-health-badge.done{color:#72d9a0;background:rgba(88,219,157,.06);border-color:rgba(88,219,157,.18)}
+.roadmap-empty,.rm-column-empty{padding:20px;border:1px dashed rgba(255,255,255,.06);border-radius:12px;color:#657083;font-size:10px;text-align:center}
+
+.roadmap-sprint-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.roadmap-sprint-grid>section{border:1px solid var(--line);border-radius:13px;background:#0b0f14;padding:10px;min-height:360px}
+.roadmap-sprint-grid header{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:5px 4px 10px;border-bottom:1px solid var(--line)}
+.roadmap-sprint-grid header span{font-size:8px;color:#637084}.roadmap-sprint-grid header h3{font-size:12px;margin:0}.roadmap-sprint-grid header b{font-size:9px;background:#161c25;border-radius:99px;padding:4px 7px}
+.roadmap-sprint-list{display:grid;gap:7px;margin-top:9px}
+.rm-sprint-card{border:1px solid var(--line);border-left:3px solid #55baff;border-radius:10px;background:#0e131a;padding:11px;cursor:pointer}
+.rm-sprint-card.health-risk{border-left-color:#ffb34f}.rm-sprint-card.health-overdue{border-left-color:#ff6372}.rm-sprint-card.health-blocked{border-left-color:#9c72ff}.rm-sprint-card.health-done{border-left-color:#58db9d}
+.rm-sprint-top{display:flex;justify-content:space-between;gap:6px;font-size:8px;color:#768195}.rm-sprint-top b{color:#b8bfca}
+.rm-sprint-card h4{font-size:11.5px;line-height:1.3;margin:9px 0 5px}.rm-sprint-card p{font-size:9px;color:#7a8595;margin:0}
+.rm-mini-progress{height:5px;background:#171d25;border-radius:99px;overflow:hidden;margin:10px 0 5px}.rm-mini-progress i{display:block;height:100%;background:#55baff}
+.rm-sprint-card small{font-size:8.5px;color:#687486}
+
+.roadmap-team-intro{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin:12px 0}.roadmap-team-intro small{font-size:8px;color:#758093;letter-spacing:1px}.roadmap-team-intro h2{font-size:20px;margin:5px 0 0}.roadmap-team-intro p{max-width:540px;font-size:10px;line-height:1.45;color:#7c8798;margin:0}
+.roadmap-team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.rm-team-card{border:1px solid var(--line);border-radius:13px;background:#0d1117;padding:14px}
+.rm-team-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rm-team-head small{font-size:8px;color:#6e7889;letter-spacing:.8px}.rm-team-head h3{font-size:14px;margin:6px 0 0}.rm-team-head>b{font-size:9px;color:#8f99aa;border:1px solid var(--line);border-radius:99px;padding:5px 7px}
+.rm-team-load{margin-top:15px}.rm-team-load>span{font-size:8.5px;color:#6f7a8b}.rm-team-load>div{height:6px;background:#171d26;border-radius:99px;margin:6px 0}.rm-team-load>div i{display:block;height:100%;background:linear-gradient(90deg,#55baff,#8f6bff);border-radius:99px}.rm-team-load>b{font-size:9px}
+.rm-team-risk,.rm-team-ok{font-size:9px;margin-top:9px;padding:7px 8px;border-radius:7px}.rm-team-risk{color:#ffac77;background:rgba(255,137,83,.05)}.rm-team-ok{color:#71dba1;background:rgba(69,215,151,.05)}
+.rm-team-items{display:grid;gap:5px;margin-top:10px}.rm-team-items button{display:flex;justify-content:space-between;gap:8px;text-align:left;border:1px solid rgba(255,255,255,.05);background:#10151c;color:#c3cad4;border-radius:8px;padding:8px;cursor:pointer;font-size:9px}.rm-team-items button b{color:#768195;font-size:8.5px}
+
+.roadmap-modal{width:min(760px,calc(100vw - 30px))}
+.roadmap-modal textarea{resize:vertical}
+.roadmap-modal-actions{justify-content:flex-end}.danger-modal{margin-right:auto;border:1px solid rgba(255,99,114,.18);background:rgba(255,99,114,.05);color:#ff8791;border-radius:9px;padding:9px 12px;cursor:pointer}
+
+@media(max-width:1200px){
+  .roadmap-timeline-head{display:none}
+  .roadmap-row{grid-template-columns:1.4fr .7fr .7fr;align-items:start}
+  .rm-progress,.rm-health{margin-top:6px}
+  .roadmap-sprint-grid{grid-template-columns:1fr 1fr}
+  .roadmap-team-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .roadmap-statusbar{grid-template-columns:1fr 1fr}
+  .roadmap-row{grid-template-columns:1fr}
+  .roadmap-sprint-grid,.roadmap-team-grid{grid-template-columns:1fr}
+  .roadmap-team-intro{display:block}.roadmap-team-intro p{margin-top:8px}
+  .roadmap-controls{align-items:stretch}.roadmap-filters{width:100%}.roadmap-filters select{flex:1}
+}
