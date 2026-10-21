@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261021-roadmap2" />
+  <link rel="stylesheet" href="styles.css?v=20261021-roadmap3" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1027,7 +1027,7 @@
           <h1>ROADMAP / SPRINT</h1>
           <p>Отдельные дорожные карты ONVISUAL и Мультвселенной: действие → ответственный → подзадачи → зависимости → срок → результат.</p>
         </div>
-        <button class="hub-action-btn roadmap-add-btn" id="addRoadmapBtn">＋ Добавить процесс</button>
+        <button class="hub-action-btn roadmap-add-btn" id="addRoadmapBtn">＋ Добавить действие</button>
       </div>
 
       <div class="roadmap-project-switch" id="roadmapProjectSwitch">
@@ -1063,17 +1063,41 @@
       </div>
 
       <div id="roadmapTimelineView" class="roadmap-view active">
-        <div class="roadmap-timeline-head">
-          <div>ПРОЦЕСС / ДЕЙСТВИЕ</div>
-          <div>ОТВЕТСТВЕННЫЙ</div>
-          <div>ПЕРИОД</div>
-          <div>ПРОГРЕСС</div>
-          <div>СТАТУС</div>
+        <div class="roadmap-global-intro">
+          <div>
+            <small>OCTOBER — DECEMBER 2026</small>
+            <h2>Глобальная дорожная карта</h2>
+          </div>
+          <p>Здесь только крупные направления до конца декабря. Конкретные действия, ответственные и подзадачи живут внутри недельных спринтов.</p>
         </div>
-        <div id="roadmapTimeline" class="roadmap-timeline"></div>
+        <div class="roadmap-month-axis">
+          <span>ОКТЯБРЬ</span><span>НОЯБРЬ</span><span>ДЕКАБРЬ</span>
+        </div>
+        <div id="roadmapTimeline" class="roadmap-global-grid"></div>
       </div>
 
       <div id="roadmapSprintView" class="roadmap-view">
+        <div class="roadmap-weekbar">
+          <div class="roadmap-week-nav">
+            <button type="button" id="rmPrevWeek" aria-label="Предыдущая неделя">←</button>
+            <div>
+              <small>WEEKLY SPRINT</small>
+              <strong id="rmWeekTitle">—</strong>
+              <span id="rmWeekState">Текущая рабочая неделя</span>
+            </div>
+            <button type="button" id="rmNextWeek" aria-label="Следующая неделя">→</button>
+          </div>
+          <div class="roadmap-week-actions">
+            <button type="button" class="rm-today-btn" id="rmTodayWeek">Текущая неделя</button>
+            <button type="button" class="rm-close-week-btn" id="rmCloseWeek">Закрыть неделю</button>
+          </div>
+        </div>
+        <div class="roadmap-week-summary">
+          <article><small>ЗАДАЧ НЕДЕЛИ</small><strong id="rmWeekTotal">0</strong></article>
+          <article><small>ЗАКРЫТО</small><strong id="rmWeekDone">0</strong></article>
+          <article><small>ОСТАЛОСЬ</small><strong id="rmWeekRemain">0</strong></article>
+          <article class="rm-week-health"><small>ТЕМП</small><strong id="rmWeekHealth">—</strong></article>
+        </div>
         <div class="roadmap-sprint-grid">
           <section><header><span>01</span><h3>Следующие</h3><b id="rmNextCount">0</b></header><div id="rmNextList" class="roadmap-sprint-list"></div></section>
           <section><header><span>02</span><h3>В работе</h3><b id="rmWorkCount">0</b></header><div id="rmWorkList" class="roadmap-sprint-list"></div></section>
@@ -1094,15 +1118,18 @@
     <dialog class="hub-modal roadmap-modal" id="roadmapModal">
       <form method="dialog" id="roadmapForm">
         <div class="modal-head">
-          <div><small>ROADMAP ITEM</small><h2 id="roadmapModalTitle">Добавить процесс</h2></div>
+          <div><small>SPRINT ACTION</small><h2 id="roadmapModalTitle">Добавить процесс</h2></div>
           <button type="button" class="modal-close" data-close="roadmapModal">×</button>
         </div>
-        <label>Действие / большой процесс
-          <input name="title" required placeholder="Например: Запустить новую гипотезу лидогенерации">
+        <label>Действие / задача спринта
+          <input name="title" required placeholder="Например: собрать 30 новых контактов для outreach">
         </label>
         <div class="form-grid">
           <label>Направление
             <select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select>
+          </label>
+          <label>Глобальное направление
+            <select name="goalId" id="roadmapGoalSelect"></select>
           </label>
           <label>Ответственный
             <input name="owner" list="teamNames" placeholder="Кто ведёт процесс">
@@ -1466,6 +1493,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261021-roadmap2"></script>
+  <script src="app.js?v=20261021-roadmap3"></script>
 </body>
 </html>
