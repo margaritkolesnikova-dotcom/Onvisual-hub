@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261021-roadmap1" />
+  <link rel="stylesheet" href="styles.css?v=20261021-roadmap2" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1025,9 +1025,14 @@
         <div>
           <div class="eyebrow">04 / OPERATING ROADMAP</div>
           <h1>ROADMAP / SPRINT</h1>
-          <p>Крупные рабочие процессы: действие → ответственный → подзадачи → зависимости → срок → результат.</p>
+          <p>Отдельные дорожные карты ONVISUAL и Мультвселенной: действие → ответственный → подзадачи → зависимости → срок → результат.</p>
         </div>
         <button class="hub-action-btn roadmap-add-btn" id="addRoadmapBtn">＋ Добавить процесс</button>
+      </div>
+
+      <div class="roadmap-project-switch" id="roadmapProjectSwitch">
+        <button class="active" data-roadmap-project="ONVISUAL"><span>01</span><strong>ONVISUAL</strong><small>Студия / продажи / развитие</small></button>
+        <button data-roadmap-project="Мультвселенная"><span>02</span><strong>МУЛЬТВСЕЛЕННАЯ</strong><small>IP / контент / развитие миров</small></button>
       </div>
 
       <div class="roadmap-statusbar">
@@ -1044,12 +1049,6 @@
           <button data-roadmap-view="team">Team</button>
         </div>
         <div class="roadmap-filters">
-          <select id="roadmapScopeFilter">
-            <option value="all">Все направления</option>
-            <option value="ONVISUAL">ONVISUAL</option>
-            <option value="Мультвселенная">Мультвселенная</option>
-            <option value="Общее">Общее</option>
-          </select>
           <select id="roadmapOwnerFilter"><option value="all">Все ответственные</option></select>
           <label class="roadmap-done-toggle"><input id="roadmapShowDone" type="checkbox" checked> Показывать закрытые</label>
         </div>
@@ -1133,6 +1132,25 @@
           <button type="button" class="danger-modal" id="deleteRoadmapBtn">Удалить</button>
           <button type="button" class="secondary-modal" data-close="roadmapModal">Отмена</button>
           <button type="submit" class="primary-modal">Сохранить</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="hub-modal roadmap-subtask-modal" id="roadmapSubtaskModal">
+      <form method="dialog" id="roadmapSubtaskForm">
+        <div class="modal-head">
+          <div><small>NEXT ACTION</small><h2>Добавить подзадачу</h2></div>
+          <button type="button" class="modal-close" data-close="roadmapSubtaskModal">×</button>
+        </div>
+        <label>Действие<input name="title" required placeholder="Что конкретно нужно сделать"></label>
+        <div class="form-grid">
+          <label>Ответственный<input name="owner" list="teamNames" placeholder="Кто делает"></label>
+          <label>Дата<input name="due" type="date"></label>
+          <label>Статус<select name="status"><option value="todo">Не начато</option><option value="progress">В работе</option><option value="blocked">Заблокировано</option><option value="done">Готово</option></select></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="secondary-modal" data-close="roadmapSubtaskModal">Отмена</button>
+          <button type="submit" class="primary-modal">Добавить действие</button>
         </div>
       </form>
     </dialog>
@@ -1393,84 +1411,6 @@
       <option value="Кодин Дмитрий"><option value="Ярошенко Екатерина"><option value="Колесникова Маргарита"><option value="Подкорытов Александр">
       <option value="Иван"><option value="Дмитрий"><option value="Алексей"><option value="Анна"><option value="Павел"><option value="Ксения">
     </datalist>
-    <section id="roadmap" class="section roadmap-section">
-      <div class="section-head roadmap-head">
-        <div>
-          <div class="eyebrow">08 / EXECUTION MAP</div>
-          <h1>ROADMAP</h1>
-          <p>Крупные задачи компании: что делаем сейчас, кто отвечает, от чего зависит и успеваем ли в срок.</p>
-        </div>
-        <button class="hub-action-btn roadmap-action" id="addRoadmapTaskBtn">＋ Добавить задачу</button>
-      </div>
-
-      <div class="roadmap-project-switch" id="roadmapProjectSwitch">
-        <button class="active" data-roadmap-project="onvisual"><span>01</span><strong>ONVISUAL</strong><small>Студия / продажи / развитие</small></button>
-        <button data-roadmap-project="multiverse"><span>02</span><strong>МУЛЬТВСЕЛЕННАЯ</strong><small>IP / контент / исследования</small></button>
-      </div>
-
-      <div class="roadmap-controlbar">
-        <div class="roadmap-view-title">
-          <small>CURRENT PROJECT</small>
-          <h2 id="roadmapProjectTitle">ONVISUAL</h2>
-        </div>
-        <div class="roadmap-filters" id="roadmapFilters">
-          <button class="active" data-roadmap-filter="active">Активные</button>
-          <button data-roadmap-filter="done">Завершённые</button>
-          <button data-roadmap-filter="all">Все</button>
-        </div>
-      </div>
-
-      <div class="roadmap-status-strip">
-        <article><small>В РАБОТЕ</small><strong id="roadmapActiveCount">0</strong><span>текущих направлений</span></article>
-        <article class="roadmap-risk"><small>РИСК / ПРОСРОЧЕНО</small><strong id="roadmapRiskCount">0</strong><span>требуют внимания</span></article>
-        <article class="roadmap-done"><small>ЗАВЕРШЕНО</small><strong id="roadmapDoneCount">0</strong><span>сохранено в истории</span></article>
-        <article><small>БЛИЖАЙШИЙ СРОК</small><strong id="roadmapNearestDate">—</strong><span id="roadmapNearestTask">сроки не заданы</span></article>
-      </div>
-
-      <div class="roadmap-board" id="roadmapBoard"></div>
-    </section>
-
-    <dialog class="hub-modal roadmap-modal" id="roadmapTaskModal">
-      <form method="dialog" id="roadmapTaskForm">
-        <div class="modal-head">
-          <div><small>ROADMAP ITEM</small><h2 id="roadmapModalTitle">Добавить крупную задачу</h2></div>
-          <button type="button" class="modal-close" data-close="roadmapTaskModal">×</button>
-        </div>
-        <label>Основная задача<input name="title" required placeholder="Например: запустить новую гипотезу лидогенерации"></label>
-        <div class="form-grid">
-          <label>Проект<select name="project"><option value="onvisual">ONVISUAL</option><option value="multiverse">Мультвселенная</option></select></label>
-          <label>Ответственный<input name="owner" list="teamNames" placeholder="Кто ведёт задачу"></label>
-          <label>Срок<input name="due" type="date"></label>
-          <label>Статус<select name="status"><option value="plan">Запланировано</option><option value="progress">В работе</option><option value="blocked">Заблокировано</option><option value="done">Завершено</option></select></label>
-        </div>
-        <label>Результат / цель<textarea name="goal" rows="3" placeholder="Что должно быть получено в результате"></textarea></label>
-        <label>Зависит от<textarea name="depends" rows="2" placeholder="Человек, решение, другая задача, материал"></textarea></label>
-        <div class="modal-actions">
-          <button type="button" class="secondary-modal" data-close="roadmapTaskModal">Отмена</button>
-          <button type="submit" class="primary-modal">Сохранить</button>
-        </div>
-      </form>
-    </dialog>
-
-    <dialog class="hub-modal roadmap-subtask-modal" id="roadmapSubtaskModal">
-      <form method="dialog" id="roadmapSubtaskForm">
-        <div class="modal-head">
-          <div><small>NEXT ACTION</small><h2>Добавить подзадачу</h2></div>
-          <button type="button" class="modal-close" data-close="roadmapSubtaskModal">×</button>
-        </div>
-        <label>Действие<input name="title" required placeholder="Что конкретно нужно сделать"></label>
-        <div class="form-grid">
-          <label>Ответственный<input name="owner" list="teamNames" placeholder="Кто делает"></label>
-          <label>Дата<input name="due" type="date"></label>
-          <label>Статус<select name="status"><option value="todo">Не начато</option><option value="progress">В работе</option><option value="blocked">Заблокировано</option><option value="done">Готово</option></select></label>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="secondary-modal" data-close="roadmapSubtaskModal">Отмена</button>
-          <button type="submit" class="primary-modal">Добавить</button>
-        </div>
-      </form>
-    </dialog>
-
     <section id="knowledge" class="section knowledge-section">
       <div class="section-head knowledge-head">
         <div>
@@ -1526,6 +1466,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261021-roadmap1"></script>
+  <script src="app.js?v=20261021-roadmap2"></script>
 </body>
 </html>
