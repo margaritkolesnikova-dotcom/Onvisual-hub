@@ -2713,3 +2713,127 @@ html{scroll-behavior:smooth}
 .rm-subtask-chip small{font-size:8.8px!important;color:#6f7b8c!important;line-height:1.25!important}
 .rm-subtask-chip.done small{color:#5f9d7d!important}
 .roadmap-subtask-modal{width:min(680px,calc(100vw - 30px))}
+
+/* =========================================================
+   ROADMAP v3 — GLOBAL ROADMAP + WEEKLY SPRINTS
+   ========================================================= */
+.roadmap-global-intro{
+  display:flex;justify-content:space-between;gap:24px;align-items:flex-end;
+  margin:14px 0 10px;padding:18px 20px;border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;background:linear-gradient(135deg,#10141b,#0c1016)
+}
+.roadmap-global-intro small{font-size:9px;letter-spacing:1.2px;color:#8c97aa}
+.roadmap-global-intro h2{font-size:24px;margin:6px 0 0}
+.roadmap-global-intro p{max-width:560px;font-size:11.5px;line-height:1.5;color:#8791a2;margin:0}
+.roadmap-month-axis{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 7px;
+  padding:0 12px 0 70px
+}
+.roadmap-month-axis span{
+  font-size:8.5px;letter-spacing:1.2px;color:#596577;text-align:center
+}
+.roadmap-global-grid{display:grid;gap:9px}
+.rm-global-card{
+  display:grid;grid-template-columns:46px minmax(0,1fr) 190px;gap:13px;align-items:center;
+  position:relative;padding:15px 16px 20px;border:1px solid rgba(255,255,255,.055);
+  border-radius:14px;background:#0e1218;overflow:hidden
+}
+.rm-global-card.health-risk{border-color:rgba(244,163,64,.24)}
+.rm-global-card.health-overdue{border-color:rgba(255,99,110,.26)}
+.rm-global-card.health-blocked{border-color:rgba(222,92,201,.24)}
+.rm-global-card.health-done{border-color:rgba(66,217,154,.18)}
+.rm-global-num{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.07);font-size:9px;color:#7c8799;background:#111720
+}
+.rm-global-main small{font-size:8px;letter-spacing:.8px;color:#697487}
+.rm-global-main h3{font-size:15px;line-height:1.25;margin:5px 0 5px}
+.rm-global-main p{font-size:10.5px;line-height:1.45;color:#7d8798;margin:0;max-width:760px}
+.rm-global-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.rm-global-meta span{
+  font-size:8.5px;color:#7d8798;border:1px solid rgba(255,255,255,.05);
+  padding:5px 7px;border-radius:7px;background:#0b0f14
+}
+.rm-global-meta b{color:#d1d6df}
+.rm-global-progress{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.rm-global-progress>div{
+  height:6px;border-radius:99px;background:#171d26;overflow:hidden;grid-column:1/2
+}
+.rm-global-progress>div i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7057db,#58a7ff)}
+.rm-global-progress>strong{font-size:11px}
+.rm-global-progress .rm-health-badge{grid-column:1/3;justify-self:end}
+.rm-global-monthbar{
+  position:absolute;left:74px;right:16px;bottom:7px;height:4px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px
+}
+.rm-global-monthbar:before{
+  content:"";position:absolute;inset:0;background:
+  linear-gradient(90deg,rgba(255,255,255,.035) 0 32.8%,transparent 32.8% 33.5%,rgba(255,255,255,.035) 33.5% 66.2%,transparent 66.2% 66.9%,rgba(255,255,255,.035) 66.9%);
+  border-radius:99px
+}
+.rm-global-monthbar i{
+  position:relative;z-index:1;border-radius:99px;background:linear-gradient(90deg,#6f5bde,#b66adb,#f2a95d)
+}
+
+/* Week navigation */
+.roadmap-weekbar{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  margin:14px 0 9px;padding:13px 14px;border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;background:#0d1117
+}
+.roadmap-week-nav{display:flex;align-items:center;gap:12px}
+.roadmap-week-nav>button{
+  width:34px;height:34px;border:1px solid rgba(255,255,255,.08);border-radius:9px;
+  background:#111720;color:#aab4c4;cursor:pointer;font-size:15px
+}
+.roadmap-week-nav>div{min-width:230px}
+.roadmap-week-nav small{display:block;font-size:8px;letter-spacing:1px;color:#6f7a8d}
+.roadmap-week-nav strong{display:block;font-size:17px;margin-top:3px}
+.roadmap-week-nav span{display:block;font-size:9px;color:#7a8496;margin-top:3px}
+.roadmap-week-actions{display:flex;gap:7px}
+.rm-today-btn,.rm-close-week-btn{
+  border-radius:9px;padding:9px 11px;font-size:9.5px;cursor:pointer
+}
+.rm-today-btn{border:1px solid rgba(255,255,255,.08);background:#111720;color:#a6b0c0}
+.rm-close-week-btn{
+  border:1px solid rgba(74,204,164,.22);background:rgba(74,204,164,.06);color:#79ddb9;font-weight:700
+}
+.rm-close-week-btn:disabled{opacity:.45;cursor:default}
+
+.roadmap-week-summary{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px
+}
+.roadmap-week-summary article{
+  min-height:70px;border:1px solid rgba(255,255,255,.055);border-radius:11px;
+  background:#0e1218;padding:11px 12px
+}
+.roadmap-week-summary small{font-size:7.5px;letter-spacing:.8px;color:#677285}
+.roadmap-week-summary strong{display:block;font-size:19px;margin-top:9px}
+.roadmap-week-summary .rm-week-health strong{font-size:13px;color:#7fdab7}
+
+.rm-sprint-card .rm-sprint-dep{
+  margin:7px 0 2px;font-size:8.5px;color:#7c8798;line-height:1.4
+}
+.rm-sprint-card.health-rolled{
+  opacity:.68;border-style:dashed!important
+}
+.rm-sprint-card.health-rolled .rm-mini-progress i{background:#596375!important}
+.rm-health-badge.rolled{color:#8e99aa;border-color:rgba(142,153,170,.18);background:rgba(142,153,170,.05)}
+
+@media(max-width:1000px){
+  .rm-global-card{grid-template-columns:42px 1fr}
+  .rm-global-progress{grid-column:2}
+  .rm-global-monthbar{left:68px}
+  .roadmap-week-summary{grid-template-columns:1fr 1fr}
+}
+@media(max-width:680px){
+  .roadmap-global-intro,.roadmap-weekbar{flex-direction:column;align-items:stretch}
+  .roadmap-month-axis{padding-left:0}
+  .rm-global-card{grid-template-columns:1fr;padding:14px 14px 21px}
+  .rm-global-num{display:none}
+  .rm-global-progress{grid-column:auto}
+  .rm-global-monthbar{left:14px;right:14px}
+  .roadmap-week-actions{display:grid;grid-template-columns:1fr 1fr}
+  .roadmap-week-nav{justify-content:space-between}
+  .roadmap-week-nav>div{text-align:center;min-width:0}
+}
