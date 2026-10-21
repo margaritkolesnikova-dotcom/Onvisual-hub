@@ -1873,14 +1873,14 @@ const roadmapSeed=[
   {
     id:'rm-studio-custdev-design',
     title:'Разработка КастДев для позиционирования',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-10-19',due:'2026-10-23',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-10-19',due:'2026-10-23',
     status:'progress',progress:0,dependency:'',note:'Октябрь: аналитика, смыслы и выбор вектора.',
     subtasks:[]
   },
   {
     id:'rm-studio-custdev-lpr',
     title:'Проведение КастДевов с ЛПР',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-10-19',due:'2026-10-23',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-10-19',due:'2026-10-23',
     status:'progress',progress:0,dependency:'Разработка КастДев для позиционирования',note:'Получить фактуру от лиц, принимающих решения.',
     subtasks:[]
   },
@@ -1897,49 +1897,49 @@ const roadmapSeed=[
   {
     id:'rm-mv-audience-audit',
     title:'Аудит аудитории и источников показов',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-10-19',due:'2026-10-23',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-10-19',due:'2026-10-23',
     status:'progress',progress:0,dependency:'',note:'Понять текущую аудиторию и откуда приходят показы.',
     subtasks:[]
   },
   {
     id:'rm-studio-transcripts',
     title:'Расшифровка интервью',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-10-26',due:'2026-10-30',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-10-26',due:'2026-10-30',
     status:'planned',progress:0,dependency:'Проведение КастДевов с ЛПР',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-needs-map',
     title:'Карта потребностей клиентов',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-10-26',due:'2026-10-30',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-10-26',due:'2026-10-30',
     status:'planned',progress:0,dependency:'Расшифровка интервью',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-product-positioning',
     title:'Формулировка гипотезы продукта и гипотез позиционирования Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-10-26',due:'2026-10-30',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-10-26',due:'2026-10-30',
     status:'planned',progress:0,dependency:'Карта потребностей клиентов',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-brand-core',
     title:'Утверждение ядра бренд-платформы',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-10-26',due:'2026-10-30',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-10-26',due:'2026-10-30',
     status:'planned',progress:0,dependency:'Аудит аудитории и источников показов',note:'Monster Zip.',
     subtasks:[]
   },
   {
     id:'rm-mv-channels',
     title:'Выбор площадок для продвижения',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-10-26',due:'2026-10-30',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-10-26',due:'2026-10-30',
     status:'planned',progress:0,dependency:'Аудит аудитории и источников показов',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-brand-architecture-start',
     title:'Начало создания бренд-архитектуры Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-02',due:'2026-11-06',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-02',due:'2026-11-06',
     status:'planned',progress:0,dependency:'Формулировка гипотезы продукта и гипотез позиционирования Студии',note:'',
     subtasks:[
       {title:'Tone of voice',done:false},
@@ -1951,14 +1951,14 @@ const roadmapSeed=[
   {
     id:'rm-studio-product-matrix',
     title:'Формирование продуктовой матрицы',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-02',due:'2026-11-06',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-02',due:'2026-11-06',
     status:'planned',progress:0,dependency:'Гипотеза продукта и позиционирование',note:'Продукты с ценами.',
     subtasks:[]
   },
   {
     id:'rm-mv-zip-bible',
     title:'Создание «Библии Зипов»',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-02',due:'2026-11-06',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-02',due:'2026-11-06',
     status:'planned',progress:0,dependency:'Утверждение ядра бренд-платформы',note:'',
     subtasks:[
       {title:'Правила мира',done:false},
@@ -1969,56 +1969,56 @@ const roadmapSeed=[
   {
     id:'rm-mv-content-plan',
     title:'Разработка контент-плана для соцсетей совместно с SMM',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-02',due:'2026-11-06',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-02',due:'2026-11-06',
     status:'planned',progress:0,dependency:'Выбор площадок для продвижения',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-brand-architecture-final',
     title:'Финал бренд-архитектуры Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-09',due:'2026-11-13',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-09',due:'2026-11-13',
     status:'planned',progress:0,dependency:'Начало создания бренд-архитектуры Студии',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-site-structure',
     title:'Написание структуры сайта Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-09',due:'2026-11-13',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-09',due:'2026-11-13',
     status:'planned',progress:0,dependency:'Финал бренд-архитектуры Студии',note:'ТЗ на дизайн / верстку.',
     subtasks:[]
   },
   {
     id:'rm-studio-presentation-script',
     title:'Написание сценария для презентации компании',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-09',due:'2026-11-13',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-09',due:'2026-11-13',
     status:'planned',progress:0,dependency:'Финал бренд-архитектуры Студии',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-site-structure',
     title:'Написание структуры сайта Зипов',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-09',due:'2026-11-13',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-09',due:'2026-11-13',
     status:'planned',progress:0,dependency:'Создание «Библии Зипов»',note:'ТЗ на дизайн.',
     subtasks:[]
   },
   {
     id:'rm-mv-horizontal-plan',
     title:'План первых 5–7 горизонтальных серий',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-09',due:'2026-11-13',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-09',due:'2026-11-13',
     status:'planned',progress:0,dependency:'Создание «Библии Зипов»',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-cases-pack',
     title:'Упаковка кейсов Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-16',due:'2026-11-20',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-16',due:'2026-11-20',
     status:'planned',progress:0,dependency:'Финал бренд-архитектуры Студии',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-cp-outreach',
     title:'Создание единого шаблона КП и пакета холодных писем',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-16',due:'2026-11-20',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-16',due:'2026-11-20',
     status:'planned',progress:0,dependency:'Упаковка кейсов Студии',note:'',
     subtasks:[
       {title:'Единый шаблон КП',done:false},
@@ -2028,14 +2028,14 @@ const roadmapSeed=[
   {
     id:'rm-mv-merch-concepts',
     title:'Генерация 10 товарных концепций',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-16',due:'2026-11-20',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-16',due:'2026-11-20',
     status:'planned',progress:0,dependency:'Создание «Библии Зипов»',note:'Мерч Зипов и креативные описания.',
     subtasks:[]
   },
   {
     id:'rm-studio-smm-strategy',
     title:'Разработка стратегии SMM Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-23',due:'2026-11-27',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-23',due:'2026-11-27',
     status:'planned',progress:0,dependency:'Финал бренд-архитектуры Студии',note:'',
     subtasks:[
       {title:'Рубрики',done:false},
@@ -2045,14 +2045,14 @@ const roadmapSeed=[
   {
     id:'rm-studio-audience-offers',
     title:'Разработка предложений под нужные ЦА',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-23',due:'2026-11-27',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-23',due:'2026-11-27',
     status:'planned',progress:0,dependency:'Формирование продуктовой матрицы',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-commercial-pack',
     title:'Написание коммерческого пакета Зипов',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-23',due:'2026-11-27',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-23',due:'2026-11-27',
     status:'planned',progress:0,dependency:'Создание «Библии Зипов»',note:'Презентация Зипов для инвесторов / партнёров / кинотеатров.',
     subtasks:[
       {title:'Версия для инвесторов',done:false},
@@ -2063,7 +2063,7 @@ const roadmapSeed=[
   {
     id:'rm-studio-packaging-acceptance',
     title:'Приёмка упаковки Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-11-30',due:'2026-12-04',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-11-30',due:'2026-12-04',
     status:'planned',progress:0,dependency:'Сайт, материалы и SMM-упаковка готовы',note:'Проверить сайт, PDF и соцсети на соответствие бренду.',
     subtasks:[
       {title:'Проверить сайт',done:false},
@@ -2074,28 +2074,28 @@ const roadmapSeed=[
   {
     id:'rm-mv-site-acceptance',
     title:'Приёмка сайта Зипов',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-30',due:'2026-12-04',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-30',due:'2026-12-04',
     status:'planned',progress:0,dependency:'Структура сайта Зипов и дизайн реализованы',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-commercial-handoff',
     title:'Передача коммерческого пакета Диме и Рите для партнёрств',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-11-30',due:'2026-12-04',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-11-30',due:'2026-12-04',
     status:'planned',progress:0,dependency:'Написание коммерческого пакета Зипов',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-sales-refusals',
     title:'Разбор отказов от продаж',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-07',due:'2026-12-11',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-07',due:'2026-12-11',
     status:'planned',progress:0,dependency:'Запущены продажи и накоплена обратная связь',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-product-corrections',
     title:'Внесение правок в продукт, цены и кейсы',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-07',due:'2026-12-11',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-07',due:'2026-12-11',
     status:'planned',progress:0,dependency:'Разбор отказов от продаж',note:'',
     subtasks:[
       {title:'Правки продукта',done:false},
@@ -2106,28 +2106,28 @@ const roadmapSeed=[
   {
     id:'rm-mv-preorders-analysis',
     title:'Анализ первых предзаказов мерча',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-07',due:'2026-12-11',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-07',due:'2026-12-11',
     status:'planned',progress:0,dependency:'Запущены товарные концепции / предзаказы',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-production-concepts',
     title:'Разработка креативных концепций для производства',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-07',due:'2026-12-11',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-07',due:'2026-12-11',
     status:'planned',progress:0,dependency:'Анализ первых предзаказов мерча',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-offer-correction',
     title:'Корректировка офферов, если каналы не дают отклик',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-14',due:'2026-12-18',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-14',due:'2026-12-18',
     status:'planned',progress:0,dependency:'Результаты продаж и каналов',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-roadmap-2027',
     title:'Road-map развития Зипов на 2027 год',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-14',due:'2026-12-18',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-14',due:'2026-12-18',
     status:'planned',progress:0,dependency:'Результаты квартала',note:'',
     subtasks:[
       {title:'Новые серии',done:false},
@@ -2138,42 +2138,42 @@ const roadmapSeed=[
   {
     id:'rm-studio-brand-audit',
     title:'Аудит бренда Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-21',due:'2026-12-25',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-21',due:'2026-12-25',
     status:'planned',progress:0,dependency:'Упаковка и материалы внедрены',note:'Проверить консистентность всех материалов.',
     subtasks:[]
   },
   {
     id:'rm-mv-quarter-presentation',
     title:'Итоговая презентация по Зипам',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-21',due:'2026-12-25',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-21',due:'2026-12-25',
     status:'planned',progress:0,dependency:'Собраны результаты квартала',note:'Результаты за квартал.',
     subtasks:[]
   },
   {
     id:'rm-studio-final-report',
     title:'Итоговый отчёт по бренд-архитектуре Студии',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-28',due:'2026-12-30',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-28',due:'2026-12-30',
     status:'planned',progress:0,dependency:'Аудит бренда Студии',note:'',
     subtasks:[]
   },
   {
     id:'rm-studio-january-plan',
     title:'План Студии на январь',
-    scope:'ONVISUAL',owner:'Креативный продюсер',start:'2026-12-28',due:'2026-12-30',
+    scope:'ONVISUAL',owner:'Николай',start:'2026-12-28',due:'2026-12-30',
     status:'planned',progress:0,dependency:'Итоговый отчёт по бренд-архитектуре Студии',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-final-report',
     title:'Итоговый отчёт по Зипам',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-28',due:'2026-12-30',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-28',due:'2026-12-30',
     status:'planned',progress:0,dependency:'Итоговая презентация по Зипам',note:'',
     subtasks:[]
   },
   {
     id:'rm-mv-plan-2027',
     title:'План по Зипам на 2027 год',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-12-28',due:'2026-12-30',
+    scope:'Мультвселенная',owner:'Николай',start:'2026-12-28',due:'2026-12-30',
     status:'planned',progress:0,dependency:'Итоговый отчёт по Зипам',note:'',
     subtasks:[]
   }
@@ -2184,6 +2184,13 @@ if(!Array.isArray(roadmapItems))roadmapItems=[];
 const roadmapExistingIds=new Set(roadmapItems.map(x=>x.id));
 roadmapSeed.forEach(seed=>{
   if(!roadmapExistingIds.has(seed.id))roadmapItems.push(seed);
+});
+
+// Migration: all seeded global ROADMAP tasks are owned by Nikolai.
+// User-created custom processes keep the owner explicitly chosen by the user.
+const roadmapSeedIds=new Set(roadmapSeed.map(x=>x.id));
+roadmapItems.forEach(item=>{
+  if(roadmapSeedIds.has(item.id))item.owner='Николай';
 });
 
 // Migration: assign the real owners for the Multiverse focus-group custdev task,
@@ -2411,6 +2418,7 @@ function openRoadmapModal(id=null){
     if(form.elements.resource)form.elements.resource.value=item.resource||'';
   }else{
     form.scope.value=roadmapProject;
+    if(form.owner)form.owner.value='Николай';
     rmPopulateGoalSelect(form.scope.value,'');
     const defaultWeek=(typeof rmSelectedWeekStart!=='undefined'&&rmSelectedWeekStart)?rmSelectedWeekStart:rmMonday(rmToday());
     form.start.value=defaultWeek;
@@ -2434,7 +2442,7 @@ roadmapForm?.addEventListener('submit',e=>{
     title:String(fd.get('title')||'').trim(),
     scope:String(fd.get('scope')||'ONVISUAL'),
     goalId:String(fd.get('goalId')||''),
-    owner:String(fd.get('owner')||'').trim(),
+    owner:String(fd.get('owner')||'Николай').trim()||'Николай',
     start:String(fd.get('start')||''),
     due:String(fd.get('due')||''),
     status:String(fd.get('status')||'planned'),
@@ -2505,7 +2513,16 @@ function openRoadmapSubtaskModal(parentId,index=null){
 
   if(sub&&roadmapSubtaskForm){
     roadmapSubtaskForm.title.value=sub.title||'';
-    roadmapSubtaskForm.owner.value=sub.owner||'';
+    const ownerSelect=roadmapSubtaskForm.elements.owner;
+    const subOwner=sub.owner||'';
+    if(ownerSelect){
+      if(subOwner && ![...ownerSelect.options].some(o=>o.value===subOwner)){
+        const option=document.createElement('option');
+        option.value=subOwner; option.textContent=subOwner;
+        ownerSelect.appendChild(option);
+      }
+      ownerSelect.value=subOwner;
+    }
     roadmapSubtaskForm.due.value=sub.due||'';
     roadmapSubtaskForm.status.value=sub.status||(sub.done?'done':'todo');
     if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub.note||'';
@@ -2723,11 +2740,23 @@ function rmSprintCard(item){
   const rolled=item.status==='rolled';
   const h=rolled?'rolled':rmHealth(item);
   const goal=(roadmapGoals||[]).find(g=>g.id===item.goalId);
+  const subs=(item.subtasks||[]).filter(Boolean);
+  const delegated=subs.length
+    ? '<div class="rm-sprint-subtasks">'+subs.slice(0,4).map(s=>{
+        const cls=(s.done||s.status==='done')?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
+        const who=s.owner||'Не назначен';
+        return '<button type="button" class="'+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+subs.indexOf(s)+'" onclick="event.stopPropagation()">'+
+          '<span>'+escapeHtml(s.title)+'</span><b>'+escapeHtml(who)+'</b>'+
+        '</button>';
+      }).join('')+(subs.length>4?'<small>+'+(subs.length-4)+' ещё</small>':'')+'</div>'
+    : '<button type="button" class="rm-sprint-add-sub" data-rm-add-subtask="'+item.id+'" onclick="event.stopPropagation()">＋ Добавить подзадачу</button>';
+
   return '<article class="rm-sprint-card health-'+h+'" data-rm-edit="'+item.id+'">'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(goal?.title||item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
-    '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
+    '<p><strong>Владелец:</strong> '+escapeHtml(item.owner||'Николай')+'</p>'+
     (item.dependency?'<div class="rm-sprint-dep">↳ '+escapeHtml(item.dependency)+'</div>':'')+
+    delegated+
     '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
     '<small>'+Number(item.progress||0)+'% · '+(rolled?'Перенесено в следующую неделю':rmHealthLabel(item))+'</small>'+
   '</article>';
@@ -2799,25 +2828,47 @@ function rmSummary(){
 function renderRoadmapTeam(){
   const host=document.getElementById('roadmapTeamGrid');
   if(!host)return;
-  const currentWeek=rmMonday(rmToday());
-  const grouped={};
-  roadmapItems.filter(x=>x.scope===roadmapProject&&x.status!=='done'&&x.status!=='rolled'&&(x.sprintWeek||rmMonday(x.start||x.due))===currentWeek).forEach(item=>{
-    const owner=item.owner||'Не назначен';
-    (grouped[owner]||(grouped[owner]=[])).push(item);
-  });
-  const entries=Object.entries(grouped).sort((a,b)=>b[1].length-a[1].length);
-  host.innerHTML=entries.length?entries.map(([owner,items])=>{
-    const risks=items.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x))).length;
-    const load=Math.min(100,items.length*25);
-    return '<article class="rm-team-card">'+
-      '<div class="rm-team-head"><div><small>ТЕКУЩИЙ СПРИНТ</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+items.length+' активн.</b></div>'+
-      '<div class="rm-team-load"><span>Загрузка по действиям недели</span><div><i style="width:'+load+'%"></i></div><b>'+load+'%</b></div>'+
-      (risks?'<div class="rm-team-risk">⚠ Требуют внимания: '+risks+'</div>':'<div class="rm-team-ok">✓ Критичных блокеров нет</div>')+
-      '<div class="rm-team-items">'+items.slice(0,6).map(x=>'<button type="button" data-rm-edit="'+x.id+'"><span>'+escapeHtml(x.title)+'</span><b>'+rmDateLabel(x.due)+'</b></button>').join('')+'</div>'+
-    '</article>';
-  }).join(''):'<div class="roadmap-empty">В текущем спринте активных задач пока нет.</div>';
-}
 
+  const currentWeek=rmMonday(rmToday());
+  const projectItems=roadmapItems.filter(x=>
+    x.scope===roadmapProject &&
+    x.status!=='rolled' &&
+    (x.sprintWeek||rmMonday(x.start||x.due))===currentWeek
+  );
+
+  const grouped={};
+  projectItems.forEach(parent=>{
+    (parent.subtasks||[]).forEach((sub,index)=>{
+      if(sub.done||sub.status==='done')return;
+      const owner=sub.owner||'Не назначен';
+      (grouped[owner]||(grouped[owner]=[])).push({
+        parentId:parent.id,
+        subIndex:index,
+        title:sub.title,
+        due:sub.due||parent.due,
+        status:sub.status||'todo',
+        parentTitle:parent.title
+      });
+    });
+  });
+
+  const entries=Object.entries(grouped).sort((a,b)=>b[1].length-a[1].length);
+  host.innerHTML=entries.length?entries.map(([owner,tasks])=>{
+    const risks=tasks.filter(x=>x.status==='risk'||(x.due&&x.due<rmToday())).length;
+    const load=Math.min(100,tasks.length*20);
+    return '<article class="rm-team-card">'+
+      '<div class="rm-team-head"><div><small>ПОДЗАДАЧИ ТЕКУЩЕГО СПРИНТА</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+tasks.length+' активн.</b></div>'+
+      '<div class="rm-team-load"><span>Загрузка по назначенным действиям</span><div><i style="width:'+load+'%"></i></div><b>'+load+'%</b></div>'+
+      (risks?'<div class="rm-team-risk">⚠ Требуют внимания: '+risks+'</div>':'<div class="rm-team-ok">✓ Критичных рисков нет</div>')+
+      '<div class="rm-team-items">'+tasks.slice(0,7).map(x=>
+        '<button type="button" data-rm-subtask="'+x.parentId+'" data-sub-index="'+x.subIndex+'">'+
+          '<span>'+escapeHtml(x.title)+'<small>'+escapeHtml(x.parentTitle)+'</small></span>'+
+          '<b>'+rmDateLabel(x.due)+'</b>'+
+        '</button>'
+      ).join('')+'</div>'+
+    '</article>';
+  }).join(''):'<div class="roadmap-empty">На этой неделе подзадачи команде ещё не распределены.</div>';
+}
 function rmCloseSelectedWeek(){
   if(rmIsWeekClosed(roadmapProject,rmSelectedWeekStart))return;
   const items=roadmapItems.filter(x=>x.scope===roadmapProject&&(x.sprintWeek||rmMonday(x.start||x.due))===rmSelectedWeekStart&&x.status!=='rolled');
