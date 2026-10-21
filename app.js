@@ -2545,7 +2545,7 @@ function rmShiftDate(value,days){
 }
 function rmWeekEnd(start){return rmShiftDate(start,6)}
 function rmWeekKey(scope,start){return scope+'|'+start}
-function rmIsWeekClosed(scope,start){return rmClosedWeeks.includes(rmWeekKey(scope,start))}
+function rmIsWeekClosed(scope,start){return Array.isArray(rmClosedWeeks)&&rmClosedWeeks.includes(rmWeekKey(scope,start))}
 function rmSaveClosedWeeks(){localStorage.setItem(ROADMAP_CLOSED_WEEKS_STORE,JSON.stringify(rmClosedWeeks))}
 function rmInferGoalId(item){
   const date=item.start||item.due||'2026-10-19';
@@ -2608,7 +2608,7 @@ function rmMonthSpan(goal){
 function renderRoadmapTimeline(){
   const host=document.getElementById('roadmapTimeline');
   if(!host)return;
-  const goals=roadmapGoals.filter(g=>g.scope===roadmapProject);
+  const goals=(roadmapGoals||[]).filter(g=>g.scope===roadmapProject);
   host.innerHTML=goals.map((goal,index)=>{
     const items=rmActiveGoalItems(goal.id);
     const progress=rmGoalProgress(goal);
@@ -2632,10 +2632,11 @@ function renderRoadmapTimeline(){
 }
 
 function rmItemsForWeek(){
+  const selected=rmSelectedWeekStart||rmMonday(rmToday());
   const owner=document.getElementById('roadmapOwnerFilter')?.value||'all';
   return roadmapItems.filter(item=>{
     if(item.scope!==roadmapProject)return false;
-    if((item.sprintWeek||rmMonday(item.start||item.due))!==rmSelectedWeekStart)return false;
+    if((item.sprintWeek||rmMonday(item.start||item.due))!==selected)return false;
     if(owner!=='all'&&item.owner!==owner)return false;
     return true;
   });
@@ -2643,7 +2644,7 @@ function rmItemsForWeek(){
 function rmSprintCard(item){
   const rolled=item.status==='rolled';
   const h=rolled?'rolled':rmHealth(item);
-  const goal=roadmapGoals.find(g=>g.id===item.goalId);
+  const goal=(roadmapGoals||[]).find(g=>g.id===item.goalId);
   return '<article class="rm-sprint-card health-'+h+'" data-rm-edit="'+item.id+'">'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(goal?.title||item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
@@ -2654,6 +2655,7 @@ function rmSprintCard(item){
   '</article>';
 }
 function rmUpdateWeekHeader(items){
+  if(!rmSelectedWeekStart)rmSelectedWeekStart=rmMonday(rmToday());
   const end=rmWeekEnd(rmSelectedWeekStart);
   const startD=new Date(rmSelectedWeekStart+'T12:00:00');
   const endD=new Date(end+'T12:00:00');
