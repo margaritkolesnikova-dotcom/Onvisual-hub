@@ -1887,9 +1887,12 @@ const roadmapSeed=[
   {
     id:'rm-mv-custdev-groups',
     title:'Разработка КастДев-опросников для фокус-групп детей и родителей',
-    scope:'Мультвселенная',owner:'Креативный продюсер',start:'2026-10-19',due:'2026-10-23',
-    status:'progress',progress:0,dependency:'',note:'Мультвселенная / Monster Zip.',
-    subtasks:[]
+    scope:'Мультвселенная',owner:'Николай',start:'2026-10-19',due:'2026-10-23',
+    status:'progress',progress:0,dependency:'',note:'Мультвселенная / Monster Zip. Николай отвечает за сам опрос, Маргарита — за систему реализации и обработку.',
+    subtasks:[
+      {title:'Подготовить опрос для фокус-групп детей и родителей',owner:'Николай',due:'2026-10-23',status:'progress',done:false,note:'Содержание и логика самого опроса.',resource:''},
+      {title:'Собрать систему проведения, таблицу ответов и механику обработки',owner:'Колесникова Маргарита',due:'2026-10-23',status:'todo',done:false,note:'Техническая реализация: форма, таблица, сбор и обработка результатов.',resource:''}
+    ]
   },
   {
     id:'rm-mv-audience-audit',
@@ -2182,12 +2185,31 @@ const roadmapExistingIds=new Set(roadmapItems.map(x=>x.id));
 roadmapSeed.forEach(seed=>{
   if(!roadmapExistingIds.has(seed.id))roadmapItems.push(seed);
 });
+
+// Migration: assign the real owners for the Multiverse focus-group custdev task,
+// even for users who already have an older copy saved in localStorage.
+const custdevGroupTask=roadmapItems.find(x=>x.id==='rm-mv-custdev-groups');
+if(custdevGroupTask){
+  custdevGroupTask.owner='Николай';
+  custdevGroupTask.note='Мультвселенная / Monster Zip. Николай отвечает за сам опрос, Маргарита — за систему реализации и обработку.';
+  const wanted=[
+    {title:'Подготовить опрос для фокус-групп детей и родителей',owner:'Николай',due:'2026-10-23',status:'progress',done:false,note:'Содержание и логика самого опроса.',resource:''},
+    {title:'Собрать систему проведения, таблицу ответов и механику обработки',owner:'Колесникова Маргарита',due:'2026-10-23',status:'todo',done:false,note:'Техническая реализация: форма, таблица, сбор и обработка результатов.',resource:''}
+  ];
+  custdevGroupTask.subtasks=custdevGroupTask.subtasks||[];
+  wanted.forEach(w=>{
+    const existing=custdevGroupTask.subtasks.find(s=>String(s.title||'').trim()===w.title);
+    if(existing)Object.assign(existing,{owner:w.owner,due:existing.due||w.due,note:existing.note||w.note,resource:existing.resource||''});
+    else custdevGroupTask.subtasks.push(w);
+  });
+}
 roadmapWrite(roadmapItems);
 
 let roadmapView='timeline';
 let roadmapProject='ONVISUAL';
 let editingRoadmapId=null;
 let roadmapSubtaskParentId=null;
+let editingRoadmapSubtaskIndex=null;
 
 const roadmapModal=document.getElementById('roadmapModal');
 const roadmapForm=document.getElementById('roadmapForm');
@@ -2265,10 +2287,13 @@ function rmSubtaskHtml(item){
   return '<div class="rm-subtask-summary"><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Подзадача</button></div>'+
     '<div class="rm-subtask-chips">'+subs.slice(0,5).map((s,i)=>{
       const isDone=s.done||s.status==='done';
+      const statusClass=isDone?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
+      const statusIcon=isDone?'✓ ':s.status==='risk'?'⚠ ':s.status==='progress'?'◐ ':'○ ';
       const meta=[s.owner, s.due?rmDateLabel(s.due):''].filter(Boolean).join(' · ');
-      return '<button type="button" class="rm-subtask-chip '+(isDone?'done':'')+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
-        '<b>'+(isDone?'✓ ':'○ ')+escapeHtml(s.title)+'</b>'+
+      return '<button type="button" class="rm-subtask-chip '+statusClass+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
+        '<b>'+statusIcon+escapeHtml(s.title)+'</b>'+
         (meta?'<small>'+escapeHtml(meta)+'</small>':'')+
+        (s.resource?'<em>↗ файл</em>':'')+
       '</button>';
     }).join('')+
     (subs.length>5?'<span class="rm-more">+'+(subs.length-5)+'</span>':'')+
@@ -2463,31 +2488,86 @@ document.getElementById('roadmapViewSwitch')?.querySelectorAll('[data-roadmap-vi
 const roadmapSubtaskModal=document.getElementById('roadmapSubtaskModal');
 const roadmapSubtaskForm=document.getElementById('roadmapSubtaskForm');
 
-function openRoadmapSubtaskModal(parentId){
+function openRoadmapSubtaskModal(parentId,index=null){
   roadmapSubtaskParentId=parentId;
+  editingRoadmapSubtaskIndex=Number.isInteger(index)?index:null;
+  const parent=roadmapItems.find(x=>x.id===parentId);
+  const sub=editingRoadmapSubtaskIndex!==null?parent?.subtasks?.[editingRoadmapSubtaskIndex]:null;
+
   roadmapSubtaskForm?.reset();
+  const title=document.getElementById('roadmapSubtaskModalTitle');
+  const deleteBtn=document.getElementById('deleteRoadmapSubtaskBtn');
+  const saveBtn=document.getElementById('saveRoadmapSubtaskBtn');
+
+  if(title)title.textContent=sub?'Редактировать подзадачу':'Добавить подзадачу';
+  if(deleteBtn)deleteBtn.style.display=sub?'inline-flex':'none';
+  if(saveBtn)saveBtn.textContent=sub?'Сохранить':'Добавить действие';
+
+  if(sub&&roadmapSubtaskForm){
+    roadmapSubtaskForm.title.value=sub.title||'';
+    roadmapSubtaskForm.owner.value=sub.owner||'';
+    roadmapSubtaskForm.due.value=sub.due||'';
+    roadmapSubtaskForm.status.value=sub.status||(sub.done?'done':'todo');
+    if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub.note||'';
+    if(roadmapSubtaskForm.elements.resource)roadmapSubtaskForm.elements.resource.value=sub.resource||'';
+  }
   roadmapSubtaskModal?.showModal();
 }
+
+function rmRecalculateParentFromSubtasks(parent){
+  const subs=parent.subtasks||[];
+  const done=subs.filter(x=>x.done||x.status==='done').length;
+  if(subs.length)parent.progress=Math.round(done/subs.length*100);
+  if(subs.length&&done===subs.length){
+    parent.status='done';
+    parent.progress=100;
+  }else if(parent.status==='done'){
+    parent.status='progress';
+  }
+}
+
 roadmapSubtaskForm?.addEventListener('submit',e=>{
   e.preventDefault();
   const parent=roadmapItems.find(x=>x.id===roadmapSubtaskParentId);
   if(!parent)return;
   const fd=new FormData(roadmapSubtaskForm);
   const status=String(fd.get('status')||'todo');
-  parent.subtasks=parent.subtasks||[];
-  parent.subtasks.push({
+  const data={
     title:String(fd.get('title')||'').trim(),
     owner:String(fd.get('owner')||'').trim(),
     due:String(fd.get('due')||''),
     status,
-    done:status==='done'
-  });
+    done:status==='done',
+    note:String(fd.get('note')||'').trim(),
+    resource:String(fd.get('resource')||'').trim()
+  };
+
+  parent.subtasks=parent.subtasks||[];
+  if(editingRoadmapSubtaskIndex!==null && parent.subtasks[editingRoadmapSubtaskIndex]){
+    parent.subtasks[editingRoadmapSubtaskIndex]={...parent.subtasks[editingRoadmapSubtaskIndex],...data};
+  }else{
+    parent.subtasks.push(data);
+  }
+
   if(parent.status==='planned' && parent.start<=rmToday())parent.status='progress';
-  const complete=parent.subtasks.filter(x=>x.done||x.status==='done').length;
-  if(parent.subtasks.length)parent.progress=Math.round(complete/parent.subtasks.length*100);
+  rmRecalculateParentFromSubtasks(parent);
   roadmapWrite(roadmapItems);
   roadmapSubtaskModal.close();
   roadmapSubtaskParentId=null;
+  editingRoadmapSubtaskIndex=null;
+  renderRoadmap();
+});
+
+document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=>{
+  const parent=roadmapItems.find(x=>x.id===roadmapSubtaskParentId);
+  if(!parent||editingRoadmapSubtaskIndex===null||!parent.subtasks?.[editingRoadmapSubtaskIndex])return;
+  if(!confirm('Удалить эту подзадачу?'))return;
+  parent.subtasks.splice(editingRoadmapSubtaskIndex,1);
+  rmRecalculateParentFromSubtasks(parent);
+  roadmapWrite(roadmapItems);
+  roadmapSubtaskModal.close();
+  roadmapSubtaskParentId=null;
+  editingRoadmapSubtaskIndex=null;
   renderRoadmap();
 });
 
@@ -2501,16 +2581,7 @@ document.getElementById('roadmap')?.addEventListener('click',e=>{
   const sub=e.target.closest('[data-rm-subtask]');
   if(sub){
     e.stopPropagation();
-    const item=roadmapItems.find(x=>x.id===sub.dataset.rmSubtask);
-    const index=Number(sub.dataset.subIndex);
-    if(item?.subtasks?.[index]){
-      item.subtasks[index].done=!item.subtasks[index].done;
-      item.subtasks[index].status=item.subtasks[index].done?'done':'todo';
-      const done=item.subtasks.filter(x=>x.done||x.status==='done').length;
-      if(item.subtasks.length)item.progress=Math.round(done/item.subtasks.length*100);
-      if(done===item.subtasks.length&&item.subtasks.length){item.status='done';item.progress=100;}
-      roadmapWrite(roadmapItems);renderRoadmap();
-    }
+    openRoadmapSubtaskModal(sub.dataset.rmSubtask,Number(sub.dataset.subIndex));
     return;
   }
   const edit=e.target.closest('[data-rm-edit]');
