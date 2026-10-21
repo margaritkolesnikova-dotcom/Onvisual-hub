@@ -2237,9 +2237,10 @@ function rmRefreshOwners(){
   const select=document.getElementById('roadmapOwnerFilter');
   if(!select)return;
   const current=select.value||'all';
-  const owners=[...new Set(roadmapItems.map(x=>x.owner).filter(Boolean))].sort();
+  const owners=[...new Set(roadmapItems.filter(x=>x.scope===roadmapProject).map(x=>x.owner).filter(Boolean))].sort();
   select.innerHTML='<option value="all">Все ответственные</option>'+owners.map(o=>'<option value="'+escapeHtml(o)+'">'+escapeHtml(o)+'</option>').join('');
   if([...select.options].some(o=>o.value===current))select.value=current;
+  else select.value='all';
 }
 function rmSummary(){
   const projectItems=roadmapItems.filter(x=>x.scope===roadmapProject);
