@@ -2401,6 +2401,41 @@ function renderRoadmap(){
   renderRoadmapSprint();
   renderRoadmapTeam();
 }
+function rmSetSelectValue(select,value){
+  if(!select)return;
+  const v=String(value||'');
+  if(v && ![...select.options].some(o=>o.value===v)){
+    const opt=document.createElement('option');
+    opt.value=v; opt.textContent=v; select.appendChild(opt);
+  }
+  select.value=v;
+}
+function rmRenderModalSubtasks(item){
+  const host=document.getElementById('roadmapModalSubtaskList');
+  const addBtn=document.getElementById('addRoadmapSubtaskFromMain');
+  if(!host)return;
+  const subs=item?.subtasks||[];
+  if(addBtn){
+    addBtn.disabled=!item;
+    addBtn.dataset.parentId=item?.id||'';
+  }
+  if(!item){
+    host.innerHTML='<div class="rm-modal-subtask-empty">Сначала сохрани основную задачу.</div>';
+    return;
+  }
+  host.innerHTML=subs.length?subs.map((s,i)=>{
+    const status=s.done||s.status==='done'?'Готово':s.status==='progress'?'В работе':s.status==='risk'?'Риск':'План';
+    const cls=s.done||s.status==='done'?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
+    return '<button type="button" class="rm-modal-subtask-row '+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
+      '<span class="rm-modal-subtask-main"><b>'+escapeHtml(s.title||'Без названия')+'</b>'+
+      (s.note?'<small>'+escapeHtml(s.note)+'</small>':'')+'</span>'+
+      '<span class="rm-modal-subtask-owner">'+escapeHtml(s.owner||'Не назначен')+'</span>'+
+      '<span class="rm-modal-subtask-date">'+rmDateLabel(s.due)+'</span>'+
+      '<em>'+status+'</em>'+
+      (s.resource?'<i>↗</i>':'')+
+    '</button>';
+  }).join(''):'<div class="rm-modal-subtask-empty">Подзадач пока нет.</div>';
+}
 function openRoadmapModal(id=null){
   editingRoadmapId=id;
   const item=id?roadmapItems.find(x=>x.id===id):null;
@@ -2413,22 +2448,23 @@ function openRoadmapModal(id=null){
     form.title.value=item.title||'';
     form.scope.value=item.scope||'ONVISUAL';
     rmPopulateGoalSelect(form.scope.value,item.goalId||rmInferGoalId(item));
-    form.owner.value=item.owner||'';
+    rmSetSelectValue(form.owner,item.owner||'Николай');
     form.start.value=item.start||'';
     form.due.value=item.due||'';
     form.status.value=item.status||'planned';
     form.progress.value=Number(item.progress||0);
-    form.subtasks.value=(item.subtasks||[]).map(s=>(s.done?'[x] ':'')+s.title).join('\n');
+    rmRenderModalSubtasks(item);
     form.dependency.value=item.dependency||'';
     form.note.value=item.note||'';
     if(form.elements.resource)form.elements.resource.value=item.resource||'';
   }else{
     form.scope.value=roadmapProject;
-    if(form.owner)form.owner.value='Николай';
+    if(form.owner)rmSetSelectValue(form.owner,'Николай');
     rmPopulateGoalSelect(form.scope.value,'');
     const defaultWeek=(typeof rmSelectedWeekStart!=='undefined'&&rmSelectedWeekStart)?rmSelectedWeekStart:rmMonday(rmToday());
     form.start.value=defaultWeek;
     form.progress.value=0;
+    rmRenderModalSubtasks(null);
   }
   roadmapModal.showModal();
 }
@@ -2453,7 +2489,7 @@ roadmapForm?.addEventListener('submit',e=>{
     due:String(fd.get('due')||''),
     status:String(fd.get('status')||'planned'),
     progress:Number(fd.get('progress')||0),
-    subtasks:parseRoadmapSubtasks(fd.get('subtasks'), editingRoadmapId?(roadmapItems.find(x=>x.id===editingRoadmapId)?.subtasks||[]):[]),
+    subtasks:editingRoadmapId?(roadmapItems.find(x=>x.id===editingRoadmapId)?.subtasks||[]):[],
     dependency:String(fd.get('dependency')||'').trim(),
     note:String(fd.get('note')||'').trim(),
     resource:String(fd.get('resource')||'').trim()
@@ -2520,7 +2556,7 @@ function openRoadmapSubtaskModal(parentId,index=null){
   if(sub&&roadmapSubtaskForm){
     roadmapSubtaskForm.title.value=sub.title||'';
     const ownerInput=roadmapSubtaskForm.elements.owner;
-    if(ownerInput)ownerInput.value=sub.owner||'';
+    if(ownerInput)rmSetSelectValue(ownerInput,sub.owner||'');
     roadmapSubtaskForm.due.value=sub.due||'';
     roadmapSubtaskForm.status.value=sub.status||(sub.done?'done':'todo');
     if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub.note||'';
@@ -2739,22 +2775,36 @@ function rmSprintCard(item){
   const h=rolled?'rolled':rmHealth(item);
   const goal=(roadmapGoals||[]).find(g=>g.id===item.goalId);
   const subs=(item.subtasks||[]).filter(Boolean);
-  const delegated=subs.length
-    ? '<div class="rm-sprint-subtasks">'+subs.slice(0,4).map(s=>{
+  const resource=item.resource
+    ? '<a class="rm-card-resource" href="'+escapeHtml(item.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">↗ Материал / папка</a>'
+    : '';
+  const subRows=subs.length
+    ? '<div class="rm-sprint-subtask-table">'+subs.map((s,i)=>{
         const cls=(s.done||s.status==='done')?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
-        const who=s.owner||'Не назначен';
-        return '<button type="button" class="'+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+subs.indexOf(s)+'" onclick="event.stopPropagation()">'+
-          '<span>'+escapeHtml(s.title)+'</span><b>'+escapeHtml(who)+'</b>'+
+        const label=(s.done||s.status==='done')?'Готово':s.status==='risk'?'Риск':s.status==='progress'?'В работе':'План';
+        return '<button type="button" class="rm-sprint-subtask-row '+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'" onclick="event.stopPropagation()">'+
+          '<span class="rm-sub-state"></span>'+
+          '<span class="rm-sub-title"><b>'+escapeHtml(s.title||'Без названия')+'</b>'+
+            (s.note?'<small>'+escapeHtml(s.note)+'</small>':'')+
+          '</span>'+
+          '<span class="rm-sub-owner">'+escapeHtml(s.owner||'Не назначен')+'</span>'+
+          '<span class="rm-sub-due">'+rmDateLabel(s.due)+'</span>'+
+          '<em>'+label+'</em>'+
+          (s.resource?'<i>↗</i>':'')+
         '</button>';
-      }).join('')+(subs.length>4?'<small>+'+(subs.length-4)+' ещё</small>':'')+'</div>'
-    : '<button type="button" class="rm-sprint-add-sub" data-rm-add-subtask="'+item.id+'" onclick="event.stopPropagation()">＋ Добавить подзадачу</button>';
+      }).join('')+'</div>'
+    : '<div class="rm-sprint-no-subs">Подзадач пока нет</div>';
 
-  return '<article class="rm-sprint-card health-'+h+'" data-rm-edit="'+item.id+'">'+
+  return '<article class="rm-sprint-card health-'+h+'" data-rm-edit="'+item.id+'" data-rm-drag="'+item.id+'" draggable="true">'+
+    '<div class="rm-drag-handle" title="Перетащить по воронке">⋮⋮</div>'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(goal?.title||item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
     '<p><strong>Владелец:</strong> '+escapeHtml(item.owner||'Николай')+'</p>'+
     (item.dependency?'<div class="rm-sprint-dep">↳ '+escapeHtml(item.dependency)+'</div>':'')+
-    delegated+
+    (item.note?'<div class="rm-card-note">'+escapeHtml(item.note)+'</div>':'')+
+    resource+
+    '<div class="rm-sprint-subhead"><span>Подзадачи команды</span><button type="button" data-rm-add-subtask="'+item.id+'" onclick="event.stopPropagation()">＋ Добавить</button></div>'+
+    subRows+
     '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
     '<small>'+Number(item.progress||0)+'% · '+(rolled?'Перенесено в следующую неделю':rmHealthLabel(item))+'</small>'+
   '</article>';
@@ -2808,7 +2858,12 @@ function renderRoadmapSprint(){
   sets.forEach(([listId,countId,data])=>{
     const host=document.getElementById(listId),count=document.getElementById(countId);
     if(count)count.textContent=String(data.length);
-    if(host)host.innerHTML=data.length?data.map(rmSprintCard).join(''):'<div class="rm-column-empty">Пусто</div>';
+    if(host){
+      host.innerHTML=data.length?data.map(rmSprintCard).join(''):'<div class="rm-column-empty">Пусто</div>';
+      const section=host.closest('section');
+      const dropMap={rmPlanList:'planned',rmWorkList:'progress',rmRiskSprintList:'risk',rmClosedList:'done',rmRolledList:'rolled'};
+      if(section)section.dataset.rmDropStatus=dropMap[listId]||'';
+    }
   });
 }
 function rmSummary(){
@@ -2899,6 +2954,58 @@ document.getElementById('rmNextWeek')?.addEventListener('click',()=>{rmSelectedW
 document.getElementById('rmTodayWeek')?.addEventListener('click',()=>{rmSelectedWeekStart=rmMonday(rmToday());renderRoadmap()});
 document.getElementById('rmCloseWeek')?.addEventListener('click',rmCloseSelectedWeek);
 document.querySelector('#roadmapForm select[name="scope"]')?.addEventListener('change',e=>rmPopulateGoalSelect(e.target.value,''));
+
+document.getElementById('addRoadmapSubtaskFromMain')?.addEventListener('click',()=>{
+  const id=editingRoadmapId;
+  if(!id)return;
+  roadmapModal?.close();
+  openRoadmapSubtaskModal(id);
+});
+
+let roadmapDraggedId=null;
+const roadmapRoot=document.getElementById('roadmap');
+roadmapRoot?.addEventListener('dragstart',e=>{
+  const card=e.target.closest('[data-rm-drag]');
+  if(!card)return;
+  roadmapDraggedId=card.dataset.rmDrag;
+  card.classList.add('is-dragging');
+  e.dataTransfer.effectAllowed='move';
+  try{e.dataTransfer.setData('text/plain',roadmapDraggedId)}catch{}
+});
+roadmapRoot?.addEventListener('dragend',e=>{
+  e.target.closest('[data-rm-drag]')?.classList.remove('is-dragging');
+  document.querySelectorAll('[data-rm-drop-status]').forEach(x=>x.classList.remove('drag-over'));
+  roadmapDraggedId=null;
+});
+roadmapRoot?.addEventListener('dragover',e=>{
+  const col=e.target.closest('[data-rm-drop-status]');
+  if(!col||!roadmapDraggedId)return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('[data-rm-drop-status]').forEach(x=>x.classList.toggle('drag-over',x===col));
+});
+roadmapRoot?.addEventListener('dragleave',e=>{
+  const col=e.target.closest('[data-rm-drop-status]');
+  if(col&&!col.contains(e.relatedTarget))col.classList.remove('drag-over');
+});
+roadmapRoot?.addEventListener('drop',e=>{
+  const col=e.target.closest('[data-rm-drop-status]');
+  if(!col)return;
+  e.preventDefault();
+  const id=roadmapDraggedId||e.dataTransfer.getData('text/plain');
+  const item=roadmapItems.find(x=>x.id===id);
+  const status=col.dataset.rmDropStatus;
+  if(!item||!status)return;
+  item.status=status;
+  if(status==='done')item.progress=100;
+  else if(status==='planned'&&Number(item.progress||0)===100)item.progress=0;
+  if(status==='rolled'){
+    item.rolledAt=rmToday();
+  }
+  roadmapWrite(roadmapItems);
+  document.querySelectorAll('[data-rm-drop-status]').forEach(x=>x.classList.remove('drag-over'));
+  renderRoadmap();
+});
 
 rmPopulateGoalSelect(roadmapProject,'');
 renderRoadmap();
