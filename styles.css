@@ -2536,3 +2536,29 @@ html{scroll-behavior:smooth}
   .roadmap-team-intro{display:block}.roadmap-team-intro p{margin-top:8px}
   .roadmap-controls{align-items:stretch}.roadmap-filters{width:100%}.roadmap-filters select{flex:1}
 }
+
+/* Roadmap readability + quick subtask actions */
+.roadmap-section .section-head p{font-size:13px!important;line-height:1.5!important}
+.roadmap-timeline-head{font-size:10px!important}
+.rm-main h3{font-size:15.5px!important;line-height:1.3!important}
+.rm-scope{font-size:9px!important;padding:5px 8px!important}
+.rm-dependency{font-size:10.5px!important;line-height:1.4!important}
+.rm-owner span{font-size:9px!important}
+.rm-owner b{font-size:12.5px!important;line-height:1.35!important}
+.rm-period span,.rm-period b{font-size:11.5px!important}
+.rm-period small{font-size:10px!important;line-height:1.35!important}
+.rm-progress>b{font-size:11px!important}
+.rm-health-badge{font-size:10px!important;padding:6px 9px!important}
+.rm-health small{font-size:9.5px!important}
+.rm-subtask-summary{font-size:10px!important;flex-wrap:wrap}
+.rm-subtask-chip{font-size:9.5px!important;padding:6px 8px!important;line-height:1.35!important}
+.rm-subtask-empty{display:flex;align-items:center;gap:8px;margin-top:8px;color:#667183;font-size:10px}
+.rm-add-subtask{
+  border:1px solid rgba(85,186,255,.17);background:rgba(85,186,255,.05);color:#8bcfff;
+  border-radius:7px;padding:5px 8px;font-size:9px;font-weight:700;cursor:pointer
+}
+.rm-add-subtask:hover{background:rgba(85,186,255,.10);color:#ccecff}
+.rm-sprint-card h4{font-size:13px!important;line-height:1.35!important}
+.rm-sprint-card p{font-size:10.5px!important}
+.rm-team-card h3{font-size:15px!important}
+.rm-team-items button span{font-size:10.5px!important}
