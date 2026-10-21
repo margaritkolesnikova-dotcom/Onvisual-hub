@@ -2194,7 +2194,7 @@ const roadmapForm=document.getElementById('roadmapForm');
 const addRoadmapBtn=document.getElementById('addRoadmapBtn');
 const deleteRoadmapBtn=document.getElementById('deleteRoadmapBtn');
 
-const rmStatusLabel={planned:'Следующая',progress:'В работе',blocked:'Заблокировано',done:'Закрыто'};
+const rmStatusLabel={planned:'Следующая',progress:'В работе',blocked:'Заблокировано',done:'Закрыто',rolled:'Перенесено'};
 
 function rmToday(){
   const d=new Date();
@@ -2212,6 +2212,7 @@ function rmDays(a,b){
 }
 function rmHealth(item){
   if(item.status==='done')return 'done';
+  if(item.status==='rolled')return 'rolled';
   if(item.status==='blocked')return 'blocked';
   const today=rmToday();
   if(item.due && item.due<today)return 'overdue';
@@ -2221,7 +2222,7 @@ function rmHealth(item){
 }
 function rmHealthLabel(item){
   const h=rmHealth(item);
-  return {done:'Закрыто',blocked:'Заблокировано',overdue:'Просрочено',risk:'Риск',ontrack:'Успеваем'}[h];
+  return {done:'Закрыто',rolled:'Перенесено',blocked:'Заблокировано',overdue:'Просрочено',risk:'Риск',ontrack:'Успеваем'}[h];
 }
 function rmFilteredItems(){
   const owner=document.getElementById('roadmapOwnerFilter')?.value||'all';
@@ -2368,6 +2369,7 @@ function openRoadmapModal(id=null){
   if(item){
     form.title.value=item.title||'';
     form.scope.value=item.scope||'ONVISUAL';
+    rmPopulateGoalSelect(form.scope.value,item.goalId||rmInferGoalId(item));
     form.owner.value=item.owner||'';
     form.start.value=item.start||'';
     form.due.value=item.due||'';
@@ -2378,7 +2380,9 @@ function openRoadmapModal(id=null){
     form.note.value=item.note||'';
   }else{
     form.scope.value=roadmapProject;
-    form.start.value=rmToday();
+    rmPopulateGoalSelect(form.scope.value,'');
+    const defaultWeek=(typeof rmSelectedWeekStart!=='undefined'&&rmSelectedWeekStart)?rmSelectedWeekStart:rmMonday(rmToday());
+    form.start.value=defaultWeek;
     form.progress.value=0;
   }
   roadmapModal.showModal();
@@ -2398,6 +2402,7 @@ roadmapForm?.addEventListener('submit',e=>{
   const data={
     title:String(fd.get('title')||'').trim(),
     scope:String(fd.get('scope')||'ONVISUAL'),
+    goalId:String(fd.get('goalId')||''),
     owner:String(fd.get('owner')||'').trim(),
     start:String(fd.get('start')||''),
     due:String(fd.get('due')||''),
@@ -2504,4 +2509,263 @@ document.getElementById('roadmap')?.addEventListener('click',e=>{
   const edit=e.target.closest('[data-rm-edit]');
   if(edit)openRoadmapModal(edit.dataset.rmEdit);
 });
+renderRoadmap();
+
+
+// ==========================================
+// ROADMAP 2-LEVEL MODEL: GLOBAL ROADMAP + WEEKLY SPRINTS
+// ==========================================
+var ROADMAP_CLOSED_WEEKS_STORE='onvisualRoadmapClosedWeeksV1';
+var roadmapGoals=[
+  {id:'studio-discovery',scope:'ONVISUAL',title:'Исследования и позиционирование',start:'2026-10-19',due:'2026-10-30',description:'Кастдевы, карта потребностей, гипотеза продукта и позиционирования.'},
+  {id:'studio-brand-product',scope:'ONVISUAL',title:'Бренд-архитектура и продуктовая упаковка',start:'2026-11-02',due:'2026-11-27',description:'Бренд-архитектура, продуктовая матрица, сайт, презентация, кейсы, КП и SMM.'},
+  {id:'studio-sales-validation',scope:'ONVISUAL',title:'Запуск продаж и валидация',start:'2026-11-30',due:'2026-12-18',description:'Приёмка упаковки, запуск продаж, разбор отказов и корректировка продукта и офферов.'},
+  {id:'studio-close-2026',scope:'ONVISUAL',title:'Аудит и планирование следующего периода',start:'2026-12-21',due:'2026-12-30',description:'Аудит бренда, итоговый отчёт и план Студии на январь.'},
+
+  {id:'mv-foundation',scope:'Мультвселенная',title:'Аудит аудитории и бренд-платформа',start:'2026-10-19',due:'2026-10-30',description:'Фокус-группы, аудит аудитории, ядро бренда и выбор площадок.'},
+  {id:'mv-ip-system',scope:'Мультвселенная',title:'Система IP и контентная архитектура',start:'2026-11-02',due:'2026-11-13',description:'Библия Зипов, контент-план, сайт и план горизонтальных серий.'},
+  {id:'mv-commercial',scope:'Мультвселенная',title:'Коммерциализация и партнёрский пакет',start:'2026-11-16',due:'2026-12-11',description:'Товарные концепции, коммерческий пакет, сайт, партнёрства, предзаказы и производство.'},
+  {id:'mv-strategy-2027',scope:'Мультвселенная',title:'Roadmap 2027 и итоги квартала',start:'2026-12-14',due:'2026-12-30',description:'Roadmap развития, итоговая презентация, отчёт и план Зипов на 2027 год.'}
+];
+
+var rmSelectedWeekStart=rmMonday(rmToday());
+var rmClosedWeeks=(()=>{try{return JSON.parse(localStorage.getItem(ROADMAP_CLOSED_WEEKS_STORE)||'[]')}catch{return[]}})();
+
+function rmMonday(value){
+  const d=new Date((value||rmToday())+'T12:00:00');
+  const day=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-day);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function rmShiftDate(value,days){
+  if(!value)return '';
+  const d=new Date(value+'T12:00:00');
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function rmWeekEnd(start){return rmShiftDate(start,6)}
+function rmWeekKey(scope,start){return scope+'|'+start}
+function rmIsWeekClosed(scope,start){return rmClosedWeeks.includes(rmWeekKey(scope,start))}
+function rmSaveClosedWeeks(){localStorage.setItem(ROADMAP_CLOSED_WEEKS_STORE,JSON.stringify(rmClosedWeeks))}
+function rmInferGoalId(item){
+  const date=item.start||item.due||'2026-10-19';
+  if(item.scope==='ONVISUAL'){
+    if(date<'2026-11-01')return 'studio-discovery';
+    if(date<'2026-11-30')return 'studio-brand-product';
+    if(date<'2026-12-21')return 'studio-sales-validation';
+    return 'studio-close-2026';
+  }
+  if(item.scope==='Мультвселенная'){
+    if(date<'2026-11-01')return 'mv-foundation';
+    if(date<'2026-11-16')return 'mv-ip-system';
+    if(date<'2026-12-14')return 'mv-commercial';
+    return 'mv-strategy-2027';
+  }
+  return '';
+}
+function rmPopulateGoalSelect(scope,selected){
+  const select=document.getElementById('roadmapGoalSelect');
+  if(!select)return;
+  const goals=roadmapGoals.filter(g=>g.scope===scope);
+  select.innerHTML=goals.map(g=>'<option value="'+g.id+'">'+escapeHtml(g.title)+'</option>').join('');
+  const target=selected||goals[0]?.id||'';
+  if([...select.options].some(o=>o.value===target))select.value=target;
+}
+function rmNormalizeRoadmapItems(){
+  let changed=false;
+  roadmapItems.forEach(item=>{
+    if(!item.goalId){item.goalId=rmInferGoalId(item);changed=true}
+    if(!item.sprintWeek){item.sprintWeek=rmMonday(item.start||item.due||rmToday());changed=true}
+  });
+  if(changed)roadmapWrite(roadmapItems);
+}
+rmNormalizeRoadmapItems();
+
+function rmActiveGoalItems(goalId){
+  return roadmapItems.filter(x=>x.goalId===goalId&&x.status!=='rolled');
+}
+function rmGoalProgress(goal){
+  const items=rmActiveGoalItems(goal.id);
+  if(!items.length)return 0;
+  return Math.round(items.reduce((sum,x)=>sum+Number(x.progress||0),0)/items.length);
+}
+function rmGoalHealth(goal){
+  const items=rmActiveGoalItems(goal.id);
+  if(items.some(x=>x.status==='blocked'))return 'blocked';
+  if(items.some(x=>rmHealth(x)==='overdue'))return 'overdue';
+  if(items.some(x=>rmHealth(x)==='risk'))return 'risk';
+  if(items.length&&items.every(x=>x.status==='done'))return 'done';
+  return 'ontrack';
+}
+function rmMonthSpan(goal){
+  const s=new Date(goal.start+'T12:00:00'),e=new Date(goal.due+'T12:00:00');
+  const start=Math.max(0,s.getMonth()-9);
+  const end=Math.min(2,e.getMonth()-9);
+  return {start,end,span:Math.max(1,end-start+1)};
+}
+
+// Override global Roadmap view: only macro goals through December.
+function renderRoadmapTimeline(){
+  const host=document.getElementById('roadmapTimeline');
+  if(!host)return;
+  const goals=roadmapGoals.filter(g=>g.scope===roadmapProject);
+  host.innerHTML=goals.map((goal,index)=>{
+    const items=rmActiveGoalItems(goal.id);
+    const progress=rmGoalProgress(goal);
+    const health=rmGoalHealth(goal);
+    const done=items.filter(x=>x.status==='done').length;
+    const active=items.filter(x=>!['done','rolled'].includes(x.status)).length;
+    const span=rmMonthSpan(goal);
+    const current=items.filter(x=>x.sprintWeek===rmMonday(rmToday())&&x.status!=='done').length;
+    return '<article class="rm-global-card health-'+health+'">'+
+      '<div class="rm-global-num">0'+(index+1)+'</div>'+
+      '<div class="rm-global-main">'+
+        '<small>'+rmDateLabel(goal.start)+' → '+rmDateLabel(goal.due)+'</small>'+
+        '<h3>'+escapeHtml(goal.title)+'</h3>'+
+        '<p>'+escapeHtml(goal.description)+'</p>'+
+        '<div class="rm-global-meta"><span><b>'+items.length+'</b> действий</span><span><b>'+done+'</b> закрыто</span><span><b>'+active+'</b> активно</span><span><b>'+current+'</b> в текущем спринте</span></div>'+
+      '</div>'+
+      '<div class="rm-global-progress"><div><i style="width:'+progress+'%"></i></div><strong>'+progress+'%</strong><span class="rm-health-badge '+health+'">'+rmHealthLabel({status:health==='done'?'done':health==='blocked'?'blocked':'progress',due:health==='overdue'?'2000-01-01':'',progress:health==='risk'?0:100})+'</span></div>'+
+      '<div class="rm-global-monthbar"><i style="grid-column:'+(span.start+1)+' / span '+span.span+'"></i></div>'+
+    '</article>';
+  }).join('');
+}
+
+function rmItemsForWeek(){
+  const owner=document.getElementById('roadmapOwnerFilter')?.value||'all';
+  return roadmapItems.filter(item=>{
+    if(item.scope!==roadmapProject)return false;
+    if((item.sprintWeek||rmMonday(item.start||item.due))!==rmSelectedWeekStart)return false;
+    if(owner!=='all'&&item.owner!==owner)return false;
+    return true;
+  });
+}
+function rmSprintCard(item){
+  const rolled=item.status==='rolled';
+  const h=rolled?'rolled':rmHealth(item);
+  const goal=roadmapGoals.find(g=>g.id===item.goalId);
+  return '<article class="rm-sprint-card health-'+h+'" data-rm-edit="'+item.id+'">'+
+    '<div class="rm-sprint-top"><span>'+escapeHtml(goal?.title||item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
+    '<h4>'+escapeHtml(item.title)+'</h4>'+
+    '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
+    (item.dependency?'<div class="rm-sprint-dep">↳ '+escapeHtml(item.dependency)+'</div>':'')+
+    '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
+    '<small>'+Number(item.progress||0)+'% · '+(rolled?'Перенесено в следующую неделю':rmHealthLabel(item))+'</small>'+
+  '</article>';
+}
+function rmUpdateWeekHeader(items){
+  const end=rmWeekEnd(rmSelectedWeekStart);
+  const startD=new Date(rmSelectedWeekStart+'T12:00:00');
+  const endD=new Date(end+'T12:00:00');
+  const sameMonth=startD.getMonth()===endD.getMonth();
+  const fmtDay=d=>d.toLocaleDateString('ru-RU',{day:'2-digit'});
+  const fmtMonth=d=>d.toLocaleDateString('ru-RU',{month:'long'});
+  const title=sameMonth
+    ? fmtDay(startD)+'–'+fmtDay(endD)+' '+fmtMonth(endD)
+    : fmtDay(startD)+' '+fmtMonth(startD)+' – '+fmtDay(endD)+' '+fmtMonth(endD);
+  const titleEl=document.getElementById('rmWeekTitle');
+  if(titleEl)titleEl.textContent=title;
+  const closed=rmIsWeekClosed(roadmapProject,rmSelectedWeekStart);
+  const current=rmSelectedWeekStart===rmMonday(rmToday());
+  const state=document.getElementById('rmWeekState');
+  if(state)state.textContent=closed?'Неделя закрыта · история сохранена':current?'Текущая рабочая неделя':'План / история спринта';
+  const closeBtn=document.getElementById('rmCloseWeek');
+  if(closeBtn){closeBtn.disabled=closed;closeBtn.textContent=closed?'Неделя закрыта ✓':'Закрыть неделю'}
+  const done=items.filter(x=>x.status==='done').length;
+  const remaining=items.filter(x=>!['done','rolled'].includes(x.status)).length;
+  document.getElementById('rmWeekTotal')?.replaceChildren(document.createTextNode(String(items.filter(x=>x.status!=='rolled').length)));
+  document.getElementById('rmWeekDone')?.replaceChildren(document.createTextNode(String(done)));
+  document.getElementById('rmWeekRemain')?.replaceChildren(document.createTextNode(String(remaining)));
+  let pace='В ТЕМПЕ';
+  if(closed)pace='ЗАКРЫТА';
+  else if(items.some(x=>x.status==='blocked'||rmHealth(x)==='overdue'))pace='НЕ УСПЕВАЕМ';
+  else if(items.some(x=>rmHealth(x)==='risk'))pace='ЕСТЬ РИСК';
+  const paceEl=document.getElementById('rmWeekHealth');
+  if(paceEl)paceEl.textContent=pace;
+}
+function renderRoadmapSprint(){
+  const items=rmItemsForWeek();
+  rmUpdateWeekHeader(items);
+  const next=items.filter(x=>x.status==='planned');
+  const work=items.filter(x=>x.status==='progress'&&!['risk','overdue'].includes(rmHealth(x)));
+  const blocked=items.filter(x=>x.status==='blocked'||['risk','overdue'].includes(rmHealth(x)));
+  const done=items.filter(x=>['done','rolled'].includes(x.status));
+  const sets=[
+    ['rmNextList','rmNextCount',next],['rmWorkList','rmWorkCount',work],
+    ['rmBlockedList','rmBlockedCount',blocked],['rmClosedList','rmClosedCount',done]
+  ];
+  sets.forEach(([listId,countId,data])=>{
+    const host=document.getElementById(listId),count=document.getElementById(countId);
+    if(count)count.textContent=String(data.length);
+    if(host)host.innerHTML=data.length?data.map(rmSprintCard).join(''):'<div class="rm-column-empty">Пусто</div>';
+  });
+}
+function rmSummary(){
+  const projectItems=roadmapItems.filter(x=>x.scope===roadmapProject&&x.status!=='rolled');
+  const active=projectItems.filter(x=>x.status!=='done');
+  const risk=active.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x)));
+  const done=projectItems.filter(x=>x.status==='done');
+  document.getElementById('roadmapActiveCount')?.replaceChildren(document.createTextNode(String(active.length)));
+  document.getElementById('roadmapRiskCount')?.replaceChildren(document.createTextNode(String(risk.length)));
+  document.getElementById('roadmapDoneCount')?.replaceChildren(document.createTextNode(String(done.length)));
+  const next=active.filter(x=>x.due).sort((a,b)=>a.due.localeCompare(b.due))[0];
+  const focus=document.getElementById('roadmapFocusText');
+  if(focus)focus.textContent=next?rmDateLabel(next.due):'—';
+}
+function renderRoadmapTeam(){
+  const host=document.getElementById('roadmapTeamGrid');
+  if(!host)return;
+  const currentWeek=rmMonday(rmToday());
+  const grouped={};
+  roadmapItems.filter(x=>x.scope===roadmapProject&&x.status!=='done'&&x.status!=='rolled'&&(x.sprintWeek||rmMonday(x.start||x.due))===currentWeek).forEach(item=>{
+    const owner=item.owner||'Не назначен';
+    (grouped[owner]||(grouped[owner]=[])).push(item);
+  });
+  const entries=Object.entries(grouped).sort((a,b)=>b[1].length-a[1].length);
+  host.innerHTML=entries.length?entries.map(([owner,items])=>{
+    const risks=items.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x))).length;
+    const load=Math.min(100,items.length*25);
+    return '<article class="rm-team-card">'+
+      '<div class="rm-team-head"><div><small>ТЕКУЩИЙ СПРИНТ</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+items.length+' активн.</b></div>'+
+      '<div class="rm-team-load"><span>Загрузка по действиям недели</span><div><i style="width:'+load+'%"></i></div><b>'+load+'%</b></div>'+
+      (risks?'<div class="rm-team-risk">⚠ Требуют внимания: '+risks+'</div>':'<div class="rm-team-ok">✓ Критичных блокеров нет</div>')+
+      '<div class="rm-team-items">'+items.slice(0,6).map(x=>'<button type="button" data-rm-edit="'+x.id+'"><span>'+escapeHtml(x.title)+'</span><b>'+rmDateLabel(x.due)+'</b></button>').join('')+'</div>'+
+    '</article>';
+  }).join(''):'<div class="roadmap-empty">В текущем спринте активных задач пока нет.</div>';
+}
+
+function rmCloseSelectedWeek(){
+  if(rmIsWeekClosed(roadmapProject,rmSelectedWeekStart))return;
+  const items=roadmapItems.filter(x=>x.scope===roadmapProject&&(x.sprintWeek||rmMonday(x.start||x.due))===rmSelectedWeekStart&&x.status!=='rolled');
+  const unfinished=items.filter(x=>x.status!=='done');
+  const nextStart=rmShiftDate(rmSelectedWeekStart,7);
+  if(!confirm('Закрыть неделю '+rmSelectedWeekStart+'?\n\nЗакрытые задачи останутся в истории. '+unfinished.length+' незакрытых задач будут перенесены в следующий спринт.'))return;
+  unfinished.forEach(item=>{
+    const copy={
+      ...item,
+      id:'rm-'+uid(),
+      sprintWeek:nextStart,
+      start:rmShiftDate(item.start||rmSelectedWeekStart,7),
+      due:rmShiftDate(item.due||rmWeekEnd(rmSelectedWeekStart),7),
+      status:item.status==='blocked'?'blocked':(Number(item.progress||0)>0?'progress':'planned'),
+      rolledFrom:item.id
+    };
+    item.status='rolled';
+    item.rolledTo=copy.id;
+    roadmapItems.push(copy);
+  });
+  rmClosedWeeks.push(rmWeekKey(roadmapProject,rmSelectedWeekStart));
+  rmSaveClosedWeeks();
+  roadmapWrite(roadmapItems);
+  rmSelectedWeekStart=nextStart;
+  renderRoadmap();
+}
+
+document.getElementById('rmPrevWeek')?.addEventListener('click',()=>{rmSelectedWeekStart=rmShiftDate(rmSelectedWeekStart,-7);renderRoadmap()});
+document.getElementById('rmNextWeek')?.addEventListener('click',()=>{rmSelectedWeekStart=rmShiftDate(rmSelectedWeekStart,7);renderRoadmap()});
+document.getElementById('rmTodayWeek')?.addEventListener('click',()=>{rmSelectedWeekStart=rmMonday(rmToday());renderRoadmap()});
+document.getElementById('rmCloseWeek')?.addEventListener('click',rmCloseSelectedWeek);
+document.querySelector('#roadmapForm select[name="scope"]')?.addEventListener('change',e=>rmPopulateGoalSelect(e.target.value,''));
+
+rmPopulateGoalSelect(roadmapProject,'');
 renderRoadmap();
