@@ -2210,6 +2210,12 @@ if(custdevGroupTask){
     else custdevGroupTask.subtasks.push(w);
   });
 }
+roadmapItems.forEach(item=>{
+  if(item.owner==='Маргарита Колесникова')item.owner='Колесникова Маргарита';
+  (item.subtasks||[]).forEach(sub=>{
+    if(sub.owner==='Маргарита Колесникова')sub.owner='Колесникова Маргарита';
+  });
+});
 roadmapWrite(roadmapItems);
 
 let roadmapView='timeline';
@@ -2381,7 +2387,7 @@ function renderRoadmapTeam(){
     const risks=items.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x))).length;
     const load=Math.min(100,items.length*25);
     return '<article class="rm-team-card">'+
-      '<div class="rm-team-head"><div><small>RESPONSIBLE</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+items.length+' активн.</b></div>'+
+      '<div class="rm-team-head"><div><small>ОТВЕТСТВЕННЫЙ</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+items.length+' активн.</b></div>'+
       '<div class="rm-team-load"><span>Загрузка по активным процессам</span><div><i style="width:'+load+'%"></i></div><b>'+load+'%</b></div>'+
       (risks?'<div class="rm-team-risk">⚠ Требуют внимания: '+risks+'</div>':'<div class="rm-team-ok">✓ Критичных блокеров нет</div>')+
       '<div class="rm-team-items">'+items.slice(0,5).map(x=>'<button type="button" data-rm-edit="'+x.id+'"><span>'+escapeHtml(x.title)+'</span><b>'+rmDateLabel(x.due)+'</b></button>').join('')+'</div>'+
@@ -2513,16 +2519,8 @@ function openRoadmapSubtaskModal(parentId,index=null){
 
   if(sub&&roadmapSubtaskForm){
     roadmapSubtaskForm.title.value=sub.title||'';
-    const ownerSelect=roadmapSubtaskForm.elements.owner;
-    const subOwner=sub.owner||'';
-    if(ownerSelect){
-      if(subOwner && ![...ownerSelect.options].some(o=>o.value===subOwner)){
-        const option=document.createElement('option');
-        option.value=subOwner; option.textContent=subOwner;
-        ownerSelect.appendChild(option);
-      }
-      ownerSelect.value=subOwner;
-    }
+    const ownerInput=roadmapSubtaskForm.elements.owner;
+    if(ownerInput)ownerInput.value=sub.owner||'';
     roadmapSubtaskForm.due.value=sub.due||'';
     roadmapSubtaskForm.status.value=sub.status||(sub.done?'done':'todo');
     if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub.note||'';
