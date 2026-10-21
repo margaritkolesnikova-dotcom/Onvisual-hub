@@ -2955,6 +2955,15 @@ document.getElementById('rmTodayWeek')?.addEventListener('click',()=>{rmSelected
 document.getElementById('rmCloseWeek')?.addEventListener('click',rmCloseSelectedWeek);
 document.querySelector('#roadmapForm select[name="scope"]')?.addEventListener('change',e=>rmPopulateGoalSelect(e.target.value,''));
 
+document.getElementById('roadmapModalSubtaskList')?.addEventListener('click',e=>{
+  const row=e.target.closest('[data-rm-subtask]');
+  if(!row)return;
+  const parentId=row.dataset.rmSubtask;
+  const index=Number(row.dataset.subIndex);
+  roadmapModal?.close();
+  openRoadmapSubtaskModal(parentId,index);
+});
+
 document.getElementById('addRoadmapSubtaskFromMain')?.addEventListener('click',()=>{
   const id=editingRoadmapId;
   if(!id)return;
