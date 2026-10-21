@@ -1860,3 +1860,294 @@ document.querySelectorAll('.knowledge-modal').forEach(modal=>{
     if(e.target===modal)modal.close();
   });
 });
+
+
+// ==========================================
+// ROADMAP / SPRINT workspace
+// ==========================================
+const ROADMAP_STORE='onvisualRoadmapV1';
+const roadmapRead=()=>{try{return JSON.parse(localStorage.getItem(ROADMAP_STORE)||'[]')}catch{return[]}};
+const roadmapWrite=(data)=>localStorage.setItem(ROADMAP_STORE,JSON.stringify(data));
+
+let roadmapItems=roadmapRead();
+if(!roadmapItems.length){
+  roadmapItems=[{
+    id:'rm-setup-hub',
+    title:'Настроить Roadmap / Sprint в ONVISUAL Hub',
+    scope:'Общее',
+    owner:'Колесникова Маргарита',
+    start:'2026-10-21',
+    due:'2026-10-24',
+    status:'progress',
+    progress:60,
+    dependency:'',
+    note:'Проверить удобство дорожной карты на реальной работе команды и скорректировать структуру.',
+    subtasks:[
+      {title:'Собрать структуру Roadmap',done:true},
+      {title:'Добавить Sprint и Team view',done:true},
+      {title:'Протестировать на текущих процессах команды',done:false}
+    ]
+  }];
+  roadmapWrite(roadmapItems);
+}
+
+let roadmapView='timeline';
+let editingRoadmapId=null;
+
+const roadmapModal=document.getElementById('roadmapModal');
+const roadmapForm=document.getElementById('roadmapForm');
+const addRoadmapBtn=document.getElementById('addRoadmapBtn');
+const deleteRoadmapBtn=document.getElementById('deleteRoadmapBtn');
+
+const rmStatusLabel={planned:'Следующая',progress:'В работе',blocked:'Заблокировано',done:'Закрыто'};
+
+function rmToday(){
+  const d=new Date();
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function rmDateLabel(v){
+  if(!v)return '—';
+  const [y,m,d]=v.split('-');
+  return d+'.'+m+'.'+y.slice(2);
+}
+function rmDays(a,b){
+  if(!a||!b)return null;
+  return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);
+}
+function rmHealth(item){
+  if(item.status==='done')return 'done';
+  if(item.status==='blocked')return 'blocked';
+  const today=rmToday();
+  if(item.due && item.due<today)return 'overdue';
+  const left=rmDays(today,item.due);
+  if(left!==null && left<=3 && Number(item.progress||0)<70)return 'risk';
+  return 'ontrack';
+}
+function rmHealthLabel(item){
+  const h=rmHealth(item);
+  return {done:'Закрыто',blocked:'Заблокировано',overdue:'Просрочено',risk:'Риск',ontrack:'Успеваем'}[h];
+}
+function rmFilteredItems(){
+  const scope=document.getElementById('roadmapScopeFilter')?.value||'all';
+  const owner=document.getElementById('roadmapOwnerFilter')?.value||'all';
+  const showDone=document.getElementById('roadmapShowDone')?.checked??true;
+  return roadmapItems.filter(item=>{
+    if(scope!=='all'&&item.scope!==scope)return false;
+    if(owner!=='all'&&item.owner!==owner)return false;
+    if(!showDone&&item.status==='done')return false;
+    return true;
+  });
+}
+function rmRefreshOwners(){
+  const select=document.getElementById('roadmapOwnerFilter');
+  if(!select)return;
+  const current=select.value||'all';
+  const owners=[...new Set(roadmapItems.map(x=>x.owner).filter(Boolean))].sort();
+  select.innerHTML='<option value="all">Все ответственные</option>'+owners.map(o=>'<option value="'+escapeHtml(o)+'">'+escapeHtml(o)+'</option>').join('');
+  if([...select.options].some(o=>o.value===current))select.value=current;
+}
+function rmSummary(){
+  const active=roadmapItems.filter(x=>x.status!=='done');
+  const risk=active.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x)));
+  const done=roadmapItems.filter(x=>x.status==='done');
+  document.getElementById('roadmapActiveCount')?.replaceChildren(document.createTextNode(String(active.length)));
+  document.getElementById('roadmapRiskCount')?.replaceChildren(document.createTextNode(String(risk.length)));
+  document.getElementById('roadmapDoneCount')?.replaceChildren(document.createTextNode(String(done.length)));
+  const next=active.filter(x=>x.due).sort((a,b)=>a.due.localeCompare(b.due))[0];
+  const focus=document.getElementById('roadmapFocusText');
+  if(focus)focus.textContent=next?rmDateLabel(next.due):'—';
+}
+function rmSubtaskHtml(item){
+  const subs=item.subtasks||[];
+  if(!subs.length)return '<span class="rm-no-subtasks">Подзадач пока нет</span>';
+  const done=subs.filter(x=>x.done).length;
+  return '<div class="rm-subtask-summary"><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span></div>'+
+    '<div class="rm-subtask-chips">'+subs.slice(0,3).map((s,i)=>
+      '<button type="button" class="rm-subtask-chip '+(s.done?'done':'')+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
+      (s.done?'✓ ':'○ ')+escapeHtml(s.title)+'</button>').join('')+
+      (subs.length>3?'<span class="rm-more">+'+(subs.length-3)+'</span>':'')+
+    '</div>';
+}
+function rmTimelineRow(item){
+  const h=rmHealth(item);
+  const left=item.due?rmDays(rmToday(),item.due):null;
+  let timing='';
+  if(item.status==='done')timing='Завершено';
+  else if(left!==null&&left<0)timing='Просрочено на '+Math.abs(left)+' дн.';
+  else if(left===0)timing='Дедлайн сегодня';
+  else if(left===1)timing='Дедлайн завтра';
+  else if(left!==null)timing='До дедлайна '+left+' дн.';
+
+  return '<article class="roadmap-row health-'+h+'" data-rm-edit="'+item.id+'">'+
+    '<div class="rm-main">'+
+      '<div class="rm-scope '+(item.scope==='ONVISUAL'?'studio':item.scope==='Мультвселенная'?'mv':'shared')+'">'+escapeHtml(item.scope)+'</div>'+
+      '<h3>'+escapeHtml(item.title)+'</h3>'+
+      (item.dependency?'<div class="rm-dependency">↳ зависит от: <b>'+escapeHtml(item.dependency)+'</b></div>':'')+
+      rmSubtaskHtml(item)+
+    '</div>'+
+    '<div class="rm-owner"><span>RESPONSIBLE</span><b>'+escapeHtml(item.owner||'Не назначен')+'</b></div>'+
+    '<div class="rm-period"><span>'+rmDateLabel(item.start)+'</span><i>→</i><b>'+rmDateLabel(item.due)+'</b><small>'+escapeHtml(timing)+'</small></div>'+
+    '<div class="rm-progress"><div><i style="width:'+Math.max(0,Math.min(100,Number(item.progress||0)))+'%"></i></div><b>'+Number(item.progress||0)+'%</b></div>'+
+    '<div class="rm-health"><span class="rm-health-badge '+h+'">'+rmHealthLabel(item)+'</span><small>'+rmStatusLabel[item.status]+'</small></div>'+
+  '</article>';
+}
+function renderRoadmapTimeline(){
+  const host=document.getElementById('roadmapTimeline');
+  if(!host)return;
+  const items=rmFilteredItems().sort((a,b)=>{
+    if(a.status==='done'&&b.status!=='done')return 1;
+    if(b.status==='done'&&a.status!=='done')return -1;
+    return (a.due||'9999').localeCompare(b.due||'9999');
+  });
+  host.innerHTML=items.length?items.map(rmTimelineRow).join(''):'<div class="roadmap-empty">Нет процессов по выбранному фильтру. Добавь первый большой процесс.</div>';
+}
+function rmSprintCard(item){
+  return '<article class="rm-sprint-card health-'+rmHealth(item)+'" data-rm-edit="'+item.id+'">'+
+    '<div class="rm-sprint-top"><span>'+escapeHtml(item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
+    '<h4>'+escapeHtml(item.title)+'</h4>'+
+    '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
+    '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
+    '<small>'+Number(item.progress||0)+'% · '+rmHealthLabel(item)+'</small>'+
+  '</article>';
+}
+function renderRoadmapSprint(){
+  const items=rmFilteredItems();
+  const next=items.filter(x=>x.status==='planned');
+  const work=items.filter(x=>x.status==='progress'&&!['risk','overdue'].includes(rmHealth(x)));
+  const blocked=items.filter(x=>x.status==='blocked'||['risk','overdue'].includes(rmHealth(x)));
+  const done=items.filter(x=>x.status==='done');
+  const sets=[
+    ['rmNextList','rmNextCount',next],['rmWorkList','rmWorkCount',work],
+    ['rmBlockedList','rmBlockedCount',blocked],['rmClosedList','rmClosedCount',done]
+  ];
+  sets.forEach(([listId,countId,data])=>{
+    const host=document.getElementById(listId),count=document.getElementById(countId);
+    if(count)count.textContent=String(data.length);
+    if(host)host.innerHTML=data.length?data.map(rmSprintCard).join(''):'<div class="rm-column-empty">Пусто</div>';
+  });
+}
+function renderRoadmapTeam(){
+  const host=document.getElementById('roadmapTeamGrid');
+  if(!host)return;
+  const grouped={};
+  roadmapItems.filter(x=>x.status!=='done').forEach(item=>{
+    const owner=item.owner||'Не назначен';
+    (grouped[owner]||(grouped[owner]=[])).push(item);
+  });
+  const entries=Object.entries(grouped).sort((a,b)=>b[1].length-a[1].length);
+  host.innerHTML=entries.length?entries.map(([owner,items])=>{
+    const risks=items.filter(x=>['risk','overdue','blocked'].includes(rmHealth(x))).length;
+    const load=Math.min(100,items.length*25);
+    return '<article class="rm-team-card">'+
+      '<div class="rm-team-head"><div><small>RESPONSIBLE</small><h3>'+escapeHtml(owner)+'</h3></div><b>'+items.length+' активн.</b></div>'+
+      '<div class="rm-team-load"><span>Загрузка по активным процессам</span><div><i style="width:'+load+'%"></i></div><b>'+load+'%</b></div>'+
+      (risks?'<div class="rm-team-risk">⚠ Требуют внимания: '+risks+'</div>':'<div class="rm-team-ok">✓ Критичных блокеров нет</div>')+
+      '<div class="rm-team-items">'+items.slice(0,5).map(x=>'<button type="button" data-rm-edit="'+x.id+'"><span>'+escapeHtml(x.title)+'</span><b>'+rmDateLabel(x.due)+'</b></button>').join('')+'</div>'+
+    '</article>';
+  }).join(''):'<div class="roadmap-empty">Активных процессов пока нет.</div>';
+}
+function renderRoadmap(){
+  rmRefreshOwners();
+  rmSummary();
+  renderRoadmapTimeline();
+  renderRoadmapSprint();
+  renderRoadmapTeam();
+}
+function openRoadmapModal(id=null){
+  editingRoadmapId=id;
+  const item=id?roadmapItems.find(x=>x.id===id):null;
+  const form=roadmapForm;
+  if(!form||!roadmapModal)return;
+  form.reset();
+  document.getElementById('roadmapModalTitle').textContent=item?'Редактировать процесс':'Добавить процесс';
+  deleteRoadmapBtn.style.display=item?'inline-flex':'none';
+  if(item){
+    form.title.value=item.title||'';
+    form.scope.value=item.scope||'ONVISUAL';
+    form.owner.value=item.owner||'';
+    form.start.value=item.start||'';
+    form.due.value=item.due||'';
+    form.status.value=item.status||'planned';
+    form.progress.value=Number(item.progress||0);
+    form.subtasks.value=(item.subtasks||[]).map(s=>(s.done?'[x] ':'')+s.title).join('\n');
+    form.dependency.value=item.dependency||'';
+    form.note.value=item.note||'';
+  }else{
+    form.start.value=rmToday();
+    form.progress.value=0;
+  }
+  roadmapModal.showModal();
+}
+function parseRoadmapSubtasks(text){
+  return String(text||'').split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+    const done=/^\[x\]\s*/i.test(line);
+    return {title:line.replace(/^\[(x| )\]\s*/i,''),done};
+  });
+}
+roadmapForm?.addEventListener('submit',e=>{
+  e.preventDefault();
+  const fd=new FormData(roadmapForm);
+  const data={
+    title:String(fd.get('title')||'').trim(),
+    scope:String(fd.get('scope')||'ONVISUAL'),
+    owner:String(fd.get('owner')||'').trim(),
+    start:String(fd.get('start')||''),
+    due:String(fd.get('due')||''),
+    status:String(fd.get('status')||'planned'),
+    progress:Number(fd.get('progress')||0),
+    subtasks:parseRoadmapSubtasks(fd.get('subtasks')),
+    dependency:String(fd.get('dependency')||'').trim(),
+    note:String(fd.get('note')||'').trim()
+  };
+  if(data.status==='done')data.progress=100;
+  if(editingRoadmapId){
+    const i=roadmapItems.findIndex(x=>x.id===editingRoadmapId);
+    if(i>=0)roadmapItems[i]={...roadmapItems[i],...data};
+  }else{
+    roadmapItems.push({id:'rm-'+uid(),...data});
+  }
+  roadmapWrite(roadmapItems);
+  roadmapModal.close();
+  renderRoadmap();
+});
+addRoadmapBtn?.addEventListener('click',()=>openRoadmapModal());
+deleteRoadmapBtn?.addEventListener('click',()=>{
+  if(!editingRoadmapId)return;
+  if(!confirm('Удалить этот процесс из дорожной карты?'))return;
+  roadmapItems=roadmapItems.filter(x=>x.id!==editingRoadmapId);
+  roadmapWrite(roadmapItems);
+  roadmapModal.close();
+  renderRoadmap();
+});
+document.getElementById('roadmapScopeFilter')?.addEventListener('change',renderRoadmap);
+document.getElementById('roadmapOwnerFilter')?.addEventListener('change',renderRoadmap);
+document.getElementById('roadmapShowDone')?.addEventListener('change',renderRoadmap);
+
+document.getElementById('roadmapViewSwitch')?.querySelectorAll('[data-roadmap-view]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    roadmapView=btn.dataset.roadmapView;
+    document.querySelectorAll('[data-roadmap-view]').forEach(x=>x.classList.toggle('active',x===btn));
+    document.querySelectorAll('.roadmap-view').forEach(x=>x.classList.remove('active'));
+    document.getElementById('roadmap'+roadmapView.charAt(0).toUpperCase()+roadmapView.slice(1)+'View')?.classList.add('active');
+  });
+});
+document.getElementById('roadmap')?.addEventListener('click',e=>{
+  const sub=e.target.closest('[data-rm-subtask]');
+  if(sub){
+    e.stopPropagation();
+    const item=roadmapItems.find(x=>x.id===sub.dataset.rmSubtask);
+    const index=Number(sub.dataset.subIndex);
+    if(item?.subtasks?.[index]){
+      item.subtasks[index].done=!item.subtasks[index].done;
+      const done=item.subtasks.filter(x=>x.done).length;
+      if(item.subtasks.length)item.progress=Math.round(done/item.subtasks.length*100);
+      if(done===item.subtasks.length&&item.subtasks.length){item.status='done';item.progress=100;}
+      roadmapWrite(roadmapItems);renderRoadmap();
+    }
+    return;
+  }
+  const edit=e.target.closest('[data-rm-edit]');
+  if(edit)openRoadmapModal(edit.dataset.rmEdit);
+});
+renderRoadmap();
