@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261021-roadmap3" />
+  <link rel="stylesheet" href="styles.css?v=20261021-sprint5" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1098,11 +1098,12 @@
           <article><small>ОСТАЛОСЬ</small><strong id="rmWeekRemain">0</strong></article>
           <article class="rm-week-health"><small>ТЕМП</small><strong id="rmWeekHealth">—</strong></article>
         </div>
-        <div class="roadmap-sprint-grid">
-          <section><header><span>01</span><h3>Следующие</h3><b id="rmNextCount">0</b></header><div id="rmNextList" class="roadmap-sprint-list"></div></section>
-          <section><header><span>02</span><h3>В работе</h3><b id="rmWorkCount">0</b></header><div id="rmWorkList" class="roadmap-sprint-list"></div></section>
-          <section><header><span>03</span><h3>Заблокировано / риск</h3><b id="rmBlockedCount">0</b></header><div id="rmBlockedList" class="roadmap-sprint-list"></div></section>
-          <section><header><span>04</span><h3>Закрыто</h3><b id="rmClosedCount">0</b></header><div id="rmClosedList" class="roadmap-sprint-list"></div></section>
+        <div class="roadmap-sprint-grid roadmap-sprint-grid-five">
+          <section class="rm-col-plan"><header><span>01</span><h3>План</h3><b id="rmPlanCount">0</b></header><div id="rmPlanList" class="roadmap-sprint-list"></div></section>
+          <section class="rm-col-work"><header><span>02</span><h3>В работе</h3><b id="rmWorkCount">0</b></header><div id="rmWorkList" class="roadmap-sprint-list"></div></section>
+          <section class="rm-col-risk"><header><span>03</span><h3>Риск</h3><b id="rmRiskSprintCount">0</b></header><div id="rmRiskSprintList" class="roadmap-sprint-list"></div></section>
+          <section class="rm-col-done"><header><span>04</span><h3>Закрыто</h3><b id="rmClosedCount">0</b></header><div id="rmClosedList" class="roadmap-sprint-list"></div></section>
+          <section class="rm-col-roll"><header><span>05</span><h3>Перенос</h3><b id="rmRolledCount">0</b></header><div id="rmRolledList" class="roadmap-sprint-list"></div></section>
         </div>
       </div>
 
@@ -1138,10 +1139,11 @@
           <label>Дедлайн<input name="due" type="date"></label>
           <label>Статус
             <select name="status">
-              <option value="planned">Следующая</option>
+              <option value="planned">План</option>
               <option value="progress">В работе</option>
-              <option value="blocked">Заблокировано</option>
+              <option value="risk">Риск</option>
               <option value="done">Закрыто</option>
+              <option value="rolled">Перенос</option>
             </select>
           </label>
           <label>Прогресс, %<input name="progress" type="number" min="0" max="100" step="5" value="0"></label>
@@ -1152,8 +1154,11 @@
         <label>Зависит от
           <input name="dependency" placeholder="Например: утверждение оффера Екатериной / задача другого сотрудника">
         </label>
-        <label>Комментарий / ожидаемый результат
-          <textarea name="note" rows="3" placeholder="Что должно быть получено на выходе"></textarea>
+        <label>Информация / текущий результат
+          <textarea name="note" rows="3" placeholder="Что сделано, что выяснили, что важно знать по задаче"></textarea>
+        </label>
+        <label>Файл / ссылка / папка
+          <input name="resource" type="url" placeholder="https://...">
         </label>
         <div class="modal-actions roadmap-modal-actions">
           <button type="button" class="danger-modal" id="deleteRoadmapBtn">Удалить</button>
@@ -1173,7 +1178,7 @@
         <div class="form-grid">
           <label>Ответственный<input name="owner" list="teamNames" placeholder="Кто делает"></label>
           <label>Дата<input name="due" type="date"></label>
-          <label>Статус<select name="status"><option value="todo">Не начато</option><option value="progress">В работе</option><option value="blocked">Заблокировано</option><option value="done">Готово</option></select></label>
+          <label>Статус<select name="status"><option value="todo">План</option><option value="progress">В работе</option><option value="risk">Риск</option><option value="done">Готово</option></select></label>
         </div>
         <div class="modal-actions">
           <button type="button" class="secondary-modal" data-close="roadmapSubtaskModal">Отмена</button>
@@ -1493,6 +1498,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261021-roadmap3"></script>
+  <script src="app.js?v=20261021-sprint5"></script>
 </body>
 </html>
