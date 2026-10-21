@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
-  <link rel="stylesheet" href="styles.css?v=20261021-sprint5" />
+  <link rel="stylesheet" href="styles.css?v=20261021-subowners1" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1149,7 +1149,8 @@
           <label>Прогресс, %<input name="progress" type="number" min="0" max="100" step="5" value="0"></label>
         </div>
         <label>Подзадачи
-          <textarea name="subtasks" rows="4" placeholder="Каждая подзадача с новой строки"></textarea>
+          <textarea name="subtasks" rows="3" placeholder="Можно быстро внести список. После сохранения каждой подзадаче можно назначить своего ответственного, дату и статус."></textarea>
+          <small class="rm-field-hint">Персональные ответственные настраиваются через кнопку «＋ Подзадача» в карточке процесса.</small>
         </label>
         <label>Зависит от
           <input name="dependency" placeholder="Например: утверждение оффера Екатериной / задача другого сотрудника">
@@ -1171,18 +1172,32 @@
     <dialog class="hub-modal roadmap-subtask-modal" id="roadmapSubtaskModal">
       <form method="dialog" id="roadmapSubtaskForm">
         <div class="modal-head">
-          <div><small>NEXT ACTION</small><h2>Добавить подзадачу</h2></div>
+          <div><small>SUBTASK</small><h2 id="roadmapSubtaskModalTitle">Добавить подзадачу</h2></div>
           <button type="button" class="modal-close" data-close="roadmapSubtaskModal">×</button>
         </div>
         <label>Действие<input name="title" required placeholder="Что конкретно нужно сделать"></label>
         <div class="form-grid">
           <label>Ответственный<input name="owner" list="teamNames" placeholder="Кто делает"></label>
           <label>Дата<input name="due" type="date"></label>
-          <label>Статус<select name="status"><option value="todo">План</option><option value="progress">В работе</option><option value="risk">Риск</option><option value="done">Готово</option></select></label>
+          <label>Статус
+            <select name="status">
+              <option value="todo">План</option>
+              <option value="progress">В работе</option>
+              <option value="risk">Риск</option>
+              <option value="done">Готово</option>
+            </select>
+          </label>
         </div>
-        <div class="modal-actions">
+        <label>Комментарий / результат
+          <textarea name="note" rows="2" placeholder="Что важно по этой подзадаче"></textarea>
+        </label>
+        <label>Файл / ссылка / папка
+          <input name="resource" type="url" placeholder="https://...">
+        </label>
+        <div class="modal-actions roadmap-modal-actions">
+          <button type="button" class="danger-modal" id="deleteRoadmapSubtaskBtn">Удалить</button>
           <button type="button" class="secondary-modal" data-close="roadmapSubtaskModal">Отмена</button>
-          <button type="submit" class="primary-modal">Добавить действие</button>
+          <button type="submit" class="primary-modal" id="saveRoadmapSubtaskBtn">Сохранить</button>
         </div>
       </form>
     </dialog>
@@ -1441,7 +1456,7 @@
 
     <datalist id="teamNames">
       <option value="Кодин Дмитрий"><option value="Ярошенко Екатерина"><option value="Колесникова Маргарита"><option value="Подкорытов Александр">
-      <option value="Иван"><option value="Дмитрий"><option value="Алексей"><option value="Анна"><option value="Павел"><option value="Ксения">
+      <option value="Иван"><option value="Дмитрий"><option value="Алексей"><option value="Анна"><option value="Павел"><option value="Ксения"><option value="Николай">
     </datalist>
     <section id="knowledge" class="section knowledge-section">
       <div class="section-head knowledge-head">
@@ -1498,6 +1513,6 @@
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
   </main>
-  <script src="app.js?v=20261021-sprint5"></script>
+  <script src="app.js?v=20261021-subowners1"></script>
 </body>
 </html>
