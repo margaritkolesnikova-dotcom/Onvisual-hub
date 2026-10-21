@@ -2253,13 +2253,15 @@ function rmSummary(){
 }
 function rmSubtaskHtml(item){
   const subs=item.subtasks||[];
-  if(!subs.length)return '<span class="rm-no-subtasks">Подзадач пока нет</span>';
+  if(!subs.length){
+    return '<div class="rm-subtask-empty"><span>Подзадач пока нет</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Подзадача</button></div>';
+  }
   const done=subs.filter(x=>x.done).length;
-  return '<div class="rm-subtask-summary"><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span></div>'+
-    '<div class="rm-subtask-chips">'+subs.slice(0,3).map((s,i)=>
+  return '<div class="rm-subtask-summary"><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Подзадача</button></div>'+
+    '<div class="rm-subtask-chips">'+subs.slice(0,4).map((s,i)=>
       '<button type="button" class="rm-subtask-chip '+(s.done?'done':'')+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
       (s.done?'✓ ':'○ ')+escapeHtml(s.title)+'</button>').join('')+
-      (subs.length>3?'<span class="rm-more">+'+(subs.length-3)+'</span>':'')+
+      (subs.length>4?'<span class="rm-more">+'+(subs.length-4)+'</span>':'')+
     '</div>';
 }
 function rmTimelineRow(item){
@@ -2426,6 +2428,20 @@ document.getElementById('roadmapViewSwitch')?.querySelectorAll('[data-roadmap-vi
   });
 });
 document.getElementById('roadmap')?.addEventListener('click',e=>{
+  const addSub=e.target.closest('[data-rm-add-subtask]');
+  if(addSub){
+    e.stopPropagation();
+    const item=roadmapItems.find(x=>x.id===addSub.dataset.rmAddSubtask);
+    if(!item)return;
+    const title=prompt('Новая подзадача / следующее действие');
+    if(!title||!title.trim())return;
+    item.subtasks=item.subtasks||[];
+    item.subtasks.push({title:title.trim(),done:false});
+    if(item.status==='planned' && item.start<=rmToday())item.status='progress';
+    roadmapWrite(roadmapItems);
+    renderRoadmap();
+    return;
+  }
   const sub=e.target.closest('[data-rm-subtask]');
   if(sub){
     e.stopPropagation();
