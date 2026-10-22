@@ -2476,7 +2476,7 @@ function openRoadmapModal(id=null){
     form.progress.value=0;
     rmRenderModalSubtasks(null);
   }
-  roadmapModal.showModal();
+  if(!roadmapModal.open)roadmapModal.showModal();
 }
 function parseRoadmapSubtasks(text,existing=[]){
   const byTitle=new Map((existing||[]).map(x=>[String(x.title||'').trim(),x]));
@@ -2553,26 +2553,47 @@ function openRoadmapSubtaskModal(parentId,index=null){
   editingRoadmapSubtaskIndex=Number.isInteger(index)?index:null;
   const parent=roadmapItems.find(x=>x.id===parentId);
   const sub=editingRoadmapSubtaskIndex!==null?parent?.subtasks?.[editingRoadmapSubtaskIndex]:null;
+  if(!parent||!roadmapSubtaskForm||!roadmapSubtaskModal)return;
 
-  roadmapSubtaskForm?.reset();
+  // Only one modal may own interaction at a time.
+  if(roadmapModal?.open){
+    rmReturnToParentAfterSubtask=true;
+    roadmapModal.close();
+  }
+
+  roadmapSubtaskForm.reset();
+
+  // Defensive unlock: old UI iterations could leave controls disabled.
+  roadmapSubtaskForm.querySelectorAll('input,select,textarea,button').forEach(el=>{
+    el.disabled=false;
+    el.removeAttribute('aria-disabled');
+  });
+
   const title=document.getElementById('roadmapSubtaskModalTitle');
   const deleteBtn=document.getElementById('deleteRoadmapSubtaskBtn');
   const saveBtn=document.getElementById('saveRoadmapSubtaskBtn');
 
   if(title)title.textContent=sub?'Редактировать подзадачу':'Добавить подзадачу';
-  if(deleteBtn)deleteBtn.style.display=sub?'inline-flex':'none';
-  if(saveBtn)saveBtn.textContent=sub?'Сохранить':'Добавить действие';
-
-  if(sub&&roadmapSubtaskForm){
-    roadmapSubtaskForm.title.value=sub.title||'';
-    const ownerInput=roadmapSubtaskForm.elements.owner;
-    if(ownerInput)rmSetSelectValue(ownerInput,sub.owner||'');
-    roadmapSubtaskForm.due.value=sub.due||'';
-    roadmapSubtaskForm.status.value=sub.status||(sub.done?'done':'todo');
-    if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub.note||'';
-    if(roadmapSubtaskForm.elements.resource)roadmapSubtaskForm.elements.resource.value=sub.resource||'';
+  if(deleteBtn){
+    deleteBtn.style.display=sub?'inline-flex':'none';
+    deleteBtn.disabled=!sub;
   }
-  roadmapSubtaskModal?.showModal();
+  if(saveBtn)saveBtn.textContent=sub?'Сохранить изменения':'Добавить подзадачу';
+
+  roadmapSubtaskForm.title.value=sub?.title||'';
+  const ownerInput=roadmapSubtaskForm.elements.owner;
+  if(ownerInput)rmSetSelectValue(ownerInput,sub?.owner||'');
+  roadmapSubtaskForm.due.value=sub?.due||'';
+  roadmapSubtaskForm.status.value=sub?.status||(sub?.done?'done':'todo');
+  if(roadmapSubtaskForm.elements.note)roadmapSubtaskForm.elements.note.value=sub?.note||'';
+  if(roadmapSubtaskForm.elements.resource)roadmapSubtaskForm.elements.resource.value=sub?.resource||'';
+
+  roadmapSubtaskModal.dataset.scope=parent.scope||'';
+  roadmapSubtaskModal.dataset.parentId=parent.id;
+  if(!roadmapSubtaskModal.open)roadmapSubtaskModal.showModal();
+
+  // Focus the task title instead of leaving focus trapped on the previous dialog.
+  requestAnimationFrame(()=>roadmapSubtaskForm.elements.title?.focus());
 }
 
 function rmRecalculateParentFromSubtasks(parent){
@@ -2618,7 +2639,10 @@ roadmapSubtaskForm?.addEventListener('submit',e=>{
   roadmapSubtaskParentId=null;
   editingRoadmapSubtaskIndex=null;
   renderRoadmap();
-  if(returnParentId)openRoadmapModal(returnParentId);
+  if(returnParentId&&rmReturnToParentAfterSubtask){
+    rmReturnToParentAfterSubtask=false;
+    openRoadmapModal(returnParentId);
+  }
 });
 
 document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=>{
@@ -2633,7 +2657,10 @@ document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=
   roadmapSubtaskParentId=null;
   editingRoadmapSubtaskIndex=null;
   renderRoadmap();
-  if(returnParentId)openRoadmapModal(returnParentId);
+  if(returnParentId&&rmReturnToParentAfterSubtask){
+    rmReturnToParentAfterSubtask=false;
+    openRoadmapModal(returnParentId);
+  }
 });
 
 document.getElementById('roadmap')?.addEventListener('click',e=>{
