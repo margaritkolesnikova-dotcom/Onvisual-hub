@@ -2827,7 +2827,7 @@ function rmSprintCard(item){
     ? '<div class="rm-sprint-subtask-table">'+subs.map((s,i)=>{
         const cls=(s.done||s.status==='done')?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
         const label=(s.done||s.status==='done')?'Готово':s.status==='risk'?'Риск':s.status==='progress'?'В работе':'План';
-        return '<button type="button" class="rm-sprint-subtask-row '+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'" onclick="event.stopPropagation()">'+
+        return '<button type="button" class="rm-sprint-subtask-row '+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
           '<span class="rm-sub-state"></span>'+
           '<span class="rm-sub-title"><b>'+escapeHtml(s.title||'Без названия')+'</b>'+
             (s.note?'<small>'+escapeHtml(s.note)+'</small>':'')+
@@ -3019,6 +3019,10 @@ document.getElementById('addRoadmapSubtaskFromMain')?.addEventListener('click',(
 let roadmapDraggedId=null;
 const roadmapRoot=document.getElementById('roadmap');
 roadmapRoot?.addEventListener('dragstart',e=>{
+  if(e.target.closest('[data-rm-subtask],[data-rm-add-subtask],.rm-subtask-edit,.rm-subtask-resource,.rm-card-resource,a,button')){
+    e.preventDefault();
+    return;
+  }
   const card=e.target.closest('[data-rm-drag]');
   if(!card)return;
   roadmapDraggedId=card.dataset.rmDrag;
@@ -3079,3 +3083,18 @@ document.querySelectorAll('#roadmapSubtaskModal [data-close="roadmapSubtaskModal
     }
   });
 });
+
+
+// ==========================================
+// ROADMAP SUBTASK CLICK FIX
+// ==========================================
+document.getElementById('roadmap')?.addEventListener('click',e=>{
+  const sub=e.target.closest('[data-rm-subtask]');
+  if(!sub)return;
+  e.preventDefault();
+  e.stopPropagation();
+  const parentId=sub.dataset.rmSubtask;
+  const index=Number(sub.dataset.subIndex);
+  if(!parentId||Number.isNaN(index))return;
+  openRoadmapSubtaskModal(parentId,index);
+},true);
