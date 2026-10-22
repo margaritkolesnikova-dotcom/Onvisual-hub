@@ -3292,3 +3292,24 @@ html{scroll-behavior:smooth}
   position:relative;
   z-index:3;
 }
+
+/* Roadmap subtask editing affordance */
+.rm-sprint-subtask-row,
+.rm-modal-subtask-open,
+.rm-modal-subtask-edit,
+.rm-subtask-main-btn,
+.rm-subtask-edit{
+  cursor:pointer!important;
+}
+.rm-sprint-subtask-row:hover,
+.rm-modal-subtask-open:hover,
+.rm-subtask-main-btn:hover{
+  border-color:rgba(117,183,255,.22)!important;
+  background:#121923!important;
+}
+.rm-sprint-subtask-row:focus-visible,
+.rm-modal-subtask-open:focus-visible,
+.rm-subtask-main-btn:focus-visible{
+  outline:2px solid rgba(117,183,255,.45);
+  outline-offset:2px;
+}
