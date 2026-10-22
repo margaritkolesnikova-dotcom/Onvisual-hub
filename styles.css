@@ -3178,3 +3178,79 @@ html{scroll-behavior:smooth}
     grid-column:auto;
   }
 }
+
+/* Roadmap task/subtask editing pass */
+.rm-subtask-summary{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:10px!important;margin-top:12px!important
+}
+.rm-subtask-summary>div{display:flex;align-items:center;gap:7px}
+.rm-subtask-lines{display:grid;gap:6px;margin-top:8px}
+.rm-subtask-line{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;
+  border:1px solid rgba(255,255,255,.055);border-radius:9px;background:#0c1117;padding:5px 6px
+}
+.rm-subtask-line.progress{border-left:3px solid #438dff}
+.rm-subtask-line.risk{border-left:3px solid #ff6c78}
+.rm-subtask-line.done{border-left:3px solid #36c98f}
+.rm-subtask-line.todo{border-left:3px solid #697386}
+.rm-subtask-main-btn{
+  display:grid;grid-template-columns:minmax(180px,1.6fr) minmax(110px,.8fr) 74px 70px;
+  gap:10px;align-items:center;width:100%;border:0;background:transparent;color:inherit;
+  text-align:left;padding:7px 8px;cursor:pointer
+}
+.rm-subtask-main-btn:hover{background:rgba(255,255,255,.025);border-radius:7px}
+.rm-subtask-title{font-size:10.5px;font-weight:700;color:#d9deea}
+.rm-subtask-owner,.rm-subtask-date{font-size:9px;color:#8792a5}
+.rm-subtask-status{font-size:8.5px;color:#aab4c4}
+.rm-subtask-resource,.rm-subtask-edit{
+  border:1px solid rgba(255,255,255,.07);border-radius:7px;background:#10151c;
+  color:#9da8ba;font-size:8.5px;padding:7px 8px;text-decoration:none;cursor:pointer;white-space:nowrap
+}
+.rm-subtask-edit:hover,.rm-subtask-resource:hover{color:#fff;border-color:rgba(141,98,255,.25)}
+
+.rm-modal-subtask-list{display:grid;gap:7px}
+.rm-modal-subtask-row{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;gap:7px!important;
+  align-items:center!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:10px!important;
+  background:#0d1218!important;padding:6px!important
+}
+.rm-modal-subtask-row.progress{border-left:3px solid #438dff!important}
+.rm-modal-subtask-row.risk{border-left:3px solid #ff6c78!important}
+.rm-modal-subtask-row.done{border-left:3px solid #36c98f!important}
+.rm-modal-subtask-row.todo{border-left:3px solid #697386!important}
+.rm-modal-subtask-open{
+  display:grid;grid-template-columns:minmax(210px,1.5fr) minmax(120px,.75fr) 78px 72px;
+  gap:10px;align-items:center;width:100%;background:transparent;border:0;color:inherit;text-align:left;
+  padding:9px 10px;cursor:pointer
+}
+.rm-modal-subtask-open:hover{background:rgba(255,255,255,.025);border-radius:8px}
+.rm-modal-subtask-main b{font-size:11px!important}
+.rm-modal-subtask-main small{font-size:8.5px!important;color:#788496!important;margin-top:4px!important}
+.rm-modal-subtask-owner,.rm-modal-subtask-date{font-size:9.5px!important}
+.rm-modal-subtask-row em{font-size:8.5px!important}
+.rm-modal-subtask-resource,.rm-modal-subtask-edit{
+  border:1px solid rgba(255,255,255,.07);border-radius:8px;background:#111720;color:#a9b3c4;
+  padding:8px 9px;font-size:9px;text-decoration:none;cursor:pointer;white-space:nowrap
+}
+.rm-modal-subtask-edit:hover,.rm-modal-subtask-resource:hover{color:#fff;border-color:rgba(141,98,255,.25)}
+
+.rm-sprint-card{position:relative;padding-top:31px!important;cursor:pointer}
+.rm-sprint-drag{
+  position:absolute;top:8px;left:10px;font-size:12px;letter-spacing:-2px;color:#657086;
+  cursor:grab;user-select:none;padding:3px 6px;border-radius:6px
+}
+.rm-sprint-card:hover .rm-sprint-drag{color:#b8c1d1;background:rgba(255,255,255,.035)}
+.rm-sprint-card.is-dragging{opacity:.48;transform:scale(.985)}
+[data-rm-drop-status].drag-over{
+  outline:2px dashed rgba(141,98,255,.6)!important;
+  outline-offset:-4px;background:rgba(141,98,255,.055)!important
+}
+#roadmapModal select,#roadmapSubtaskModal select{
+  cursor:pointer
+}
+
+@media(max-width:900px){
+  .rm-subtask-main-btn,.rm-modal-subtask-open{grid-template-columns:1fr 1fr}
+  .rm-subtask-status,.rm-modal-subtask-row em{justify-self:start}
+}
