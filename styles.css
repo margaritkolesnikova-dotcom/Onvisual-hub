@@ -3254,3 +3254,41 @@ html{scroll-behavior:smooth}
   .rm-subtask-main-btn,.rm-modal-subtask-open{grid-template-columns:1fr 1fr}
   .rm-subtask-status,.rm-modal-subtask-row em{justify-self:start}
 }
+
+/* ROADMAP subtask modal interaction hardening */
+#roadmapSubtaskModal{
+  isolation:isolate;
+}
+#roadmapSubtaskModal form,
+#roadmapSubtaskModal label,
+#roadmapSubtaskModal input,
+#roadmapSubtaskModal select,
+#roadmapSubtaskModal textarea,
+#roadmapSubtaskModal button{
+  pointer-events:auto!important;
+}
+#roadmapSubtaskModal input,
+#roadmapSubtaskModal select,
+#roadmapSubtaskModal textarea{
+  position:relative;
+  z-index:2;
+  opacity:1!important;
+  cursor:text;
+}
+#roadmapSubtaskModal select{
+  cursor:pointer!important;
+  appearance:auto!important;
+  -webkit-appearance:menulist!important;
+}
+#roadmapSubtaskModal select:disabled,
+#roadmapSubtaskModal input:disabled,
+#roadmapSubtaskModal textarea:disabled{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+}
+#roadmapSubtaskModal .primary-modal,
+#roadmapSubtaskModal .secondary-modal,
+#roadmapSubtaskModal .danger-modal{
+  position:relative;
+  z-index:3;
+}
