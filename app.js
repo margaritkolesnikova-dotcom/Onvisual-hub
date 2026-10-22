@@ -2332,7 +2332,7 @@ function rmTimelineRow(item){
     '<div class="rm-owner"><span>RESPONSIBLE</span><b>'+escapeHtml(item.owner||'Не назначен')+'</b></div>'+
     '<div class="rm-period"><span>'+rmDateLabel(item.start)+'</span><i>→</i><b>'+rmDateLabel(item.due)+'</b><small>'+escapeHtml(timing)+'</small></div>'+
     '<div class="rm-progress"><div><i style="width:'+Math.max(0,Math.min(100,Number(item.progress||0)))+'%"></i></div><b>'+Number(item.progress||0)+'%</b></div>'+
-    '<div class="rm-health"><span class="rm-health-badge '+h+'">'+rmHealthLabel(item)+'</span><small>'+rmStatusLabel[item.status]+'</small></div>'+
+    '<div class="rm-health"><span class="rm-health-badge '+h+'">'+rmHealthLabel(item)+'</span><small>'+rmStatusLabel[item.status]+'</small><button type="button" class="rm-inline-edit" data-rm-edit="'+item.id+'">✎ Редактировать</button></div>'+
   '</article>';
 }
 function renderRoadmapTimeline(){
@@ -2348,14 +2348,14 @@ function renderRoadmapTimeline(){
 function rmSprintCard(item){
   const resource=item.resource?'<a class="rm-resource-link" href="'+escapeHtml(item.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">Файл / ссылка ↗</a>':'';
   const note=item.note?'<div class="rm-card-note">'+escapeHtml(item.note)+'</div>':'';
-  return '<article class="rm-sprint-card health-'+rmHealth(item)+'" data-rm-edit="'+item.id+'">'+
+  return '<article class="rm-sprint-card health-'+rmHealth(item)+'" draggable="true" data-rm-drag="'+item.id+'" data-rm-edit="'+item.id+'">'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
     '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
     note+
     resource+
     '<div class="rm-mini-progress"><i style="width:'+Number(item.progress||0)+'%"></i></div>'+
-    '<small>'+Number(item.progress||0)+'% · '+rmHealthLabel(item)+'</small>'+
+    '<div class="rm-sprint-footer"><small>'+Number(item.progress||0)+'% · '+rmHealthLabel(item)+'</small><button type="button" class="rm-inline-edit" data-rm-edit="'+item.id+'">✎ Редактировать</button></div>'+
   '</article>';
 }
 function renderRoadmapSprint(){
@@ -2433,6 +2433,7 @@ function rmRenderModalSubtasks(item){
       '<span class="rm-modal-subtask-date">'+rmDateLabel(s.due)+'</span>'+
       '<em>'+status+'</em>'+
       (s.resource?'<i>↗</i>':'')+
+      '<span class="rm-subtask-edit-mark">✎</span>'+
     '</button>';
   }).join(''):'<div class="rm-modal-subtask-empty">Подзадач пока нет.</div>';
 }
@@ -2603,10 +2604,12 @@ roadmapSubtaskForm?.addEventListener('submit',e=>{
   if(parent.status==='planned' && parent.start<=rmToday())parent.status='progress';
   rmRecalculateParentFromSubtasks(parent);
   roadmapWrite(roadmapItems);
+  const returnParentId=roadmapSubtaskParentId;
   roadmapSubtaskModal.close();
   roadmapSubtaskParentId=null;
   editingRoadmapSubtaskIndex=null;
   renderRoadmap();
+  if(returnParentId)openRoadmapModal(returnParentId);
 });
 
 document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=>{
@@ -2616,10 +2619,12 @@ document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=
   parent.subtasks.splice(editingRoadmapSubtaskIndex,1);
   rmRecalculateParentFromSubtasks(parent);
   roadmapWrite(roadmapItems);
+  const returnParentId=roadmapSubtaskParentId;
   roadmapSubtaskModal.close();
   roadmapSubtaskParentId=null;
   editingRoadmapSubtaskIndex=null;
   renderRoadmap();
+  if(returnParentId)openRoadmapModal(returnParentId);
 });
 
 document.getElementById('roadmap')?.addEventListener('click',e=>{
@@ -2636,7 +2641,10 @@ document.getElementById('roadmap')?.addEventListener('click',e=>{
     return;
   }
   const edit=e.target.closest('[data-rm-edit]');
-  if(edit)openRoadmapModal(edit.dataset.rmEdit);
+  if(edit){
+    e.stopPropagation();
+    openRoadmapModal(edit.dataset.rmEdit);
+  }
 });
 renderRoadmap();
 
@@ -3018,3 +3026,19 @@ roadmapRoot?.addEventListener('drop',e=>{
 
 rmPopulateGoalSelect(roadmapProject,'');
 renderRoadmap();
+
+let rmReturnToParentAfterSubtask=false;
+document.getElementById('roadmapModalSubtaskList')?.addEventListener('click',()=>{rmReturnToParentAfterSubtask=true},{capture:true});
+document.getElementById('addRoadmapSubtaskFromMain')?.addEventListener('click',()=>{rmReturnToParentAfterSubtask=true},{capture:true});
+document.querySelectorAll('#roadmapSubtaskModal [data-close="roadmapSubtaskModal"]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const parentId=roadmapSubtaskParentId;
+    roadmapSubtaskModal?.close();
+    roadmapSubtaskParentId=null;
+    editingRoadmapSubtaskIndex=null;
+    if(rmReturnToParentAfterSubtask&&parentId){
+      rmReturnToParentAfterSubtask=false;
+      openRoadmapModal(parentId);
+    }
+  });
+});
