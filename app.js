@@ -2294,23 +2294,25 @@ function rmSummary(){
 function rmSubtaskHtml(item){
   const subs=item.subtasks||[];
   if(!subs.length){
-    return '<div class="rm-subtask-empty"><span>Подзадач пока нет</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Подзадача</button></div>';
+    return '<div class="rm-subtask-empty"><span>Подзадач пока нет</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Добавить подзадачу</button></div>';
   }
   const done=subs.filter(x=>x.done||x.status==='done').length;
-  return '<div class="rm-subtask-summary"><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Подзадача</button></div>'+
-    '<div class="rm-subtask-chips">'+subs.slice(0,5).map((s,i)=>{
+  return '<div class="rm-subtask-summary"><div><b>'+done+'/'+subs.length+'</b><span>подзадач закрыто</span></div><button type="button" class="rm-add-subtask" data-rm-add-subtask="'+item.id+'">＋ Добавить подзадачу</button></div>'+
+    '<div class="rm-subtask-lines">'+subs.map((s,i)=>{
       const isDone=s.done||s.status==='done';
       const statusClass=isDone?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
-      const statusIcon=isDone?'✓ ':s.status==='risk'?'⚠ ':s.status==='progress'?'◐ ':'○ ';
-      const meta=[s.owner, s.due?rmDateLabel(s.due):''].filter(Boolean).join(' · ');
-      return '<button type="button" class="rm-subtask-chip '+statusClass+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
-        '<b>'+statusIcon+escapeHtml(s.title)+'</b>'+
-        (meta?'<small>'+escapeHtml(meta)+'</small>':'')+
-        (s.resource?'<em>↗ файл</em>':'')+
-      '</button>';
-    }).join('')+
-    (subs.length>5?'<span class="rm-more">+'+(subs.length-5)+'</span>':'')+
-    '</div>';
+      const statusLabel=isDone?'Готово':s.status==='risk'?'Риск':s.status==='progress'?'В работе':'План';
+      return '<div class="rm-subtask-line '+statusClass+'">'+
+        '<button type="button" class="rm-subtask-main-btn" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
+          '<span class="rm-subtask-title">'+escapeHtml(s.title||'Без названия')+'</span>'+
+          '<span class="rm-subtask-owner">'+escapeHtml(s.owner||'Не назначен')+'</span>'+
+          '<span class="rm-subtask-date">'+rmDateLabel(s.due)+'</span>'+
+          '<span class="rm-subtask-status">'+statusLabel+'</span>'+
+        '</button>'+
+        (s.resource?'<a class="rm-subtask-resource" href="'+escapeHtml(s.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">↗ Файл</a>':'')+
+        '<button type="button" class="rm-subtask-edit" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">✎</button>'+
+      '</div>';
+    }).join('')+'</div>';
 }
 function rmTimelineRow(item){
   const h=rmHealth(item);
@@ -2349,6 +2351,7 @@ function rmSprintCard(item){
   const resource=item.resource?'<a class="rm-resource-link" href="'+escapeHtml(item.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">Файл / ссылка ↗</a>':'';
   const note=item.note?'<div class="rm-card-note">'+escapeHtml(item.note)+'</div>':'';
   return '<article class="rm-sprint-card health-'+rmHealth(item)+'" draggable="true" data-rm-drag="'+item.id+'" data-rm-edit="'+item.id+'">'+
+    '<div class="rm-sprint-drag" title="Перетащить в другую колонку">⋮⋮</div>'+
     '<div class="rm-sprint-top"><span>'+escapeHtml(item.scope)+'</span><b>'+rmDateLabel(item.due)+'</b></div>'+
     '<h4>'+escapeHtml(item.title)+'</h4>'+
     '<p>'+escapeHtml(item.owner||'Не назначен')+'</p>'+
@@ -2401,14 +2404,18 @@ function renderRoadmap(){
   renderRoadmapSprint();
   renderRoadmapTeam();
 }
-function rmSetSelectValue(select,value){
-  if(!select)return;
+function rmSetSelectValue(control,value){
+  if(!control)return;
   const v=String(value||'');
-  if(v && ![...select.options].some(o=>o.value===v)){
-    const opt=document.createElement('option');
-    opt.value=v; opt.textContent=v; select.appendChild(opt);
+  if(control.tagName==='SELECT'){
+    if(v && ![...control.options].some(o=>o.value===v)){
+      const opt=document.createElement('option');
+      opt.value=v; opt.textContent=v; control.appendChild(opt);
+    }
+    control.value=v;
+    return;
   }
-  select.value=v;
+  control.value=v;
 }
 function rmRenderModalSubtasks(item){
   const host=document.getElementById('roadmapModalSubtaskList');
@@ -2420,21 +2427,23 @@ function rmRenderModalSubtasks(item){
     addBtn.dataset.parentId=item?.id||'';
   }
   if(!item){
-    host.innerHTML='<div class="rm-modal-subtask-empty">Сначала сохрани основную задачу.</div>';
+    host.innerHTML='<div class="rm-modal-subtask-empty">Сначала сохрани основную задачу, затем добавляй отдельные подзадачи.</div>';
     return;
   }
   host.innerHTML=subs.length?subs.map((s,i)=>{
     const status=s.done||s.status==='done'?'Готово':s.status==='progress'?'В работе':s.status==='risk'?'Риск':'План';
     const cls=s.done||s.status==='done'?'done':s.status==='risk'?'risk':s.status==='progress'?'progress':'todo';
-    return '<button type="button" class="rm-modal-subtask-row '+cls+'" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
-      '<span class="rm-modal-subtask-main"><b>'+escapeHtml(s.title||'Без названия')+'</b>'+
-      (s.note?'<small>'+escapeHtml(s.note)+'</small>':'')+'</span>'+
-      '<span class="rm-modal-subtask-owner">'+escapeHtml(s.owner||'Не назначен')+'</span>'+
-      '<span class="rm-modal-subtask-date">'+rmDateLabel(s.due)+'</span>'+
-      '<em>'+status+'</em>'+
-      (s.resource?'<i>↗</i>':'')+
-      '<span class="rm-subtask-edit-mark">✎</span>'+
-    '</button>';
+    return '<div class="rm-modal-subtask-row '+cls+'">'+
+      '<button type="button" class="rm-modal-subtask-open" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">'+
+        '<span class="rm-modal-subtask-main"><b>'+escapeHtml(s.title||'Без названия')+'</b>'+
+        (s.note?'<small>'+escapeHtml(s.note)+'</small>':'')+'</span>'+
+        '<span class="rm-modal-subtask-owner">'+escapeHtml(s.owner||'Не назначен')+'</span>'+
+        '<span class="rm-modal-subtask-date">'+rmDateLabel(s.due)+'</span>'+
+        '<em>'+status+'</em>'+
+      '</button>'+
+      (s.resource?'<a class="rm-modal-subtask-resource" href="'+escapeHtml(s.resource)+'" target="_blank" rel="noreferrer" onclick="event.stopPropagation()">↗</a>':'')+
+      '<button type="button" class="rm-modal-subtask-edit" data-rm-subtask="'+item.id+'" data-sub-index="'+i+'">✎ Редактировать</button>'+
+    '</div>';
   }).join(''):'<div class="rm-modal-subtask-empty">Подзадач пока нет.</div>';
 }
 function openRoadmapModal(id=null){
@@ -2628,6 +2637,7 @@ document.getElementById('deleteRoadmapSubtaskBtn')?.addEventListener('click',()=
 });
 
 document.getElementById('roadmap')?.addEventListener('click',e=>{
+  if(e.target.closest('a'))return;
   const addSub=e.target.closest('[data-rm-add-subtask]');
   if(addSub){
     e.stopPropagation();
