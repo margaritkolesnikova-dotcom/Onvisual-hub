@@ -3099,3 +3099,82 @@ html{scroll-behavior:smooth}
   #roadmap .rm-sub-owner,#roadmap .rm-sub-due{grid-column:2}
   #roadmap .rm-sprint-subtask-row em{grid-column:3;grid-row:1}
 }
+
+/* ROADMAP explicit editing */
+.rm-inline-edit{
+  border:1px solid rgba(255,255,255,.08);
+  background:#111720;
+  color:#b9c2cf;
+  border-radius:7px;
+  padding:6px 8px;
+  font-size:9px;
+  line-height:1;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.rm-inline-edit:hover{
+  color:#fff;
+  border-color:rgba(255,174,76,.30);
+  background:rgba(255,174,76,.07);
+}
+.rm-health .rm-inline-edit{margin-top:4px}
+.rm-sprint-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:7px;
+}
+.rm-sprint-footer>small{margin:0}
+.rm-modal-subtask-row{
+  position:relative;
+  grid-template-columns:minmax(240px,1fr) minmax(145px,.45fr) 90px 85px 24px 24px!important;
+  align-items:center;
+}
+.rm-subtask-edit-mark{
+  width:23px;
+  height:23px;
+  border-radius:6px;
+  display:grid;
+  place-items:center;
+  color:#d4dbe5;
+  border:1px solid rgba(255,255,255,.07);
+  background:#111720;
+  font-style:normal;
+  font-size:10px;
+}
+.rm-modal-subtask-row:hover .rm-subtask-edit-mark{
+  border-color:rgba(255,174,76,.28);
+  color:#ffd18c;
+}
+.rm-modal-subtask-row,
+.rm-subtask-chip,
+.rm-team-items button{
+  cursor:pointer;
+}
+.roadmap-modal select,
+.roadmap-subtask-modal select{
+  cursor:pointer;
+}
+.roadmap-subtask-modal label,
+.roadmap-modal label{
+  font-size:11px;
+}
+.roadmap-subtask-modal input,
+.roadmap-subtask-modal select,
+.roadmap-subtask-modal textarea,
+.roadmap-modal input,
+.roadmap-modal select,
+.roadmap-modal textarea{
+  font-size:12px!important;
+}
+@media(max-width:900px){
+  .rm-modal-subtask-row{
+    grid-template-columns:1fr auto!important;
+  }
+  .rm-modal-subtask-owner,
+  .rm-modal-subtask-date,
+  .rm-modal-subtask-row em{
+    grid-column:auto;
+  }
+}
