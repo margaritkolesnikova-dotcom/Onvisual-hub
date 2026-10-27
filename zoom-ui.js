@@ -30,9 +30,17 @@
    return data;
  }
  function toLocal(m){
+   var time='',localDate=m.date||String(m.startTime||'').slice(0,10);
+   try{
+     var dt=new Date(m.startTime);
+     if(!isNaN(dt)){
+       time=new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit'}).format(dt);
+       localDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).format(dt);
+     }
+   }catch(e){}
    return {
-     zoomUuid:m.uuid,zoomMeetingId:m.zoomId||'',title:m.title||'Zoom Meeting',
-     date:m.date||String(m.startTime||'').slice(0,10),
+     zoomUuid:m.uuid,zoomMeetingId:m.zoomId||'',title:(m.title||'Zoom Meeting')+(time?' · '+time:''),
+     date:localDate,
      scope:m.project||'',videoUrl:m.videoUrl||'',
      zoomVideoAvailable:!!m.hasVideo,zoomTranscriptAvailable:!!m.hasTranscript,
      transcriptText:'',transcriptUrl:'',summary:'',decisions:'',actions:'',
