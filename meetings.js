@@ -123,7 +123,8 @@
     editing=id||null;
     var m=meetings.find(function(x){return x.id===id});
     form.reset();
-    form.elements.date.value=m?m.date:new Date().toLocaleDateString('en-CA');
+    var now=new Date();var today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    form.elements.date.value=m?m.date:today;
     ['title','scope','participants','videoUrl','transcriptUrl','transcriptText','summary','decisions','actions'].forEach(function(key){
       if(m&&form.elements[key])form.elements[key].value=m[key]||'';
     });
@@ -132,6 +133,7 @@
   }
   document.getElementById('mtAddMeeting').addEventListener('click',function(){openForm()});
   document.getElementById('mtCancelMeeting').addEventListener('click',function(){modal.close()});
+  document.getElementById('mtCancelMeetingFooter').addEventListener('click',function(){modal.close()});
   search.addEventListener('input',render);
   filter.addEventListener('change',render);
   document.getElementById('mtExport').addEventListener('click',function(){
