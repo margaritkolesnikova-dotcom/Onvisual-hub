@@ -1577,7 +1577,7 @@
           <label>Ключ синхронизации<input id="mtZoomKey" type="password" autocomplete="off" placeholder="MEETINGS_SYNC_KEY" aria-label="Ключ синхронизации Zoom" /></label>
           <button id="mtZoomSync" type="button" class="mt-primary">Синхронизировать Zoom</button>
         </div>
-        <p class="mt-zoom-status" id="mtZoomState" aria-live="polite">Для первого подключения заполни ZOOM_ACCOUNT_ID, ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_HOST_EMAIL и MEETINGS_SYNC_KEY в защищённых настройках Vercel. Ключ вводи только здесь, не в чате.</p>
+        <p class="mt-zoom-status" id="mtZoomState" aria-live="polite">Облачный Zoom подключён к защищённому архиву. После входа здесь будут показываться новые записи и расшифровки. Ежедневное обновление работает на сервере, даже когда ноутбук выключен. Для проверки сразу после встречи нажми «Проверить новые записи».</p>
       </div>
       <div class="mt-stats">
         <div><b id="meetingCount">0</b><small>Всего встреч</small></div>
@@ -1630,7 +1630,7 @@
     </dialog>
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
-  <script src="meetings.js?v=20261027-localvideo"></script>
-  <script src="zoom-ui.js?v=20261027-single"></script>
+  <script src="meetings.js?v=20261028-cloudstore"></script>
+  <script src="zoom-ui.js?v=20261028-cloudstore"></script>
 </body>
 </html>
