@@ -93,3 +93,21 @@
 @media(max-width:1100px){.mt-layout{grid-template-columns:310px minmax(0,1fr)}.mt-media-grid{grid-template-columns:1fr}}
 @media(max-width:850px){.mt-layout{grid-template-columns:1fr}.mt-sidebar,.mt-detail{min-height:0}.mt-media-grid{grid-template-columns:1fr 1fr}.mt-entry-tags{flex-direction:row}}
 @media(max-width:570px){.mt-stats{grid-template-columns:1fr 1fr}.mt-stats>div:last-child{grid-column:1/-1}.mt-media-grid,.mt-fields{grid-template-columns:1fr}.mt-detail{padding:17px}.mt-notice{font-size:11px}.mt-dialog form{padding:18px}}
+
+/* Zoom Cloud Sync */
+.mt-zoom-panel{padding:18px 20px;margin-bottom:18px;border:1px solid rgba(141,98,255,.32);background:linear-gradient(110deg,rgba(100,70,210,.13),rgba(16,18,29,.92));border-radius:16px}
+.mt-zoom-heading{display:flex;align-items:center;gap:12px;margin-bottom:15px}
+.mt-zoom-glyph{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(141,98,255,.18);color:#cbbaff;font-size:23px}
+.mt-zoom-heading strong{display:block;font-size:12px;letter-spacing:.1em}
+.mt-zoom-heading small{display:block;margin-top:5px;color:#8b95aa;font-size:11px}
+.mt-zoom-controls{display:grid;grid-template-columns:minmax(115px,170px) minmax(140px,1fr) auto;gap:10px;align-items:end}
+.mt-zoom-controls label{font-size:11px;font-weight:650;color:#a7b0c5;display:flex;gap:8px;flex-direction:column;min-width:0}
+.mt-zoom-controls input{height:42px;background:#080b13;border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:0 12px;color:#eff1fa;min-width:0;outline:none}
+.mt-zoom-controls input:focus{border-color:#a589fa}
+.mt-zoom-controls .mt-primary{height:42px}
+.mt-zoom-controls button:disabled{opacity:.55;cursor:wait}
+.mt-zoom-status{margin:14px 0 0;font-size:11px;line-height:1.55;color:#9da5bb}
+.mt-zoom-status.error{color:#ff9ca6}
+.mt-zoom-get-transcript{display:inline-block;background:rgba(141,98,255,.14);color:#cdbfff;border:1px solid rgba(141,98,255,.3);border-radius:9px;margin-top:14px;padding:10px 13px;font-size:11px}
+@media(max-width:800px){.mt-zoom-controls{grid-template-columns:1fr 1fr}.mt-zoom-controls .mt-primary{grid-column:1/-1}}
+@media(max-width:500px){.mt-zoom-controls{grid-template-columns:1fr}.mt-zoom-controls .mt-primary{grid-column:auto}}
