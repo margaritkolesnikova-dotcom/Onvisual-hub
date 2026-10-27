@@ -46,7 +46,7 @@
           zoomMeetingId:m.meetingId||'',
           title:m.title||'Созвон Zoom',
           date:dateAtMoscow(m.startTime),
-          scope:'ONVISUAL',
+          scope:'', // Assign only after the user selects ONVISUAL or Multiverse.
           participants:'',
           videoUrl:m.videoUrl||'',
           transcriptUrl:'',
@@ -77,7 +77,7 @@
         finished+=batch.length;
         status('Встречи: '+records.length+'. Расшифровки: '+finished+'/'+candidates.length+'.',false);
       }
-      status('Синхронизировано '+records.length+' встреч; доступных расшифровок загружено '+ok+'.'+(errors?' Не удалось получить: '+errors+'.':'')+(data.hasMore?' Zoom вернул не все страницы; выбери более узкий период.':''),false);
+      status('Синхронизировано '+records.length+' встреч; новые созвоны без проекта находятся в «На распределение». Расшифровок загружено '+ok+'.'+(errors?' Не удалось получить: '+errors+'.':'')+(data.hasMore?' Zoom вернул не все страницы; выбери более узкий период.':''),false);
     }catch(error){
       status(error.message||'Ошибка синхронизации с Zoom.',true);
     }finally{button.disabled=false;button.textContent='Синхронизировать Zoom'}
