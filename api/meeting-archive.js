@@ -1,7 +1,7 @@
 import {createHmac} from 'node:crypto';
 import {
   isAuthorized,safeEqual,readIndex,assignProject,
-  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange
+  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting
 } from '../lib/zoom-archive.js';
 
 const cookieName='ov_meetings_auth';
@@ -48,7 +48,7 @@ function cleanView(m){
     project:m.project||'',
     hasVideo:!!m.hasVideo,videoUrl:m.videoUrl||'',
     hasTranscript:!!m.hasTranscript,transcriptStored:!!m.transcriptStored,
-    firstSeen:m.firstSeen,
+    firstSeen:m.firstSeen,source:m.source||'zoom',
   };
 }
 export default async function handler(req,res){
@@ -71,7 +71,7 @@ export default async function handler(req,res){
         if(!record)return err(res,404,'Встреча отсутствует в архиве');
         if(!record.hasTranscript)return err(res,404,'Zoom ещё не создал текстовую расшифровку');
         let transcript=await transcriptRead(uuid);
-        if(!transcript){
+        if(!transcript&&record.source!=='local'){
           transcript=await fetchZoomTranscript(uuid);
           if(transcript)await transcriptStore(uuid,transcript);
         }
@@ -82,6 +82,23 @@ export default async function handler(req,res){
     }
     if(req.method!=='POST')return err(res,405,'Используй GET или POST');
     if(req.headers['x-onvisual-request']!=='1')return err(res,403,'Не хватает заголовка защиты запроса');
+    // A private migration route for existing Zoom recordings that only existed on the PC.
+    // Importers must have the integration's master bearer key; a browser cookie alone cannot overwrite transcripts.
+    if(action==='import-local'){
+      if(!isAuthorized(req))return err(res,403,'Требуется серверный ключ архива');
+      if(Number(req.headers['content-length']||0)>850000)return err(res,413,'Текст слишком большой');
+      const data=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
+      if(!data||typeof data.transcript!=='string'||!data.transcript.trim()||Buffer.byteLength(data.transcript,'utf8')>800000)
+        return err(res,400,'Нужен текст расшифровки до 800 КБ');
+      const uuid=String(data.uuid||'');
+      if(!/^LOCAL[A-Z0-9]{10,35}$/.test(uuid))return err(res,400,'Неверный идентификатор локальной встречи');
+      await ensureLocalMeeting({
+        uuid,project:String(data.project||''),date:String(data.date||''),
+        title:String(data.title||''),startTime:String(data.startTime||''),duration:Number(data.duration||0)
+      });
+      await transcriptStore(uuid,data.transcript);
+      return res.status(200).json({ok:true,uuid,transcriptStored:true});
+    }
     const data=await body(req);
     if(action==='assign'){
       const uuid=String(data.uuid||''),project=String(data.project||'');
