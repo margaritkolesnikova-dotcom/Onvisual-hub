@@ -151,7 +151,7 @@
           b.type='button';
           b.className='mt-entry'+(selected===m.id?' is-active':'');
           b.innerHTML='<span class="mt-entry-name"><strong>'+safe(m.title)+'</strong><small>'+(m.participants?safe(m.participants):'Встреча Zoom / ручная запись')+'</small></span>'+
-            '<span class="mt-entry-tags">'+((m.videoUrl||m.localVideoName)?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl)?'<i>≡ Текст</i>':'')+'</span>';
+            '<span class="mt-entry-tags">'+((m.videoUrl||m.localVideoName||m.privateVideoStored||m.zoomVideoAvailable)?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl||m.transcriptStored)?'<i>≡ TXT/VTT</i>':'')+(m.summaryStored?'<i>▤ PDF</i>':'')+'</span>';
           b.addEventListener('click',function(){selected=m.id;render()});
           body.appendChild(b);
         });
