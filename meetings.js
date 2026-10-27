@@ -151,7 +151,7 @@
           b.type='button';
           b.className='mt-entry'+(selected===m.id?' is-active':'');
           b.innerHTML='<span class="mt-entry-name"><strong>'+safe(m.title)+'</strong><small>'+(m.participants?safe(m.participants):'Встреча Zoom / ручная запись')+'</small></span>'+
-            '<span class="mt-entry-tags">'+((m.videoUrl||m.localVideoName||m.privateVideoStored||m.zoomVideoAvailable)?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl||m.transcriptStored)?'<i>≡ TXT/VTT</i>':'')+(m.summaryStored?'<i>▤ PDF</i>':'')+'</span>';
+            '<span class="mt-entry-tags">'+((m.videoUrl||m.localVideoName||m.privateVideoStored||m.zoomVideoAvailable)?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl||m.transcriptStored)?'<i>≡ TXT/VTT</i>':'')+(m.summaryStored?'<i>▤ Главный PDF</i>':'')+'</span>';
           b.addEventListener('click',function(){selected=m.id;render()});
           body.appendChild(b);
         });
@@ -177,7 +177,9 @@
     var rows=actionRows({...m,actions:m.actions||m.autoActions||''}),imported=m.sentTaskKeys||[];
     detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
       '<p>'+(m.participants?'Участники: '+safe(m.participants):'Участники не указаны')+'</p></div><div class="mt-detail-actions"><button type="button" id="mtEdit">Редактировать</button><button type="button" id="mtDelete" class="mt-danger">Удалить</button></div></div>'+
-      '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
+      '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<section class="mt-main-report"><div class="mt-report-icon">▤</div><div class="mt-report-info"><div class="mt-report-eyebrow">ГЛАВНЫЙ ДОКУМЕНТ · ПО ИТОГАМ ВСТРЕЧИ</div><h3>Итоги встречи.pdf</h3><p>Главное · Что объясняли · Решения · Задачи по участникам · Открытые вопросы · Следующие шаги · Материалы</p><small>Формируется из оригинального резюме Zoom и доступной расшифровки. Неподтверждённые решения и сроки не добавляются.</small></div>'+
+      (hasPrivateSummary?'<a class="mt-report-open" href="'+safe(fileUrl('report_pdf'))+'" target="_blank" rel="noopener noreferrer">Открыть главный PDF ↗</a>':'<span class="mt-report-pending">Ждём резюме Zoom</span>')+'</section>'+
+      '<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
       (hasSharedVideo?'<div id="mtSharedVideoSlot" class="mt-video-local-slot">Подключаю защищённое видео команды…</div>':
         m.zoomUuid&&m.zoomVideoAvailable?'<div id="mtSharedVideoSlot" class="mt-media-placeholder"><span>▶</span><p>Получаю ссылку на облачную запись Zoom…</p></div>':
         m.localVideoName?'<div id="mtLocalVideoSlot" class="mt-video-local-slot">Открываю видео с этого компьютера…</div>':
@@ -196,9 +198,9 @@
         '<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Файл расшифровки ещё не получен</p></div>')+
       (m.zoomTranscriptAvailable&&!hasPrivateTranscript&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Загрузить VTT из Zoom</button>':'')+
       (!hasPrivateTranscript?'<div class="mt-file-import"><label for="mtAttachTranscriptFile">Прикрепить полный TXT/VTT в архив</label><input type="file" id="mtAttachTranscriptFile" accept=".txt,.vtt,.srt,text/plain,text/vtt" /></div>':'')+'</section></div>'+
-      '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ZOOM SUMMARY</span><b>Итоги по материалам встречи · PDF</b></div>'+
+      '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ORIGINAL ZOOM SUMMARY</span><b>Исходное резюме Zoom · PDF</b></div>'+
       (hasPrivateSummary?
-        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Резюме Zoom.pdf</strong><small>Готовый итоговый документ Zoom · PDF</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary_pdf'))+'" target="_blank" rel="noopener noreferrer">Открыть PDF ↗</a></div>':
+        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Оригинал Zoom Summary.pdf</strong><small>Исходный документ Zoom, без обработки</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary_pdf'))+'" target="_blank" rel="noopener noreferrer">Открыть PDF ↗</a></div>':
         m.summaryDocUrl?
         '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Резюме в Zoom</strong><small>Документ готов в аккаунте Zoom</small></div>'+linkHtml(validUrl(m.summaryDocUrl),'Открыть в Zoom')+'</div>':
         '<p class="mt-summary-pending">Готовый документ пока не получен из Zoom. Для автоматического импорта требуется разрешение <code>meeting_summary:read:admin</code> в Zoom Marketplace.</p>')+
