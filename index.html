@@ -6,7 +6,7 @@
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
   <link rel="stylesheet" href="styles.css?v=20261022-subtaskfix1" />
-  <link rel="stylesheet" href="meetings.css?v=20261027-single" />
+  <link rel="stylesheet" href="meetings.css?v=20261027-localvideo" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1610,15 +1610,16 @@
         </div>
         <div class="mt-fields">
           <label>Дата созвона<input name="date" type="date" required /></label>
-          <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+          <label>Проект<select name="scope" required><option value="" disabled selected>Выбрать проект</option><option value="ONVISUAL">ONVISUAL</option><option value="Мультвселенная">Мультвселенная</option></select></label>
           <label class="mt-wide">Название встречи<input name="title" type="text" required maxlength="160" placeholder="Планёрка команды / Созвон с клиентом" /></label>
           <label class="mt-wide">Участники<input name="participants" type="text" placeholder="Имена участников" /></label>
           <label class="mt-wide">Видео — ссылка Zoom Cloud Recording / Яндекс Диск<input name="videoUrl" type="url" placeholder="https://..." /></label>
+          <label class="mt-wide">Или видео с этого компьютера — MP4/WebM<input id="meetLocalVideoFile" type="file" accept="video/mp4,video/webm,.mp4,.webm" /></label>
           <label class="mt-wide">Ссылка на текстовую расшифровку<input name="transcriptUrl" type="url" placeholder="https://..." /></label>
           <label class="mt-wide">Расшифровка (можно вставить текст)<textarea name="transcriptText" rows="5" placeholder="Полный текст созвона..."></textarea></label>
           <label class="mt-wide">Или прикрепить расшифровку TXT / VTT / SRT / MD<input id="meetTranscriptFile" type="file" accept=".txt,.vtt,.srt,.md,text/plain,text/vtt" /></label>
         </div>
-        <div class="mt-upload-note">Текстовый файл считывается локально. MP4 не загружается на сервер хаба — используй защищённую облачную ссылку.</div>
+        <div class="mt-upload-note">MP4 сохраняется только на этом компьютере в хранилище браузера (IndexedDB) и воспроизводится прямо в хабе. На других устройствах видео не появится. Для общего командного доступа потребуется защищённое облако. Текст также хранится только в этом браузере.</div>
         <div class="mt-fields">
           <label class="mt-wide">Краткие итоги<textarea name="summary" rows="3" placeholder="О чём говорили, что важно..."></textarea></label>
           <label class="mt-wide">Принятые решения<textarea name="decisions" rows="3" placeholder="Что утвердили..."></textarea></label>
@@ -1629,7 +1630,7 @@
     </dialog>
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
-  <script src="meetings.js?v=20261027-single"></script>
+  <script src="meetings.js?v=20261027-localvideo"></script>
   <script src="zoom-ui.js?v=20261027-single"></script>
 </body>
 </html>
