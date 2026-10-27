@@ -39,12 +39,32 @@
      }
    }catch(e){}
    return {
-     zoomUuid:m.uuid,zoomMeetingId:m.zoomId||'',title:(m.title||'Zoom Meeting')+(time?' · '+time:''),
+     zoomUuid:m.uuid,zoomMeetingId:m.zoomId||'',
+     zoomSource:m.source||'zoom',
+     title:(m.title||'Zoom Meeting')+((m.source==='local')?'':(time?' · '+time:'')),
      date:localDate,
      scope:m.project||'',videoUrl:m.videoUrl||'',
      zoomVideoAvailable:!!m.hasVideo,zoomTranscriptAvailable:!!m.hasTranscript,
      transcriptText:'',transcriptUrl:'',summary:'',decisions:'',actions:'',
    };
+ }
+ var loadedTranscripts=new Set();
+ async function loadAvailableTranscripts(){
+   var ready=archiveRecords.filter(function(m){return m.hasTranscript&&!loadedTranscripts.has(m.uuid)});
+   for(var i=0;i<ready.length;i+=3){
+     await Promise.all(ready.slice(i,i+3).map(async function(m){
+       try{
+         var result=await api('transcript',{uuid:m.uuid});
+         if(!result.transcript)return;
+         loadedTranscripts.add(m.uuid);
+         document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{
+           detail:{records:[{zoomUuid:m.uuid,transcriptText:result.transcript}]}
+         }));
+       }catch(e){
+         // A transcript can still be processing. Retry on next refresh without marking it loaded.
+       }
+     }));
+   }
  }
  function imported(archive){
    archiveRecords=archive.meetings||[];
@@ -52,6 +72,7 @@
      document.dispatchEvent(new CustomEvent('onvisual:meetings-import',
        {detail:{records:archiveRecords.map(toLocal)}}));
    }
+   loadAvailableTranscripts().catch(function(){});
    var unassigned=archiveRecords.filter(m=>!m.project).length;
    var videos=archiveRecords.filter(m=>m.hasVideo).length;
    var transcripts=archiveRecords.filter(m=>m.hasTranscript).length;
