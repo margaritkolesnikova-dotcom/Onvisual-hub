@@ -169,6 +169,9 @@
       return;
     }
     var video=validUrl(m.videoUrl),tr=validUrl(m.transcriptUrl);
+    var hasPrivateTranscript=!!(m.zoomUuid&&m.transcriptStored);
+    var hasPrivateSummary=!!(m.zoomUuid&&m.summaryStored);
+    var fileUrl=function(kind){return '/api/meeting-archive?action=download&kind='+kind+'&uuid='+encodeURIComponent(m.zoomUuid||'')};
     var isDirectVideo=video&&/\.(mp4|webm|ogg)(?:$|[?#])/i.test(video);
     var rows=actionRows(m),imported=m.sentTaskKeys||[];
     detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
@@ -176,14 +179,26 @@
       '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
       (m.localVideoName?'<div id="mtLocalVideoSlot" class="mt-video-local-slot">Открываю видео с этого компьютера…</div>':isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится в Zoom / облаке</p></div>':'<div class="mt-media-placeholder"><span>▷</span><p>Видео пока не прикреплено</p></div>')+
       (m.localVideoName?'<small>Локальная копия: '+safe(m.localVideoName)+' — только в этом браузере на этом устройстве.</small>':video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь MP4 с компьютера или защищённую облачную ссылку через «Редактировать».</small>')+
-      '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка</b></div>'+
-      (m.transcriptText?'<div class="mt-transcript-preview">'+safe(m.transcriptText)+'</div>':'<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Текст можно вставить или прикрепить файлом VTT/TXT</p></div>')+
-      '<div class="mt-inline-actions">'+(m.transcriptText?'<button type="button" id="mtDownloadTranscript">Скачать TXT ↓</button>':'')+(tr?linkHtml(tr,'Открыть расшифровку'):'')+'</div>'+
-      (m.zoomTranscriptAvailable&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Получить расшифровку Zoom</button>':'')+'</section></div>'+
-      '<section class="mt-content-card mt-notes"><div class="mt-card-label"><span>03 / NOTES</span><b>Протокол и решения</b></div>'+
+      '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка · файл</b></div>'+
+      (hasPrivateTranscript?
+        '<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи</strong><small>Оригинальный файл Zoom · VTT / TXT</small></div><a class="mt-file-action" href="'+safe(fileUrl('transcript'))+'">Скачать файл ↓</a></div>':
+       m.transcriptText?
+        '<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи.txt</strong><small>Документ прикреплён в текущем браузере</small></div><button class="mt-file-action" id="mtDownloadTranscript" type="button">Скачать TXT ↓</button></div>':
+        tr?'<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи</strong><small>Файл во внешнем хранилище</small></div>'+linkHtml(tr,'Открыть файл')+'</div>':
+        '<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Файл расшифровки ещё не получен</p></div>')+
+      (m.zoomTranscriptAvailable&&!hasPrivateTranscript&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Загрузить VTT из Zoom</button>':'')+'</section></div>'+
+      '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ZOOM SUMMARY</span><b>Готовое резюме Zoom · файл</b></div>'+
+      (hasPrivateSummary?
+        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Zoom Summary.md</strong><small>Оригинальное резюме Zoom, сохранённое как документ</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary'))+'">Скачать файл ↓</a></div>':
+        m.summaryDocUrl?
+        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Резюме в Zoom</strong><small>Документ готов в аккаунте Zoom</small></div>'+linkHtml(validUrl(m.summaryDocUrl),'Открыть в Zoom')+'</div>':
+        '<p class="mt-summary-pending">Готовый документ пока не получен из Zoom. Для автоматического импорта требуется разрешение <code>meeting_summary:read:admin</code> в Zoom Marketplace.</p>')+
+      (m.zoomUuid&&!hasPrivateSummary&&m.zoomSource!=='local'?'<button type="button" id="mtGetZoomSummary" class="mt-zoom-get-transcript" data-uuid="'+safe(m.zoomUuid)+'">Проверить готовое резюме</button>':'')+
+      '</section>'+
+      '<section class="mt-content-card mt-notes"><div class="mt-card-label"><span>04 / NOTES</span><b>Протокол и решения</b></div>'+
       '<h4>Краткие итоги</h4><p class="mt-preserve">'+safe(m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
       '<h4>Принятые решения</h4><p class="mt-preserve">'+safe(m.decisions||'Пока не зафиксированы.')+'</p></section>'+
-      '<section class="mt-content-card mt-actions"><div class="mt-card-label"><span>04 / ACTIONS</span><b>Задачи по встрече</b></div>'+
+      '<section class="mt-content-card mt-actions"><div class="mt-card-label"><span>05 / ACTIONS</span><b>Задачи по встрече</b></div>'+
       (rows.length?'<div class="mt-action-list">'+rows.map(function(t){
         var done=imported.includes(t.key);
         return '<div><span>'+safe(t.title)+'</span><small>'+safe(t.owner||'Без ответственного')+(t.due?' · '+safe(fmt(t.due)):' · Срок не указан')+'</small><em>'+(done?'В задачах ✓':'К передаче')+'</em></div>';
@@ -334,6 +349,10 @@
         if(rec.videoUrl&&!old.videoUrl){old.videoUrl=String(rec.videoUrl);changed=true}
         if(rec.zoomVideoAvailable&&!old.zoomVideoAvailable){old.zoomVideoAvailable=true;changed=true}
         if(rec.zoomTranscriptAvailable&&!old.zoomTranscriptAvailable){old.zoomTranscriptAvailable=true;changed=true}
+        if(rec.transcriptStored&&!old.transcriptStored){old.transcriptStored=true;changed=true}
+        if(rec.summaryStored&&!old.summaryStored){old.summaryStored=true;changed=true}
+        if(rec.summaryDocUrl&&!old.summaryDocUrl){old.summaryDocUrl=String(rec.summaryDocUrl);changed=true}
+        if(rec.zoomSource&&!old.zoomSource){old.zoomSource=rec.zoomSource;changed=true}
         return;
       }
       // A transcript-only update may arrive after the user deleted the imported meeting.
@@ -346,7 +365,8 @@
         summary:'',decisions:'',actions:'',
         zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',zoomSource:rec.zoomSource||'zoom',
         zoomVideoAvailable:!!rec.zoomVideoAvailable,
-        zoomTranscriptAvailable:!!rec.zoomTranscriptAvailable
+        zoomTranscriptAvailable:!!rec.zoomTranscriptAvailable,
+        transcriptStored:!!rec.transcriptStored,summaryStored:!!rec.summaryStored,summaryDocUrl:rec.summaryDocUrl||''
       };
       meetings.push(newMeeting);changed=true;
     });
