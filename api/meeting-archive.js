@@ -145,7 +145,7 @@ export default async function handler(req,res){
         const {records}=await readIndex();
         const record=records.find(m=>m.uuid===uuid);
         if(!record)return err(res,404,'Встреча отсутствует в архиве');
-        if(!record.hasTranscript)return err(res,404,'Zoom ещё не создал текстовую расшифровку');
+        // A retained AI Meeting Summary transcript can exist without a Zoom MP4 recording.
         let transcript=await transcriptRead(uuid);
         if(!transcript&&record.source!=='local'){
           transcript=await fetchZoomTranscript(uuid);
