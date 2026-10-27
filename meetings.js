@@ -22,6 +22,68 @@
     try{localStorage.setItem(STORE,JSON.stringify(meetings));return true}
     catch(e){alert('Недостаточно памяти браузера. Сократи расшифровку или оставь ссылку на файл в Zoom/Диске.');return false}
   }
+
+  // Local MP4 stays on this device in IndexedDB. It is never sent to public Vercel.
+  var activeVideoObjectURL=null;
+  function openVideoDB(){
+    return new Promise(function(resolve,reject){
+      if(!('indexedDB' in window)){reject(new Error('Браузер не поддерживает локальное хранилище видео'));return}
+      var req=indexedDB.open('onvisualMeetingVideosV1',1);
+      req.onupgradeneeded=function(){var db=req.result;if(!db.objectStoreNames.contains('videos'))db.createObjectStore('videos',{keyPath:'id'})};
+      req.onsuccess=function(){resolve(req.result)};
+      req.onerror=function(){reject(req.error||new Error('Ошибка IndexedDB'))};
+    });
+  }
+  async function writeVideo(id,file){
+    var db=await openVideoDB();
+    try{
+      await new Promise(function(resolve,reject){
+        var tx=db.transaction('videos','readwrite');
+        tx.objectStore('videos').put({id:id,blob:file,name:file.name,type:file.type});
+        tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error||new Error('Недостаточно места для видео'))};
+        tx.onabort=function(){reject(tx.error||new Error('Сохранение видео отменено'))};
+      });
+    }finally{db.close()}
+  }
+  async function readVideo(id){
+    var db=await openVideoDB();
+    try{
+      return await new Promise(function(resolve,reject){
+        var tx=db.transaction('videos','readonly');
+        var request=tx.objectStore('videos').get(id);
+        request.onsuccess=function(){resolve(request.result||null)};
+        request.onerror=function(){reject(request.error||new Error('Не удалось открыть видео'))};
+      });
+    }finally{db.close()}
+  }
+  async function removeVideo(id){
+    var db=await openVideoDB();
+    try{await new Promise(function(resolve,reject){
+      var tx=db.transaction('videos','readwrite');
+      tx.objectStore('videos').delete(id);
+      tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)};
+    })}finally{db.close()}
+  }
+  function revokeCurrentVideo(){
+    if(activeVideoObjectURL){URL.revokeObjectURL(activeVideoObjectURL);activeVideoObjectURL=null}
+  }
+  async function renderLocalVideo(m){
+    var slot=detail.querySelector('#mtLocalVideoSlot');
+    if(!slot)return;
+    try{
+      var item=await readVideo(m.id);
+      if(selected!==m.id||!slot.isConnected)return;
+      if(!item||!item.blob){slot.textContent='Локальное видео не найдено в этом браузере. Прикрепи MP4 заново.';return}
+      activeVideoObjectURL=URL.createObjectURL(item.blob);
+      var player=document.createElement('video');
+      player.className='mt-video';
+      player.controls=true;
+      player.preload='metadata';
+      player.src=activeVideoObjectURL;
+      slot.replaceChildren(player);
+    }catch(err){if(selected===m.id&&slot.isConnected)slot.textContent='Ошибка открытия локального видео: '+err.message}
+  }
+
   function fmt(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d||''))return d||'Без даты';return d.slice(8,10)+'.'+d.slice(5,7)+'.'+d.slice(0,4)}
   function validUrl(v){if(!v)return '';try{var u=new URL(v);return u.protocol==='https:'?u.href:''}catch(e){return ''}}
   function label(value){return safe(value||'Не указано')}
@@ -49,7 +111,7 @@
     }).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||'')});
     var allCount=meetings.length;
     document.getElementById('meetingCount').textContent=String(allCount);
-    document.getElementById('meetingVideoCount').textContent=String(meetings.filter(function(m){return !!m.videoUrl}).length);
+    document.getElementById('meetingVideoCount').textContent=String(meetings.filter(function(m){return !!(m.videoUrl||m.localVideoName)}).length);
     document.getElementById('meetingTranscriptCount').textContent=String(meetings.filter(function(m){return !!(m.transcriptText||m.transcriptUrl)}).length);
     var counters=[
       ['mtProjectAllCount',allCount],
@@ -89,7 +151,7 @@
           b.type='button';
           b.className='mt-entry'+(selected===m.id?' is-active':'');
           b.innerHTML='<span class="mt-entry-name"><strong>'+safe(m.title)+'</strong><small>'+(m.participants?safe(m.participants):'Встреча Zoom / ручная запись')+'</small></span>'+
-            '<span class="mt-entry-tags">'+(m.videoUrl?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl)?'<i>≡ Текст</i>':'')+'</span>';
+            '<span class="mt-entry-tags">'+((m.videoUrl||m.localVideoName)?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl)?'<i>≡ Текст</i>':'')+'</span>';
           b.addEventListener('click',function(){selected=m.id;render()});
           body.appendChild(b);
         });
@@ -100,6 +162,7 @@
     renderDetail();
   }
   function renderDetail(){
+    revokeCurrentVideo();
     var m=getCurrent();
     if(!m){
       detail.innerHTML='<div class="mt-placeholder"><div class="mt-placeholder-orbit">◌</div><h3>Архив созвонов</h3><p>Выбери встречу слева или создай новую. В одной папке могут лежать несколько созвонов за день.</p></div>';
@@ -111,8 +174,8 @@
     detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
       '<p>'+(m.participants?'Участники: '+safe(m.participants):'Участники не указаны')+'</p></div><div class="mt-detail-actions"><button type="button" id="mtEdit">Редактировать</button><button type="button" id="mtDelete" class="mt-danger">Удалить</button></div></div>'+
       '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
-      (isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится в Zoom / облаке</p></div>':'<div class="mt-media-placeholder"><span>▷</span><p>Видео пока не прикреплено</p></div>')+
-      (video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь ссылку на облачную запись через «Редактировать».</small>')+
+      (m.localVideoName?'<div id="mtLocalVideoSlot" class="mt-video-local-slot">Открываю видео с этого компьютера…</div>':isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится в Zoom / облаке</p></div>':'<div class="mt-media-placeholder"><span>▷</span><p>Видео пока не прикреплено</p></div>')+
+      (m.localVideoName?'<small>Локальная копия: '+safe(m.localVideoName)+' — только в этом браузере на этом устройстве.</small>':video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь MP4 с компьютера или защищённую облачную ссылку через «Редактировать».</small>')+
       '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка</b></div>'+
       (m.transcriptText?'<div class="mt-transcript-preview">'+safe(m.transcriptText)+'</div>':'<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Текст можно вставить или прикрепить файлом VTT/TXT</p></div>')+
       '<div class="mt-inline-actions">'+(m.transcriptText?'<button type="button" id="mtDownloadTranscript">Скачать TXT ↓</button>':'')+(tr?linkHtml(tr,'Открыть расшифровку'):'')+'</div>'+
@@ -127,6 +190,7 @@
       }).join('')+'</div><button type="button" id="mtTransferTasks" class="mt-primary">Добавить новые задачи в хаб</button>':
       '<p class="mt-preserve">Пока нет задач. Можно указать одну задачу в строке: название | ответственный | дата ГГГГ-ММ-ДД.</p>')+
       '<small>Задачи передаются в текущую доску «Задачи» на этом устройстве. Перед публикацией для всей команды нужна синхронизация хаба.</small></section>';
+    if(m.localVideoName)renderLocalVideo(m);
     detail.querySelector('#mtMoveProject').addEventListener('change',function(e){
       var next=e.target.value;
       if(next!==''&&!isProject(next))return;
@@ -139,6 +203,7 @@
     detail.querySelector('#mtEdit').addEventListener('click',function(){openForm(m.id)});
     detail.querySelector('#mtDelete').addEventListener('click',function(){
       if(!confirm('Удалить встречу «'+m.title+'» из локального каталога? Запись в Zoom/Диске останется.'))return;
+      if(m.localVideoName)removeVideo(m.id).catch(function(){/* keep deletion local */});
       meetings=meetings.filter(function(x){return x.id!==m.id}); selected=null;save();render();
     });
     var down=detail.querySelector('#mtDownloadTranscript');
@@ -200,7 +265,7 @@
     try{form.elements.transcriptText.value=await f.text()}catch(err){alert('Не удалось прочитать файл')}
     e.target.value='';
   });
-  form.addEventListener('submit',function(e){
+  form.addEventListener('submit',async function(e){
     e.preventDefault();
     var fd=new FormData(form);
     var data={};
@@ -210,10 +275,28 @@
     if(data.videoUrl&&!validUrl(data.videoUrl)){alert('Ссылка на видео должна начинаться с https://');return}
     if(data.transcriptUrl&&!validUrl(data.transcriptUrl)){alert('Ссылка на расшифровку должна начинаться с https://');return}
     var prev=meetings.find(function(x){return x.id===editing});
-    if(prev){Object.assign(prev,data)}else{
-      prev=Object.assign({id:makeId(),createdAt:new Date().toISOString(),sentTaskKeys:[]},data);
-      meetings.push(prev);
+    var isNew=!prev;
+    var fileInput=document.getElementById('meetLocalVideoFile');
+    var file=fileInput&&fileInput.files&&fileInput.files[0];
+    if(file&&(!/^video\/(mp4|webm)$/.test(file.type)&&!/\.mp4$|\.webm$/i.test(file.name))){alert('Можно прикрепить только MP4 или WebM');return}
+    if(file&&file.size>1200*1024*1024){alert('Видео больше 1,2 ГБ. Используй защищённое облачное хранилище.');return}
+    if(!prev)prev={id:makeId(),createdAt:new Date().toISOString(),sentTaskKeys:[]};
+    var submit=form.querySelector('button[type="submit"]');
+    if(file){
+      submit.disabled=true;submit.textContent='Сохраняю видео...';
+      try{
+        await writeVideo(prev.id,file);
+        data.localVideoName=file.name;
+        data.localVideoSize=file.size;
+      }catch(err){
+        alert('Не удалось сохранить MP4 в браузере: '+err.message);
+        submit.disabled=false;submit.textContent='Сохранить встречу';
+        return;
+      }
+      submit.disabled=false;submit.textContent='Сохранить встречу';
     }
+    Object.assign(prev,data);
+    if(isNew)meetings.push(prev);
     selected=prev.id;
     if(!save())return;
     modal.close();render();
