@@ -135,3 +135,21 @@
 .mt-assign-row span{font-size:10px;line-height:1.35;color:#929caf}
 @media(max-width:1200px){.mt-project-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.mt-project-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.mt-project-tab{padding:12px 9px;gap:6px}.mt-project-tab span:nth-child(2){font-size:10px}.mt-project-tab b{padding:3px 5px}}
+
+/* Record-by-record Zoom import: never silently import an entire month */
+.mt-zoom-results{display:grid;gap:9px;margin-top:15px}
+.mt-zoom-list-title{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#e6e4fa;font-size:13px;font-weight:800;border-top:1px solid rgba(255,255,255,.12);padding-top:14px}
+.mt-zoom-list-title small{color:#929bb1;font-size:10px;font-weight:500}
+.mt-zoom-record{display:flex;gap:14px;align-items:center;background:#0b0e18;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px}
+.mt-zoom-record:first-of-type{border-color:rgba(141,98,255,.45)}
+.mt-zoom-order{color:#b9a6f5;font-weight:800;font-size:19px}
+.mt-zoom-record-main{flex:1;min-width:0}
+.mt-zoom-record-main strong{font-size:12px;display:block}
+.mt-zoom-record-main small{display:block;font-size:11px;color:#9ca7b9;margin-top:4px}
+.mt-zoom-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mt-zoom-tags span{font-size:9px;color:#a3b0c9;background:#141925;border:1px solid rgba(255,255,255,.08);padding:4px 7px;border-radius:5px}
+.mt-zoom-pick{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.mt-zoom-pick button{background:#202438;border:1px solid rgba(140,120,255,.32);color:#e9e7ff;padding:8px 12px;border-radius:8px;font-weight:750;font-size:10px;cursor:pointer}
+.mt-zoom-pick button:hover{background:#35284d}
+.mt-zoom-pick button:disabled{opacity:.5;cursor:wait}
+@media(max-width:640px){.mt-zoom-record{align-items:start;flex-wrap:wrap}.mt-zoom-pick{width:100%;flex-direction:row;flex-wrap:wrap}.mt-zoom-pick button{flex:1}}
