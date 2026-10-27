@@ -3,7 +3,7 @@ import {meetingBrief} from '../lib/meeting-brief.js';
 import {createHmac} from 'node:crypto';
 import {
   isAuthorized,safeEqual,readIndex,assignProject,
-  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles,createPrivateVideoUpload,getPrivateVideoLink
+  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles,createPrivateVideoUpload,getPrivateVideoLink,savePrivateVideoPath
 } from '../lib/zoom-archive.js';
 
 const cookieName='ov_meetings_auth';
@@ -56,7 +56,7 @@ function cleanView(m){
 }
 async function viewWithFileStatus(m){
   const v=cleanView(m);
-  const files=await storedFiles(m.uuid);
+  const files=await storedFiles(m.uuid,m.videoPath);
   v.transcriptStored=v.transcriptStored||files.transcript;
   v.summaryStored=v.summaryStored||files.summary;
   v.privateVideoStored=files.video;
@@ -90,7 +90,7 @@ export default async function handler(req,res){
         const {records}=await readIndex();
         const meeting=records.find(m=>m.uuid===uuid);
         if(!meeting)return err(res,404,'Встреча не найдена');
-        const privateVideo=await getPrivateVideoLink(uuid);
+        const privateVideo=await getPrivateVideoLink(uuid,meeting.videoPath);
         if(privateVideo)return res.status(200).json({source:'private',...privateVideo});
         // Zoom sharing rules still apply to external viewers.
         if(meeting.videoUrl&&/^https:\/\/([a-z0-9-]+\.)*zoom\.us\//i.test(meeting.videoUrl))
@@ -158,6 +158,13 @@ export default async function handler(req,res){
     }
     if(req.method!=='POST')return err(res,405,'Используй GET или POST');
     if(req.headers['x-onvisual-request']!=='1')return err(res,403,'Не хватает заголовка защиты запроса');
+    if(action==='video-confirm'){
+      const data=await body(req);
+      const uuid=String(data.uuid||'');
+      if(!validUUID(uuid))return err(res,400,'Некорректная встреча');
+      const stored=await savePrivateVideoPath(uuid,String(data.pathname||''));
+      return res.status(200).json({ok:true,linked:stored.result?.ok===true});
+    }
     if(action==='video-upload-url'){
       const requestData=await body(req);
       const uuid=String(requestData.uuid||'');
