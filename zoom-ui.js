@@ -44,27 +44,10 @@
      title:(m.title||'Zoom Meeting')+((m.source==='local')?'':(time?' · '+time:'')),
      date:localDate,
      scope:m.project||'',videoUrl:m.videoUrl||'',
+     transcriptStored:!!m.transcriptStored,summaryStored:!!m.summaryStored,summaryDocUrl:m.summaryDocUrl||'',
      zoomVideoAvailable:!!m.hasVideo,zoomTranscriptAvailable:!!m.hasTranscript,
      transcriptText:'',transcriptUrl:'',summary:'',decisions:'',actions:'',
    };
- }
- var loadedTranscripts=new Set();
- async function loadAvailableTranscripts(){
-   var ready=archiveRecords.filter(function(m){return m.hasTranscript&&!loadedTranscripts.has(m.uuid)});
-   for(var i=0;i<ready.length;i+=3){
-     await Promise.all(ready.slice(i,i+3).map(async function(m){
-       try{
-         var result=await api('transcript',{uuid:m.uuid});
-         if(!result.transcript)return;
-         loadedTranscripts.add(m.uuid);
-         document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{
-           detail:{records:[{zoomUuid:m.uuid,transcriptText:result.transcript}]}
-         }));
-       }catch(e){
-         // A transcript can still be processing. Retry on next refresh without marking it loaded.
-       }
-     }));
-   }
  }
  function imported(archive){
    archiveRecords=archive.meetings||[];
@@ -72,13 +55,13 @@
      document.dispatchEvent(new CustomEvent('onvisual:meetings-import',
        {detail:{records:archiveRecords.map(toLocal)}}));
    }
-   loadAvailableTranscripts().catch(function(){});
    var unassigned=archiveRecords.filter(m=>!m.project).length;
    var videos=archiveRecords.filter(m=>m.hasVideo).length;
-   var transcripts=archiveRecords.filter(m=>m.hasTranscript).length;
+   var transcripts=archiveRecords.filter(m=>m.transcriptStored).length;
+   var summaries=archiveRecords.filter(m=>m.summaryStored).length;
    results.innerHTML='<div class="mt-zoom-list-title">Облачный архив Zoom <small>'+
      esc(String(archiveRecords.length))+' встреч</small></div>'+
-     '<div class="mt-cloud-stats"><span>'+videos+' видео</span><span>'+transcripts+' расшифровок</span><span>'+unassigned+' на распределение</span></div>'+
+     '<div class="mt-cloud-stats"><span>'+videos+' видео</span><span>'+transcripts+' файлов расшифровки</span><span>'+summaries+' резюме Zoom</span><span>'+unassigned+' на распределение</span></div>'+
      '<p class="mt-cloud-hint">Новые встречи появляются в папке «На распределение». Выбери встречу слева и назначь ONVISUAL или Мультвселенной. Записи остаются в защищённом облаке Zoom.</p>';
  }
  async function getArchive(){
@@ -122,6 +105,19 @@
    }catch(err){status('Проект изменён в этом браузере, но не сохранён для команды: '+err.message,true)}
  });
  document.addEventListener('click',async function(e){
+   var summaryButton=e.target.closest('#mtGetZoomSummary');
+   if(summaryButton){
+     var uuid=summaryButton.dataset.uuid;
+     summaryButton.disabled=true;summaryButton.textContent='Проверяю Zoom...';
+     try{
+       if(!authorized)throw new Error('Сначала подключи защищённый архив Zoom');
+       await api('summary',{uuid});
+       document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{detail:{records:[{zoomUuid:uuid,summaryStored:true}]}}));
+       status('Готовое резюме Zoom добавлено как файл в карточку встречи.',false);
+     }catch(err){status('Резюме Zoom недоступно: '+err.message,true)}
+     finally{summaryButton.disabled=false;summaryButton.textContent='Проверить готовое резюме'}
+     return;
+   }
    var btn=e.target.closest('#mtZoomTranscript');
    if(!btn)return;
    var uuid=btn.dataset.uuid;
@@ -131,9 +127,9 @@
      if(!authorized)throw new Error('Сначала подключи защищённый архив Zoom');
      var result=await api('transcript',{uuid});
      document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{
-       detail:{records:[{zoomUuid:uuid,transcriptText:result.transcript}]}
+       detail:{records:[{zoomUuid:uuid,transcriptStored:true,zoomTranscriptAvailable:true}]}
      }));
-     status('Расшифровка Zoom добавлена к записи встречи.',false);
+     status('Файл расшифровки Zoom добавлен в защищённую папку встречи.',false);
    }catch(err){status('Не удалось загрузить расшифровку: '+err.message,true)}
    finally{btn.disabled=false;btn.textContent='Получить расшифровку Zoom'}
  });
