@@ -93,6 +93,27 @@
    }catch(e){status('Ошибка подключения: '+e.message,true)}
    finally{button.disabled=false;button.textContent='Проверить новые записи'}
  });
+ document.addEventListener('onvisual:meeting-transcript-upload',async function(event){
+   var d=event.detail||{},file=d.file,input=d.input;
+   if(!file||!input)return;
+   try{
+     if(!authorized)throw new Error('Открой защищённый архив Zoom через поле подключения');
+     if(file.size>800000||!/\.(txt|vtt|srt)$/i.test(file.name))
+       throw new Error('Допустимы файлы TXT, VTT, SRT не более 800 КБ');
+     status('Сохраняю исходный файл расшифровки в закрытом архиве...',false);
+     var transcript=await file.text();
+     var reply=await api('upload-transcript',{body:{
+       uuid:d.uuid,title:d.title,date:d.date,project:d.project,startTime:d.startTime,transcript
+     }});
+     if(!reply.fileSaved)throw new Error('Сервер не подтвердил запись файла');
+     document.dispatchEvent(new CustomEvent('onvisual:meeting-transcript-uploaded',{
+       detail:{meetingId:d.meetingId,uuid:reply.uuid}
+     }));
+     status('Файл '+file.name+' сохранён в защищённой папке встречи. Его можно скачать из хаба.',false);
+   }catch(e){
+     status('Не удалось прикрепить TXT/VTT: '+e.message,true);
+   }finally{input.disabled=false;input.value=''}
+ });
  document.addEventListener('onvisual:meeting-project-assigned',async function(e){
    var uuid=e.detail?.zoomUuid,project=e.detail?.project;
    if(!uuid||!project)return;
