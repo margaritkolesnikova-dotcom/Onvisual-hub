@@ -334,6 +334,29 @@
     records.forEach(function(rec){
       if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
       var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
+      // Attach a native Zoom summary to the corresponding manually saved meeting
+      // by project topic, local date and approximate time, avoiding duplicate folders.
+      if(!old&&rec.zoomSource==='zoom_summary'&&rec.title&&rec.date){
+        var sourceTime=String(rec.title).match(/ · (\d{2}):(\d{2})$/);
+        var sourceBase=String(rec.title).replace(/ · \d{2}:\d{2}$/,'').trim().toLowerCase();
+        if(sourceTime){
+          var sourceMinutes=+sourceTime[1]*60 + +sourceTime[2];
+          old=meetings.find(function(m){
+            if(m.zoomUuid||m.date!==rec.date)return false;
+            var localTime=String(m.title).match(/ - (\d{2}):(\d{2})-(\d{2}):(\d{2})$/);
+            if(!localTime)return false;
+            var localMinutes=+localTime[1]*60 + +localTime[2];
+            var localBase=String(m.title).replace(/ - \d{2}:\d{2}-\d{2}:\d{2}$/,'').trim().toLowerCase();
+            return Math.abs(localMinutes-sourceMinutes)<=20&&localBase===sourceBase;
+          });
+          if(old){
+            old.zoomUuid=rec.zoomUuid;old.zoomSource='zoom_summary';changed=true;
+            if(isProject(old.scope))document.dispatchEvent(new CustomEvent('onvisual:meeting-project-assigned',{
+              detail:{zoomUuid:old.zoomUuid,project:old.scope}
+            }));
+          }
+        }
+      }
       // Backfill a meeting manually created before its audio was transcribed.
       if(!old&&rec.zoomSource==='local'&&rec.title&&rec.date){
         old=meetings.find(function(m){
