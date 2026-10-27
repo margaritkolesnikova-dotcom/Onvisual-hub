@@ -44,19 +44,67 @@
      title:(m.title||'Zoom Meeting')+((m.source==='local')?'':(time?' · '+time:'')),
      date:localDate,
      scope:m.project||'',videoUrl:m.videoUrl||'',
-     transcriptStored:!!m.transcriptStored,summaryStored:!!m.summaryStored,summaryDocUrl:m.summaryDocUrl||'',
+     transcriptStored:!!m.transcriptStored,summaryStored:!!m.summaryStored,summaryDocUrl:m.summaryDocUrl||'',privateVideoStored:!!m.privateVideoStored,
      zoomVideoAvailable:!!m.hasVideo,zoomTranscriptAvailable:!!m.hasTranscript,
      transcriptText:'',transcriptUrl:'',summary:'',decisions:'',actions:'',
    };
  }
+ var briefsLoaded=new Set();
+ async function loadBriefs(){
+   var ready=archiveRecords.filter(m=>m.summaryStored&&!briefsLoaded.has(m.uuid));
+   for(var i=0;i<ready.length;i+=3){
+     await Promise.all(ready.slice(i,i+3).map(async function(m){
+       try{
+         var result=await api('brief',{uuid:m.uuid});
+         briefsLoaded.add(m.uuid);
+         document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{
+           detail:{records:[{zoomUuid:m.uuid,summary:result.overview,
+             decisions:result.decisions?.length?result.decisions.map(v=>'• '+v).join('\n'):result.note,
+             actions:(result.tasks||[]).map(t=>[t.title,t.owner,t.due].join(' | ')).join('\n'),
+             briefSource:'zoom_summary'}]}
+         }));
+       }catch(e){}
+     }));
+   }
+ }
+ document.addEventListener('onvisual:meeting-video-requested',async function(event){
+   var uuid=event.detail?.uuid;
+   if(!uuid)return;
+   try{
+     var result=await api('video-link',{uuid});
+     document.dispatchEvent(new CustomEvent('onvisual:meeting-video-ready',{
+       detail:{uuid,url:result.url,source:result.source}
+     }));
+   }catch(e){status('Видео ещё не доступно для просмотра: '+e.message,true)}
+ });
+ document.addEventListener('onvisual:meeting-video-upload',async function(event){
+   var d=event.detail||{},file=d.file;
+   if(!file||!d.uuid)return;
+   try{
+     if(!authorized)throw new Error('Сначала подключи защищённый архив Zoom');
+     if(!/\.mp4$/i.test(file.name)||file.size>1200*1024*1024)throw new Error('Нужен MP4 до 1,2 ГБ');
+     status('Загружаю MP4 в защищённое командное хранилище. Не закрывай вкладку.',false);
+     var signed=await api('video-upload-url',{body:{uuid:d.uuid,size:file.size}});
+     var upload=await fetch(signed.url,{method:'PUT',body:file,headers:{'Content-Type':'video/mp4'}});
+     if(!upload.ok)throw new Error('Хранилище отклонило загрузку: HTTP '+upload.status);
+     var check=await api('video-link',{uuid:d.uuid});
+     if(check.source!=='private')throw new Error('Сервер пока не видит файл, повтори проверку');
+     document.dispatchEvent(new CustomEvent('onvisual:meeting-video-ready',{
+       detail:{uuid:d.uuid,url:check.url,source:'private',stored:true}
+     }));
+     status('Видео успешно загружено. Смотреть могут все участники с доступом к защищённому хабу.',false);
+   }catch(e){status('Не удалось загрузить видео: '+e.message,true)}
+   finally{if(d.input){d.input.disabled=false;d.input.value=''}}
+ });
  function imported(archive){
    archiveRecords=archive.meetings||[];
    if(archiveRecords.length){
      document.dispatchEvent(new CustomEvent('onvisual:meetings-import',
        {detail:{records:archiveRecords.map(toLocal)}}));
    }
+   loadBriefs().catch(function(){});
    var unassigned=archiveRecords.filter(m=>!m.project).length;
-   var videos=archiveRecords.filter(m=>m.hasVideo).length;
+   var videos=archiveRecords.filter(m=>m.hasVideo||m.privateVideoStored).length;
    var transcripts=archiveRecords.filter(m=>m.transcriptStored).length;
    var summaries=archiveRecords.filter(m=>m.summaryStored).length;
    results.innerHTML='<div class="mt-zoom-list-title">Облачный архив Zoom <small>'+
