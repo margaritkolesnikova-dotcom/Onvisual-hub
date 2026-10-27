@@ -6,6 +6,7 @@
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
   <link rel="stylesheet" href="styles.css?v=20261022-subtaskfix1" />
+  <link rel="stylesheet" href="meetings.css?v=20261027-a" />
 </head>
 <body>
   <div class="noise"></div>
@@ -27,6 +28,7 @@
       <a class="nav-link" data-target="calendar"><span>07</span> КАЛЕНДАРЬ</a>
       <a class="nav-link knowledge-nav-link" data-target="knowledge"><span>08</span> БАЗА ЗНАНИЙ</a>
       <a class="nav-link" data-target="files"><span>09</span> ФАЙЛЫ</a>
+      <a class="nav-link" data-target="meetings"><span>10</span> ВСТРЕЧИ</a>
     </nav>
     <div class="sidebar-foot">ONVISUAL • 2026</div>
   </aside>
@@ -70,6 +72,7 @@
         <article class="shared-card" data-go="team"><span>05</span><h3>Общая команда</h3><p>Люди могут работать сразу в двух направлениях.</p></article>
         <article class="shared-card" data-go="tasks"><span>06</span><h3>Общие задачи</h3><p>С тегами ONVISUAL / Мультвселенная / Общее.</p></article>
         <article class="shared-card" data-go="calendar"><span>07</span><h3>Календарь</h3><p>Встречи, дедлайны, релизы и общие события.</p></article>
+        <article class="shared-card" data-go="meetings"><span>10</span><h3>Архив встреч</h3><p>Папки по датам: видеозаписи Zoom, расшифровки, решения и задачи.</p></article>
         <article class="shared-card knowledge-home-card" data-go="knowledge"><span>08</span><h3>База знаний</h3><p>Регламенты, AI-инструкции, промпты, исследования и рабочие методики.</p></article>
       </div>
       <div class="dashboard-grid">
@@ -1557,7 +1560,63 @@
       </div>
     </section>
 <section id="files" class="section"><div class="section-head"><div><div class="eyebrow">09 / STORAGE</div><h1>FILES</h1><p>Быстрый доступ к рабочим материалам.</p></div></div><div class="empty">Ссылки на рабочие папки будут добавлены.</div></section>
+
+    <section id="meetings" class="section mt-section">
+      <div class="section-head mt-top">
+        <div><div class="eyebrow">10 / MEETING INTELLIGENCE</div><h1>ВСТРЕЧИ</h1><p>Один архив созвонов, решений, расшифровок и видеозаписей.</p></div>
+        <button class="mt-primary" type="button" id="mtAddMeeting">＋ Создать встречу</button>
+      </div>
+      <div class="mt-notice">
+        <span class="mt-notice-icon">◎</span>
+        <span><strong>Пока работает персональный каталог.</strong> Папки, заметки и загруженный текст сохраняются в этом браузере, без синхронизации между сотрудниками. Видеофайл остаётся в защищённом облаке Zoom / Яндекс Диска, а в хаб добавляется ссылка. Для единой командной библиотеки и автоматической загрузки MP4 потребуется подключить защищённое хранилище и авторизацию.</span>
+      </div>
+      <div class="mt-stats">
+        <div><b id="meetingCount">0</b><small>Всего встреч</small></div>
+        <div><b id="meetingVideoCount">0</b><small>Записей видео</small></div>
+        <div><b id="meetingTranscriptCount">0</b><small>Расшифровок</small></div>
+      </div>
+      <div class="mt-layout">
+        <aside class="mt-sidebar" aria-label="Папки встреч по датам">
+          <div class="mt-controls">
+            <input id="meetingSearch" type="search" placeholder="Найти встречу, дату, участника..." aria-label="Поиск встреч" />
+            <select id="meetingScope" aria-label="Фильтр по направлению">
+              <option value="all">Все направления</option><option value="ONVISUAL">ONVISUAL Studio</option><option value="Мультвселенная">Мультвселенная</option><option value="Общее">Общее</option>
+            </select>
+          </div>
+          <div id="meetingFolders" aria-live="polite"></div>
+          <button type="button" id="mtExport" class="mt-export">Сохранить резервную копию каталога ↓</button>
+        </aside>
+        <div class="mt-detail" id="meetingDetail" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <dialog id="meetingModal" class="mt-dialog">
+      <form id="meetingForm">
+        <div class="mt-dialog-head">
+          <div><span>MEETING ARCHIVE</span><h2 id="mtModalTitle">Новая встреча</h2></div>
+          <button type="button" id="mtCancelMeeting" aria-label="Закрыть">×</button>
+        </div>
+        <div class="mt-fields">
+          <label>Дата созвона<input name="date" type="date" required /></label>
+          <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+          <label class="mt-wide">Название встречи<input name="title" type="text" required maxlength="160" placeholder="Планёрка команды / Созвон с клиентом" /></label>
+          <label class="mt-wide">Участники<input name="participants" type="text" placeholder="Имена участников" /></label>
+          <label class="mt-wide">Видео — ссылка Zoom Cloud Recording / Яндекс Диск<input name="videoUrl" type="url" placeholder="https://..." /></label>
+          <label class="mt-wide">Ссылка на текстовую расшифровку<input name="transcriptUrl" type="url" placeholder="https://..." /></label>
+          <label class="mt-wide">Расшифровка (можно вставить текст)<textarea name="transcriptText" rows="5" placeholder="Полный текст созвона..."></textarea></label>
+          <label class="mt-wide">Или прикрепить расшифровку TXT / VTT / SRT / MD<input id="meetTranscriptFile" type="file" accept=".txt,.vtt,.srt,.md,text/plain,text/vtt" /></label>
+        </div>
+        <div class="mt-upload-note">Текстовый файл считывается локально. MP4 не загружается на сервер хаба — используй защищённую облачную ссылку.</div>
+        <div class="mt-fields">
+          <label class="mt-wide">Краткие итоги<textarea name="summary" rows="3" placeholder="О чём говорили, что важно..."></textarea></label>
+          <label class="mt-wide">Принятые решения<textarea name="decisions" rows="3" placeholder="Что утвердили..."></textarea></label>
+          <label class="mt-wide">Задачи — по одной на строку<textarea name="actions" rows="4" placeholder="Название задачи | Ответственный | 2026-10-30"></textarea></label>
+        </div>
+        <div class="mt-footer"><button type="button" class="mt-modal-cancel" id="mtCancelMeetingFooter">Отмена</button><button type="submit" class="mt-primary">Сохранить встречу</button></div>
+      </form>
+    </dialog>
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
+  <script src="meetings.js?v=20261027-a"></script>
 </body>
 </html>
