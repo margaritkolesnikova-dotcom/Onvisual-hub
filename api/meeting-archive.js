@@ -1,7 +1,9 @@
+import {renderMeetingPDF} from '../lib/meeting-pdf.js';
+import {meetingBrief} from '../lib/meeting-brief.js';
 import {createHmac} from 'node:crypto';
 import {
   isAuthorized,safeEqual,readIndex,assignProject,
-  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles
+  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles,createPrivateVideoUpload,getPrivateVideoLink
 } from '../lib/zoom-archive.js';
 
 const cookieName='ov_meetings_auth';
@@ -57,6 +59,7 @@ async function viewWithFileStatus(m){
   const files=await storedFiles(m.uuid);
   v.transcriptStored=v.transcriptStored||files.transcript;
   v.summaryStored=v.summaryStored||files.summary;
+  v.privateVideoStored=files.video;
   return v;
 }
 export default async function handler(req,res){
@@ -71,14 +74,45 @@ export default async function handler(req,res){
         const {records}=await readIndex();
         return res.status(200).json({meetings:await Promise.all(records.map(viewWithFileStatus)),updatedAt:new Date().toISOString()});
       }
+      if(action==='brief'){
+        const uuid=one(req.query.uuid);
+        if(!validUUID(uuid))return err(res,400,'Некорректный UUID');
+        const {records}=await readIndex();
+        const item=records.find(m=>m.uuid===uuid);
+        if(!item)return err(res,404,'Встреча отсутствует в архиве');
+        const text=await summaryRead(uuid);
+        if(!text)return err(res,404,'Готового резюме Zoom пока нет');
+        return res.status(200).json(meetingBrief(text));
+      }
+      if(action==='video-link'){
+        const uuid=one(req.query.uuid);
+        if(!validUUID(uuid))return err(res,400,'Некорректный UUID');
+        const {records}=await readIndex();
+        const meeting=records.find(m=>m.uuid===uuid);
+        if(!meeting)return err(res,404,'Встреча не найдена');
+        const privateVideo=await getPrivateVideoLink(uuid);
+        if(privateVideo)return res.status(200).json({source:'private',...privateVideo});
+        // Zoom sharing rules still apply to external viewers.
+        if(meeting.videoUrl&&/^https:\/\/([a-z0-9-]+\.)*zoom\.us\//i.test(meeting.videoUrl))
+          return res.status(200).json({source:'zoom',url:meeting.videoUrl});
+        return err(res,404,'Видеофайл не загружен в общий архив и недоступен в облаке Zoom');
+      }
       if(action==='download'){
         const uuid=one(req.query.uuid),kind=one(req.query.kind);
-        if(!validUUID(uuid)||!['transcript','summary'].includes(kind))return err(res,400,'Неверный файл');
+        if(!validUUID(uuid)||!['transcript','summary','summary_pdf'].includes(kind))return err(res,400,'Неверный файл');
         const {records}=await readIndex();
         const record=records.find(m=>m.uuid===uuid);
         if(!record)return err(res,404,'Встреча не найдена');
-        const content=kind==='summary'?await summaryRead(uuid):await transcriptRead(uuid);
+        const content=(kind==='summary'||kind==='summary_pdf')?await summaryRead(uuid):await transcriptRead(uuid);
         if(!content)return err(res,404,'Файл ещё не получен от Zoom');
+        if(kind==='summary_pdf'){
+          const data=await renderMeetingPDF(record,content);
+          const file='Zoom_Summary_'+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'.pdf';
+          res.setHeader('Content-Type','application/pdf');
+          res.setHeader('Content-Length',String(data.length));
+          res.setHeader('Content-Disposition','inline; filename="'+file+'"');
+          return res.status(200).send(data);
+        }
         const type=kind==='summary'?'text/markdown; charset=utf-8':content.startsWith('WEBVTT')?'text/vtt; charset=utf-8':'text/plain; charset=utf-8';
         const ext=kind==='summary'?'md':content.startsWith('WEBVTT')?'vtt':'txt';
         const name=(kind==='summary'?'Zoom_Summary_':'Zoom_Transcript_')+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'.'+ext;
@@ -124,6 +158,15 @@ export default async function handler(req,res){
     }
     if(req.method!=='POST')return err(res,405,'Используй GET или POST');
     if(req.headers['x-onvisual-request']!=='1')return err(res,403,'Не хватает заголовка защиты запроса');
+    if(action==='video-upload-url'){
+      const requestData=await body(req);
+      const uuid=String(requestData.uuid||'');
+      if(!validUUID(uuid))return err(res,400,'Укажи корректную встречу');
+      const {records}=await readIndex();
+      if(!records.some(m=>m.uuid===uuid))return err(res,404,'Встреча отсутствует в закрытом архиве');
+      const result=await createPrivateVideoUpload(uuid,Number(requestData.size));
+      return res.status(200).json(result);
+    }
     // Files are uploaded only by an authenticated team member; no public file URL is created.
     if(action==='upload-transcript'){
       if(Number(req.headers['content-length']||0)>1_000_000)return err(res,413,'Файл слишком большой');
