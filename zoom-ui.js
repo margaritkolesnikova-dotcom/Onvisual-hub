@@ -119,10 +119,28 @@
      '<div class="mt-cloud-stats"><span>'+videos+' видео</span><span>'+transcripts+' файлов расшифровки</span><span>'+summaries+' резюме Zoom</span><span>'+unassigned+' на распределение</span></div>'+
      '<p class="mt-cloud-hint">Новые встречи появляются в папке «На распределение». Выбери встречу слева и назначь ONVISUAL или Мультвселенной. Записи остаются в защищённом облаке Zoom.</p>';
  }
+ async function reconcileLocalProjects(){
+   try{
+     var local=JSON.parse(localStorage.getItem('onvisualHubMeetingsV1')||'[]');
+     if(!Array.isArray(local))return;
+     var byUuid=new Map(local.filter(m=>m.zoomUuid&&['ONVISUAL','Мультвселенная'].includes(m.scope))
+       .map(m=>[m.zoomUuid,m.scope]));
+     for(const meeting of archiveRecords){
+       if(meeting.project||!byUuid.has(meeting.uuid))continue;
+       try{
+         var desired=byUuid.get(meeting.uuid);
+         await api('assign',{body:{uuid:meeting.uuid,project:desired}});
+         meeting.project=desired;
+       }catch(e){status('Не удалось перенести выбранный проект в общий архив: '+e.message,true)}
+     }
+   }catch(e){}
+ }
+
  async function getArchive(){
    var a=await api('list');
    authorized=true;
    imported(a);
+   await reconcileLocalProjects();
    status('Подключено к общему архиву Zoom. Записи обновляются автоматически каждый день, а также по кнопке.',false);
  }
  async function connect(){
