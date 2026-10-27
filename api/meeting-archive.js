@@ -1,4 +1,4 @@
-import {renderMeetingPDF} from '../lib/meeting-pdf.js';
+import {renderMeetingPDF,renderMainMeetingReport} from '../lib/meeting-pdf.js';
 import {meetingBrief} from '../lib/meeting-brief.js';
 import {createHmac} from 'node:crypto';
 import {
@@ -99,12 +99,20 @@ export default async function handler(req,res){
       }
       if(action==='download'){
         const uuid=one(req.query.uuid),kind=one(req.query.kind);
-        if(!validUUID(uuid)||!['transcript','summary','summary_pdf'].includes(kind))return err(res,400,'Неверный файл');
+        if(!validUUID(uuid)||!['transcript','summary','summary_pdf','report_pdf'].includes(kind))return err(res,400,'Неверный файл');
         const {records}=await readIndex();
         const record=records.find(m=>m.uuid===uuid);
         if(!record)return err(res,404,'Встреча не найдена');
-        const content=(kind==='summary'||kind==='summary_pdf')?await summaryRead(uuid):await transcriptRead(uuid);
-        if(!content)return err(res,404,'Файл ещё не получен от Zoom');
+        const content=(kind==='summary'||kind==='summary_pdf'||kind==='report_pdf')?await summaryRead(uuid):await transcriptRead(uuid);
+        if(!content)return err(res,404,'Исходный материал ещё не получен от Zoom');
+        if(kind==='report_pdf'){
+          const transcript=await transcriptRead(uuid).catch(()=>null);
+          const data=await renderMainMeetingReport(record,content,transcript||'');
+          res.setHeader('Content-Type','application/pdf');
+          res.setHeader('Content-Length',String(data.length));
+          res.setHeader('Content-Disposition','inline; filename="ONVISUAL_Meeting_Report_'+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'.pdf"');
+          return res.status(200).send(data);
+        }
         if(kind==='summary_pdf'){
           const data=await renderMeetingPDF(record,content);
           const file='Zoom_Summary_'+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'.pdf';
