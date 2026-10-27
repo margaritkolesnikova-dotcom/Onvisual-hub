@@ -1,118 +1,115 @@
-/* ONVISUAL / ZOOM MEETINGS: list first, import only selected meeting.
-   All OAuth credentials stay on Vercel. User sync key stays in memory only. */
+/* ONVISUAL Zoom team archive: private server index, cloud VTT, project assignments. */
 (function(){
-  'use strict';
-  var panel=document.getElementById('mtZoomPanel');
-  if(!panel)return;
-  var keyField=document.getElementById('mtZoomKey');
-  var monthField=document.getElementById('mtZoomMonth');
-  var button=document.getElementById('mtZoomSync');
-  var state=document.getElementById('mtZoomState');
-  var results=document.createElement('div');
-  results.id='mtZoomResults';
-  results.className='mt-zoom-results';
-  panel.appendChild(results);
-  var candidates=[];
-  function escape(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]})}
-  function currentMonth(){
-    var p=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit'}).format(new Date());
-    return p.slice(0,7);
-  }
-  monthField.value=currentMonth();
-  button.textContent='Показать записи Zoom';
-  function status(message,isError){
-    state.textContent=message;
-    state.classList.toggle('error',!!isError);
-  }
-  function dateAtMoscow(date){
-    try {return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(date))}
-    catch(e){return (date||'').slice(0,10)}
-  }
-  function displayDate(date){
-    try{return new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(date))}
-    catch(e){return String(date||'')}
-  }
-  async function request(query,key){
-    var res=await fetch('/api/zoom-sync?'+new URLSearchParams(query),{
-      method:'GET',cache:'no-store',headers:{Authorization:'Bearer '+key,Accept:'application/json'}
-    });
-    var data=await res.json().catch(()=>({}));
-    if(!res.ok)throw new Error(data.message||'Ошибка Zoom API ('+res.status+').');
-    return data;
-  }
-  function send(record){
-    document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{detail:{records:[record]}}));
-  }
-  function showList(){
-    if(!candidates.length){results.innerHTML='';return}
-    results.innerHTML='<div class="mt-zoom-list-title">Записи Zoom за выбранный месяц <small>Выбери одну встречу. Первая — самая поздняя по дате.</small></div>'+
-      candidates.map(function(m,i){
-        return '<div class="mt-zoom-record" data-zoom-index="'+i+'">'+
-          '<span class="mt-zoom-order">0'+(i+1)+'</span>'+
-          '<div class="mt-zoom-record-main"><strong>'+escape(m.title||'Созвон Zoom')+'</strong>'+
-          '<small>'+escape(displayDate(m.startTime))+'</small>'+
-          '<div class="mt-zoom-tags"><span>'+(m.videoAvailable?'Видео MP4 есть':'Видео MP4 не найдено')+'</span><span>'+(m.transcriptAvailable?'Расшифровка есть':'Расшифровка отсутствует')+'</span></div></div>'+
-          '<div class="mt-zoom-pick"><button type="button" data-zoom-to="Мультвселенная" data-zoom-index="'+i+'">В Мультвселенную</button>'+
-          '<button type="button" data-zoom-to="ONVISUAL" data-zoom-index="'+i+'">В ONVISUAL</button></div></div>';
-      }).join('');
-  }
-  button.addEventListener('click',async function(){
-    var key=keyField.value.trim(),month=monthField.value;
-    if(key.length<20){status('Введи ключ синхронизации MEETINGS_SYNC_KEY (не менее 20 символов).',true);return}
-    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)){status('Выбери месяц записей.',true);return}
-    button.disabled=true;results.innerHTML='';button.textContent='Получаю список...';
-    try{
-      var data=await request({operation:'list',month},key);
-      candidates=(data.meetings||[]).filter(function(m){return !!m.uuid&&!!m.startTime})
-        .sort(function(a,b){return String(b.startTime).localeCompare(String(a.startTime))});
-      showList();
-      status(candidates.length
-        ?'Найдено '+candidates.length+' облачных записей. Выбери нужную встречу и проект. Остальные не будут импортированы.'
-        :'За '+month+' облачных записей нет. Проверь Cloud Recording и нужный аккаунт Zoom.',false);
-    }catch(e){candidates=[];status(e.message||'Не удалось связаться с Zoom.',true)}
-    finally{button.disabled=false;button.textContent='Показать записи Zoom'}
-  });
-  results.addEventListener('click',async function(e){
-    var btn=e.target.closest('[data-zoom-to]');
-    if(!btn)return;
-    var index=Number(btn.dataset.zoomIndex),scope=btn.dataset.zoomTo;
-    var m=candidates[index];
-    if(!m||!['ONVISUAL','Мультвселенная'].includes(scope))return;
-    if(!confirm('Перенести «'+m.title+'» ('+displayDate(m.startTime)+') в проект «'+scope+'»?'))return;
-    var key=keyField.value.trim();
-    if(key.length<20){status('Укажи ключ синхронизации сверху.',true);return}
-    var record={
-      zoomUuid:m.uuid,zoomMeetingId:m.meetingId||'',title:m.title||'Созвон Zoom',
-      date:dateAtMoscow(m.startTime),scope:scope,participants:'',videoUrl:m.videoUrl||'',
-      transcriptUrl:'',transcriptText:'',summary:'',decisions:'',actions:'',
-      zoomVideoAvailable:!!m.videoAvailable,zoomTranscriptAvailable:!!m.transcriptAvailable
-    };
-    btn.disabled=true;btn.textContent='Переношу...';
-    var transcriptIssue='';
-    if(m.transcriptAvailable){
-      try{
-        var transcript=await request({operation:'transcript',uuid:m.uuid},key);
-        record.transcriptText=transcript.text||'';
-        if(!record.transcriptText)transcriptIssue='Zoom вернул пустую расшифровку.';
-      }catch(err){transcriptIssue=err.message||'Расшифровку не удалось получить.'}
-    }else{transcriptIssue='Для этой встречи в Zoom нет готовой VTT-расшифровки.'}
-    send(record);
-    status('Встреча «'+m.title+'» добавлена в «'+scope+'»'+
-      (record.videoUrl?' со ссылкой на видео Zoom':' (нет ссылки для просмотра MP4)')+
-      (record.transcriptText?' и полной расшифровкой.':'. '+transcriptIssue),!!transcriptIssue||!record.videoUrl);
-    btn.disabled=false;btn.textContent='Обновить / перенести';
-  });
-  document.addEventListener('click',async function(e){
-    var btn=e.target.closest('#mtZoomTranscript');
-    if(!btn)return;
-    var uuid=btn.dataset.uuid,key=keyField.value.trim();
-    if(key.length<20){status('Введи ключ синхронизации в блоке Zoom выше.',true);panel.scrollIntoView({behavior:'smooth',block:'center'});return}
-    btn.disabled=true;btn.textContent='Загружаю текст...';
-    try{
-      var result=await request({operation:'transcript',uuid:uuid},key);
-      send({zoomUuid:uuid,transcriptText:result.text||''});
-      status('Расшифровка добавлена в карточку встречи.',false);
-    }catch(err){status(err.message||'Ошибка загрузки VTT.',true)}
-    finally{btn.disabled=false;btn.textContent='Получить расшифровку Zoom'}
-  });
+ 'use strict';
+ var panel=document.getElementById('mtZoomPanel');if(!panel)return;
+ var keyInput=document.getElementById('mtZoomKey');
+ var monthInput=document.getElementById('mtZoomMonth');
+ var button=document.getElementById('mtZoomSync');
+ var statusEl=document.getElementById('mtZoomState');
+ var results=document.createElement('div');
+ results.id='mtZoomResults';results.className='mt-zoom-results';panel.appendChild(results);
+ var archiveRecords=[];
+ var authorized=false;
+ monthInput.value=new Intl.DateTimeFormat('sv-SE',{year:'numeric',month:'2-digit',timeZone:'Europe/Moscow'}).format(new Date()).slice(0,7);
+ button.textContent='Проверить новые записи';
+ function status(s,error){
+   statusEl.textContent=s;statusEl.classList.toggle('error',!!error);
+ }
+ function esc(s){return String(s??'').replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[x]})}
+ async function api(action,options){
+   options=options||{};
+   var url='/api/meeting-archive?action='+encodeURIComponent(action);
+   if(options.uuid)url+='&uuid='+encodeURIComponent(options.uuid);
+   var headers={'Accept':'application/json','X-ONVISUAL-REQUEST':'1'};
+   if(options.auth)headers.Authorization='Bearer '+options.auth;
+   if(options.body)headers['Content-Type']='application/json';
+   var res=await fetch(url,{method:options.body?'POST':'GET',credentials:'same-origin',cache:'no-store',
+     headers,body:options.body?JSON.stringify(options.body):undefined});
+   var data=await res.json().catch(()=>({}));
+   if(!res.ok)throw new Error(data.error||'Ошибка архива ('+res.status+')');
+   return data;
+ }
+ function toLocal(m){
+   return {
+     zoomUuid:m.uuid,zoomMeetingId:m.zoomId||'',title:m.title||'Zoom Meeting',
+     date:m.date||String(m.startTime||'').slice(0,10),
+     scope:m.project||'',videoUrl:m.videoUrl||'',
+     zoomVideoAvailable:!!m.hasVideo,zoomTranscriptAvailable:!!m.hasTranscript,
+     transcriptText:'',transcriptUrl:'',summary:'',decisions:'',actions:'',
+   };
+ }
+ function imported(archive){
+   archiveRecords=archive.meetings||[];
+   if(archiveRecords.length){
+     document.dispatchEvent(new CustomEvent('onvisual:meetings-import',
+       {detail:{records:archiveRecords.map(toLocal)}}));
+   }
+   var unassigned=archiveRecords.filter(m=>!m.project).length;
+   var videos=archiveRecords.filter(m=>m.hasVideo).length;
+   var transcripts=archiveRecords.filter(m=>m.hasTranscript).length;
+   results.innerHTML='<div class="mt-zoom-list-title">Облачный архив Zoom <small>'+
+     esc(String(archiveRecords.length))+' встреч</small></div>'+
+     '<div class="mt-cloud-stats"><span>'+videos+' видео</span><span>'+transcripts+' расшифровок</span><span>'+unassigned+' на распределение</span></div>'+
+     '<p class="mt-cloud-hint">Новые встречи появляются в папке «На распределение». Выбери встречу слева и назначь ONVISUAL или Мультвселенной. Записи остаются в защищённом облаке Zoom.</p>';
+ }
+ async function getArchive(){
+   var a=await api('list');
+   authorized=true;
+   imported(a);
+   status('Подключено к общему архиву Zoom. Записи обновляются автоматически каждый день, а также по кнопке.',false);
+ }
+ async function connect(){
+   var key=keyInput.value.trim();
+   if(!key){if(!authorized){status('Для просмотра защищённого архива нужен ключ синхронизации.',true);return}return}
+   if(key.length<20){status('Ключ должен содержать не менее 20 символов.',true);return}
+   await api('login',{body:{},auth:key});
+   keyInput.value='';
+   authorized=true;
+ }
+ button.addEventListener('click',async function(){
+   button.disabled=true;button.textContent='Проверяю Zoom...';
+   try{
+     await connect();
+     if(!authorized)return;
+     var month=monthInput.value;
+     if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))throw new Error('Выбери месяц');
+     var result=await api('sync',{body:{month}});
+     imported(result);
+     var sync=result.synced||{};
+     status('Синхронизация завершена. Zoom вернул '+(sync.discovered||0)+' записей за '+month+
+       '. Новых/обновлённых: '+(sync.updated||0)+'. Загружено расшифровок: '+(sync.transcripts||0)+'.',false);
+   }catch(e){status('Ошибка подключения: '+e.message,true)}
+   finally{button.disabled=false;button.textContent='Проверить новые записи'}
+ });
+ document.addEventListener('onvisual:meeting-project-assigned',async function(e){
+   var uuid=e.detail?.zoomUuid,project=e.detail?.project;
+   if(!uuid||!project)return;
+   try{
+     if(!authorized)throw new Error('Сначала открой защищённый архив Zoom');
+     await api('assign',{body:{uuid,project}});
+     var r=archiveRecords.find(x=>x.uuid===uuid);
+     if(r)r.project=project;
+     status('Сохранено для команды: встреча перенесена в «'+project+'».',false);
+   }catch(err){status('Проект изменён в этом браузере, но не сохранён для команды: '+err.message,true)}
+ });
+ document.addEventListener('click',async function(e){
+   var btn=e.target.closest('#mtZoomTranscript');
+   if(!btn)return;
+   var uuid=btn.dataset.uuid;
+   if(!uuid){return}
+   btn.disabled=true;btn.textContent='Получаю VTT...';
+   try{
+     if(!authorized)throw new Error('Сначала подключи защищённый архив Zoom');
+     var result=await api('transcript',{uuid});
+     document.dispatchEvent(new CustomEvent('onvisual:meetings-import',{
+       detail:{records:[{zoomUuid:uuid,transcriptText:result.transcript}]}
+     }));
+     status('Расшифровка Zoom добавлена к записи встречи.',false);
+   }catch(err){status('Не удалось загрузить расшифровку: '+err.message,true)}
+   finally{btn.disabled=false;btn.textContent='Получить расшифровку Zoom'}
+ });
+ getArchive().catch(function(e){
+   authorized=false;
+   status('Облачный архив защищён. Введи ключ и нажми «Проверить новые записи», чтобы подключиться. '+(e.message==='Введите ключ архива Zoom для доступа к встречам'?'':'('+e.message+')'),false);
+ });
 })();
