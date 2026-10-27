@@ -131,11 +131,18 @@ export default async function handler(req,res){
       if(!data||typeof data.transcript!=='string'||Buffer.byteLength(data.transcript,'utf8')>800_000||!data.transcript.trim())
         return err(res,400,'Приложи TXT/VTT до 800 КБ');
       const uuid=String(data.uuid||'');
-      if(!/^LOCAL[A-Z0-9]{10,35}$/.test(uuid))return err(res,400,'Неверный ID локальной записи');
-      await ensureLocalMeeting({
-        uuid,project:String(data.project||''),date:String(data.date||''),
-        title:String(data.title||''),startTime:String(data.startTime||''),duration:Number(data.duration||0)
-      });
+      if(!validUUID(uuid))return err(res,400,'Неверный ID встречи');
+      if(/^LOCAL[A-Z0-9]{10,35}$/.test(uuid)){
+        await ensureLocalMeeting({
+          uuid,project:String(data.project||''),date:String(data.date||''),
+          title:String(data.title||''),startTime:String(data.startTime||''),duration:Number(data.duration||0)
+        });
+      }else{
+        // An old manually filed meeting may already be matched to its
+        // original Zoom AI Summary UUID. Attach its full TXT to that record.
+        const {records}=await readIndex();
+        if(!records.some(m=>m.uuid===uuid))return err(res,404,'Встреча не найдена в закрытом архиве');
+      }
       await transcriptStore(uuid,data.transcript);
       return res.status(200).json({ok:true,uuid,fileSaved:true});
     }
