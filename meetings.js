@@ -320,6 +320,8 @@
       if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
       var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
       if(old){
+        if(rec.title&&old.title===String(rec.title).replace(/ · \d{2}:\d{2}$/,'')){old.title=rec.title;changed=true}
+        if(rec.date&&old.date!==rec.date){old.date=rec.date;changed=true}
         if(isProject(rec.scope)&&old.scope!==rec.scope){old.scope=rec.scope;changed=true}
         if(rec.transcriptText&&!old.transcriptText){old.transcriptText=String(rec.transcriptText);changed=true}
         if(rec.videoUrl&&!old.videoUrl){old.videoUrl=String(rec.videoUrl);changed=true}
