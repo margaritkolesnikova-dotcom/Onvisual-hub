@@ -80,7 +80,8 @@
       (video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь ссылку на облачную запись через «Редактировать».</small>')+
       '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка</b></div>'+
       (m.transcriptText?'<div class="mt-transcript-preview">'+safe(m.transcriptText)+'</div>':'<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Текст можно вставить или прикрепить файлом VTT/TXT</p></div>')+
-      '<div class="mt-inline-actions">'+(m.transcriptText?'<button type="button" id="mtDownloadTranscript">Скачать TXT ↓</button>':'')+(tr?linkHtml(tr,'Открыть расшифровку'):'')+'</div></section></div>'+
+      '<div class="mt-inline-actions">'+(m.transcriptText?'<button type="button" id="mtDownloadTranscript">Скачать TXT ↓</button>':'')+(tr?linkHtml(tr,'Открыть расшифровку'):'')+'</div>'+
+      (m.zoomTranscriptAvailable&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Получить расшифровку Zoom</button>':'')+'</section></div>'+
       '<section class="mt-content-card mt-notes"><div class="mt-card-label"><span>03 / NOTES</span><b>Протокол и решения</b></div>'+
       '<h4>Краткие итоги</h4><p class="mt-preserve">'+safe(m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
       '<h4>Принятые решения</h4><p class="mt-preserve">'+safe(m.decisions||'Пока не зафиксированы.')+'</p></section>'+
@@ -164,5 +165,39 @@
     if(!save())return;
     modal.close();render();
   });
+
+  // Zoom import merges only cloud-sourced fields, preserving user-edited notes and tasks.
+  document.addEventListener('onvisual:meetings-import',function(event){
+    var records=Array.isArray(event.detail?.records)?event.detail.records:[];
+    var changed=false;
+    records.forEach(function(rec){
+      if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
+      var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
+      if(old){
+        if(rec.transcriptText&&!old.transcriptText){old.transcriptText=String(rec.transcriptText);changed=true}
+        if(rec.videoUrl&&!old.videoUrl){old.videoUrl=String(rec.videoUrl);changed=true}
+        if(rec.zoomVideoAvailable&&!old.zoomVideoAvailable){old.zoomVideoAvailable=true;changed=true}
+        if(rec.zoomTranscriptAvailable&&!old.zoomTranscriptAvailable){old.zoomTranscriptAvailable=true;changed=true}
+        return;
+      }
+      // A transcript-only update may arrive after the user deleted the imported meeting.
+      if(!rec.title||!rec.date)return;
+      var newMeeting={
+        id:makeIdSafe(),createdAt:new Date().toISOString(),sentTaskKeys:[],
+        title:String(rec.title).slice(0,160),date:String(rec.date).slice(0,10),
+        scope:'ONVISUAL',participants:'',videoUrl:rec.videoUrl||'',
+        transcriptUrl:'',transcriptText:rec.transcriptText||'',
+        summary:'',decisions:'',actions:'',
+        zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',
+        zoomVideoAvailable:!!rec.zoomVideoAvailable,
+        zoomTranscriptAvailable:!!rec.zoomTranscriptAvailable
+      };
+      meetings.push(newMeeting);changed=true;
+    });
+    if(changed){save();render()}
+  });
+  function makeIdSafe(){return makeIdUnused()}
+  function makeIdUnused(){return 'meet-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
+
   render();
 })();
