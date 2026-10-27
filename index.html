@@ -6,7 +6,7 @@
   <title>ONVISUAL HUB</title>
   <meta name="description" content="ONVISUAL internal creative producer hub" />
   <link rel="stylesheet" href="styles.css?v=20261022-subtaskfix1" />
-  <link rel="stylesheet" href="meetings.css?v=20261027-a" />
+  <link rel="stylesheet" href="meetings.css?v=20261027-c" />
 </head>
 <body>
   <div class="noise"></div>
@@ -1462,7 +1462,7 @@
         <div class="modal-head"><div><small>NEW TASK</small><h2>Добавить задачу</h2></div><button type="button" class="modal-close" data-close="taskModal">×</button></div>
         <label>Задача<input name="title" required placeholder="Например: подготовить КП для бренда"></label>
         <div class="form-grid">
-          <label>Направление<select name="scope"><option>ONVISUAL</option><option>Мультвселенная</option><option>Общее</option></select></label>
+          <label>Проект<select name="scope" required><option value="" selected disabled>Выбери проект</option><option value="ONVISUAL">ONVISUAL</option><option value="Мультвселенная">Мультвселенная</option></select></label>
           <label>Статус<select name="status"><option value="new">Новая</option><option value="progress">В работе</option><option value="review">На проверке</option><option value="done">Готово</option></select></label>
           <label>Срок<input name="due" type="date"></label>
           <label>Время<input name="dueTime" type="time"></label>
@@ -1584,13 +1584,16 @@
         <div><b id="meetingVideoCount">0</b><small>Записей видео</small></div>
         <div><b id="meetingTranscriptCount">0</b><small>Расшифровок</small></div>
       </div>
+      <div class="mt-project-tabs" id="mtProjectTabs" role="group" aria-label="Папки проектов">
+        <button type="button" class="mt-project-tab is-active" data-meeting-project="all" aria-pressed="true"><span class="mt-tab-glyph">◫</span><span>Все встречи</span><b id="mtProjectAllCount">0</b></button>
+        <button type="button" class="mt-project-tab mt-project-onvisual" data-meeting-project="ONVISUAL" aria-pressed="false"><span class="mt-tab-glyph">◎</span><span>ONVISUAL</span><b id="mtProjectOnvisualCount">0</b></button>
+        <button type="button" class="mt-project-tab mt-project-multiverse" data-meeting-project="Мультвселенная" aria-pressed="false"><span class="mt-tab-glyph">✳</span><span>Мультвселенная</span><b id="mtProjectMultiverseCount">0</b></button>
+        <button type="button" class="mt-project-tab mt-project-unassigned" data-meeting-project="unassigned" aria-pressed="false"><span class="mt-tab-glyph">↳</span><span>На распределение</span><b id="mtProjectUnassignedCount">0</b></button>
+      </div>
       <div class="mt-layout">
-        <aside class="mt-sidebar" aria-label="Папки встреч по датам">
+        <aside class="mt-sidebar" aria-label="Папки проектов и встреч по датам">
           <div class="mt-controls">
             <input id="meetingSearch" type="search" placeholder="Найти встречу, дату, участника..." aria-label="Поиск встреч" />
-            <select id="meetingScope" aria-label="Фильтр по направлению">
-              <option value="all">Все направления</option><option value="ONVISUAL">ONVISUAL Studio</option><option value="Мультвселенная">Мультвселенная</option><option value="Общее">Общее</option>
-            </select>
           </div>
           <div id="meetingFolders" aria-live="polite"></div>
           <button type="button" id="mtExport" class="mt-export">Сохранить резервную копию каталога ↓</button>
@@ -1626,7 +1629,7 @@
     </dialog>
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
-  <script src="meetings.js?v=20261027-b"></script>
+  <script src="meetings.js?v=20261027-c"></script>
   <script src="zoom-ui.js?v=20261027-a"></script>
 </body>
 </html>
