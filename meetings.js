@@ -11,7 +11,8 @@
   var form=document.getElementById('meetingForm');
   var modal=document.getElementById('meetingModal');
   var search=document.getElementById('meetingSearch');
-  var filter=document.getElementById('meetingScope');
+  var projectTabs=document.getElementById('mtProjectTabs');
+  var activeProject='all';
   var editing=null, selected=null;
   var meetings=[];
   try {var value=JSON.parse(localStorage.getItem(STORE)||'[]');meetings=Array.isArray(value)?value:[]}catch(e){meetings=[]}
@@ -35,32 +36,66 @@
     var url=validUrl(raw);
     return url?'<a class="mt-link" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer">'+safe(text)+' ↗</a>':'';
   }
+  function isProject(scope){return scope==='ONVISUAL'||scope==='Мультвселенная'}
+  function projectValue(scope){return isProject(scope)?scope:'unassigned'}
+  function projectName(scope){
+    return scope==='ONVISUAL'?'ONVISUAL':scope==='Мультвселенная'?'Мультвселенная':'На распределение';
+  }
   function render(){
     var q=(search.value||'').toLowerCase().trim();
-    var s=filter.value;
     var entries=meetings.filter(function(m){
-      return (s==='all'||m.scope===s)&&(!q||[m.title,m.date,m.scope,m.participants,m.summary,m.transcriptText].join(' ').toLowerCase().includes(q));
+      return (activeProject==='all'||projectValue(m.scope)===activeProject)&&
+        (!q||[m.title,m.date,m.scope,m.participants,m.summary,m.transcriptText].join(' ').toLowerCase().includes(q));
     }).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||'')});
-    var groups={};entries.forEach(function(m){(groups[m.date]||(groups[m.date]=[])).push(m)});
-    document.getElementById('meetingCount').textContent=String(meetings.length);
+    var allCount=meetings.length;
+    document.getElementById('meetingCount').textContent=String(allCount);
     document.getElementById('meetingVideoCount').textContent=String(meetings.filter(function(m){return !!m.videoUrl}).length);
     document.getElementById('meetingTranscriptCount').textContent=String(meetings.filter(function(m){return !!(m.transcriptText||m.transcriptUrl)}).length);
+    var counters=[
+      ['mtProjectAllCount',allCount],
+      ['mtProjectOnvisualCount',meetings.filter(function(m){return projectValue(m.scope)==='ONVISUAL'}).length],
+      ['mtProjectMultiverseCount',meetings.filter(function(m){return projectValue(m.scope)==='Мультвселенная'}).length],
+      ['mtProjectUnassignedCount',meetings.filter(function(m){return projectValue(m.scope)==='unassigned'}).length]
+    ];
+    counters.forEach(function(pair){
+      var n=document.getElementById(pair[0]);if(n)n.textContent=String(pair[1]);
+    });
+    projectTabs.querySelectorAll('[data-meeting-project]').forEach(function(b){
+      var active=b.dataset.meetingProject===activeProject;
+      b.classList.toggle('is-active',active);
+      b.setAttribute('aria-pressed',String(active));
+    });
     list.innerHTML='';
     if(!entries.length){
-      list.innerHTML='<div class="mt-empty"><div>◌</div><h3>'+(q||s!=='all'?'Ничего не найдено':'Пока нет сохранённых встреч')+'</h3><p>Новая встреча появится здесь внутри папки с датой созвона.</p></div>';
+      list.innerHTML='<div class="mt-empty"><div>◌</div><h3>'+(q||activeProject!=='all'?'Встреч не найдено':'Пока нет сохранённых встреч')+'</h3><p>Выбери ONVISUAL или Мультвселенная при создании встречи. Записи Zoom без проекта попадут в «На распределение».</p></div>';
+      renderDetail();
+      return;
     }
-    Object.keys(groups).sort().reverse().forEach(function(date){
-      var el=document.createElement('div');el.className='mt-folder';
-      el.innerHTML='<div class="mt-folder-title"><span class="mt-folder-symbol">▤</span><div><strong>'+safe(fmt(date))+'</strong><small>'+groups[date].length+' встреч</small></div></div><div class="mt-folder-entries"></div>';
-      var body=el.querySelector('.mt-folder-entries');
-      groups[date].forEach(function(m){
-        var b=document.createElement('button');b.type='button';b.className='mt-entry'+(selected===m.id?' is-active':'');
-        b.innerHTML='<span class="mt-entry-name"><strong>'+safe(m.title)+'</strong><small>'+label(m.scope)+(m.participants?' · '+safe(m.participants):'')+'</small></span>'+
-          '<span class="mt-entry-tags">'+(m.videoUrl?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl)?'<i>≡ Текст</i>':'')+'</span>';
-        b.addEventListener('click',function(){selected=m.id;render()});
-        body.appendChild(b);
+    var order=['ONVISUAL','Мультвселенная','unassigned'];
+    order.forEach(function(project){
+      var matches=entries.filter(function(m){return projectValue(m.scope)===project});
+      if(!matches.length)return;
+      var group=document.createElement('div');
+      group.className='mt-project-group mt-project-'+(project==='ONVISUAL'?'ov':project==='Мультвселенная'?'mv':'pending');
+      group.innerHTML='<div class="mt-project-heading"><span>'+safe(projectName(project))+'</span><b>'+matches.length+'</b></div>';
+      var dates={};matches.forEach(function(m){(dates[m.date]||(dates[m.date]=[])).push(m)});
+      Object.keys(dates).sort().reverse().forEach(function(date){
+        var folder=document.createElement('div');
+        folder.className='mt-folder';
+        folder.innerHTML='<div class="mt-folder-title"><span class="mt-folder-symbol">▤</span><div><strong>'+safe(fmt(date))+'</strong><small>'+dates[date].length+' встреч</small></div></div><div class="mt-folder-entries"></div>';
+        var body=folder.querySelector('.mt-folder-entries');
+        dates[date].forEach(function(m){
+          var b=document.createElement('button');
+          b.type='button';
+          b.className='mt-entry'+(selected===m.id?' is-active':'');
+          b.innerHTML='<span class="mt-entry-name"><strong>'+safe(m.title)+'</strong><small>'+(m.participants?safe(m.participants):'Встреча Zoom / ручная запись')+'</small></span>'+
+            '<span class="mt-entry-tags">'+(m.videoUrl?'<i>▶ Видео</i>':'')+((m.transcriptText||m.transcriptUrl)?'<i>≡ Текст</i>':'')+'</span>';
+          b.addEventListener('click',function(){selected=m.id;render()});
+          body.appendChild(b);
+        });
+        group.appendChild(folder);
       });
-      list.appendChild(el);
+      list.appendChild(group);
     });
     renderDetail();
   }
@@ -73,9 +108,9 @@
     var video=validUrl(m.videoUrl),tr=validUrl(m.transcriptUrl);
     var isDirectVideo=video&&/\.(mp4|webm|ogg)(?:$|[?#])/i.test(video);
     var rows=actionRows(m),imported=m.sentTaskKeys||[];
-    detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+label(m.scope)+' · '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
+    detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
       '<p>'+(m.participants?'Участники: '+safe(m.participants):'Участники не указаны')+'</p></div><div class="mt-detail-actions"><button type="button" id="mtEdit">Редактировать</button><button type="button" id="mtDelete" class="mt-danger">Удалить</button></div></div>'+
-      '<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
+      '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
       (isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится в Zoom / облаке</p></div>':'<div class="mt-media-placeholder"><span>▷</span><p>Видео пока не прикреплено</p></div>')+
       (video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь ссылку на облачную запись через «Редактировать».</small>')+
       '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка</b></div>'+
@@ -92,6 +127,15 @@
       }).join('')+'</div><button type="button" id="mtTransferTasks" class="mt-primary">Добавить новые задачи в хаб</button>':
       '<p class="mt-preserve">Пока нет задач. Можно указать одну задачу в строке: название | ответственный | дата ГГГГ-ММ-ДД.</p>')+
       '<small>Задачи передаются в текущую доску «Задачи» на этом устройстве. Перед публикацией для всей команды нужна синхронизация хаба.</small></section>';
+    detail.querySelector('#mtMoveProject').addEventListener('change',function(e){
+      var next=e.target.value;
+      if(next!==''&&!isProject(next))return;
+      if(m.scope===next)return;
+      m.scope=next;
+      if(!save())return;
+      if(activeProject!=='all')activeProject=projectValue(next);
+      render();
+    });
     detail.querySelector('#mtEdit').addEventListener('click',function(){openForm(m.id)});
     detail.querySelector('#mtDelete').addEventListener('click',function(){
       if(!confirm('Удалить встречу «'+m.title+'» из локального каталога? Запись в Zoom/Диске останется.'))return;
@@ -105,6 +149,7 @@
     });
     var transfer=detail.querySelector('#mtTransferTasks');
     if(transfer)transfer.addEventListener('click',function(){
+      if(!isProject(m.scope)){alert('Сначала выбери проект: ONVISUAL или Мультвселенная.');return;}
       var todo=rows.filter(function(t){return !imported.includes(t.key)});
       if(!todo.length){alert('Все задачи из этой встречи уже перенесены.');return}
       if(!confirm('Добавить '+todo.length+' новых задач в раздел «Задачи» на этом устройстве?'))return;
@@ -129,6 +174,7 @@
     ['title','scope','participants','videoUrl','transcriptUrl','transcriptText','summary','decisions','actions'].forEach(function(key){
       if(m&&form.elements[key])form.elements[key].value=m[key]||'';
     });
+    if(!m && isProject(activeProject))form.elements.scope.value=activeProject;
     document.getElementById('mtModalTitle').textContent=m?'Изменить встречу':'Новая встреча';
     modal.showModal();
   }
@@ -136,7 +182,13 @@
   document.getElementById('mtCancelMeeting').addEventListener('click',function(){modal.close()});
   document.getElementById('mtCancelMeetingFooter').addEventListener('click',function(){modal.close()});
   search.addEventListener('input',render);
-  filter.addEventListener('change',render);
+  projectTabs.addEventListener('click',function(e){
+    var tab=e.target.closest('[data-meeting-project]');
+    if(!tab)return;
+    activeProject=tab.dataset.meetingProject;
+    selected=null;
+    render();
+  });
   document.getElementById('mtExport').addEventListener('click',function(){
     var blob=new Blob([JSON.stringify(meetings,null,2)],{type:'application/json;charset=utf-8'});
     var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='onvisual_meetings_backup.json';a.click();
@@ -154,6 +206,7 @@
     var data={};
     ['date','title','scope','participants','videoUrl','transcriptUrl','transcriptText','summary','decisions','actions'].forEach(function(k){data[k]=String(fd.get(k)||'').trim()});
     if(!data.title||!data.date){alert('Заполни дату и название');return}
+    if(!isProject(data.scope)){alert('Выбери проект: ONVISUAL или Мультвселенная.');return}
     if(data.videoUrl&&!validUrl(data.videoUrl)){alert('Ссылка на видео должна начинаться с https://');return}
     if(data.transcriptUrl&&!validUrl(data.transcriptUrl)){alert('Ссылка на расшифровку должна начинаться с https://');return}
     var prev=meetings.find(function(x){return x.id===editing});
@@ -185,7 +238,7 @@
       var newMeeting={
         id:makeIdSafe(),createdAt:new Date().toISOString(),sentTaskKeys:[],
         title:String(rec.title).slice(0,160),date:String(rec.date).slice(0,10),
-        scope:'ONVISUAL',participants:'',videoUrl:rec.videoUrl||'',
+        scope:isProject(rec.scope)?rec.scope:'',participants:'',videoUrl:rec.videoUrl||'',
         transcriptUrl:'',transcriptText:rec.transcriptText||'',
         summary:'',decisions:'',actions:'',
         zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',
