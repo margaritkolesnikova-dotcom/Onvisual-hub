@@ -227,6 +227,7 @@
       if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
       var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
       if(old){
+        if(isProject(rec.scope)&&old.scope!==rec.scope){old.scope=rec.scope;changed=true}
         if(rec.transcriptText&&!old.transcriptText){old.transcriptText=String(rec.transcriptText);changed=true}
         if(rec.videoUrl&&!old.videoUrl){old.videoUrl=String(rec.videoUrl);changed=true}
         if(rec.zoomVideoAvailable&&!old.zoomVideoAvailable){old.zoomVideoAvailable=true;changed=true}
