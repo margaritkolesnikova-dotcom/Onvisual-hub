@@ -111,8 +111,8 @@
     }).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||'')});
     var allCount=meetings.length;
     document.getElementById('meetingCount').textContent=String(allCount);
-    document.getElementById('meetingVideoCount').textContent=String(meetings.filter(function(m){return !!(m.videoUrl||m.localVideoName)}).length);
-    document.getElementById('meetingTranscriptCount').textContent=String(meetings.filter(function(m){return !!(m.transcriptText||m.transcriptUrl)}).length);
+    document.getElementById('meetingVideoCount').textContent=String(meetings.filter(function(m){return !!(m.videoUrl||m.localVideoName||m.privateVideoStored||m.zoomVideoAvailable)}).length);
+    document.getElementById('meetingTranscriptCount').textContent=String(meetings.filter(function(m){return !!(m.transcriptText||m.transcriptUrl||m.transcriptStored)}).length);
     var counters=[
       ['mtProjectAllCount',allCount],
       ['mtProjectOnvisualCount',meetings.filter(function(m){return projectValue(m.scope)==='ONVISUAL'}).length],
@@ -169,6 +169,7 @@
       return;
     }
     var video=validUrl(m.videoUrl),tr=validUrl(m.transcriptUrl);
+    var hasSharedVideo=!!(m.zoomUuid&&m.privateVideoStored);
     var hasPrivateTranscript=!!(m.zoomUuid&&m.transcriptStored);
     var hasPrivateSummary=!!(m.zoomUuid&&m.summaryStored);
     var fileUrl=function(kind){return '/api/meeting-archive?action=download&kind='+kind+'&uuid='+encodeURIComponent(m.zoomUuid||'')};
@@ -177,8 +178,15 @@
     detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
       '<p>'+(m.participants?'Участники: '+safe(m.participants):'Участники не указаны')+'</p></div><div class="mt-detail-actions"><button type="button" id="mtEdit">Редактировать</button><button type="button" id="mtDelete" class="mt-danger">Удалить</button></div></div>'+
       '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
-      (m.localVideoName?'<div id="mtLocalVideoSlot" class="mt-video-local-slot">Открываю видео с этого компьютера…</div>':isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится в Zoom / облаке</p></div>':'<div class="mt-media-placeholder"><span>▷</span><p>Видео пока не прикреплено</p></div>')+
-      (m.localVideoName?'<small>Локальная копия: '+safe(m.localVideoName)+' — только в этом браузере на этом устройстве.</small>':video?linkHtml(video,'Открыть запись / скачать'):'<small>Добавь MP4 с компьютера или защищённую облачную ссылку через «Редактировать».</small>')+
+      (hasSharedVideo?'<div id="mtSharedVideoSlot" class="mt-video-local-slot">Подключаю защищённое видео команды…</div>':
+        m.zoomUuid&&m.zoomVideoAvailable?'<div id="mtSharedVideoSlot" class="mt-media-placeholder"><span>▶</span><p>Получаю ссылку на облачную запись Zoom…</p></div>':
+        m.localVideoName?'<div id="mtLocalVideoSlot" class="mt-video-local-slot">Открываю видео с этого компьютера…</div>':
+        isDirectVideo?'<video class="mt-video" controls preload="metadata" src="'+safe(video)+'"></video>':
+        video?'<div class="mt-media-placeholder"><span>▶</span><p>Видео хранится по внешней ссылке</p></div>':
+        '<div class="mt-media-placeholder"><span>▷</span><p>Видео ещё не загружено в общий архив</p></div>')+
+      (video&&!hasSharedVideo?linkHtml(video,'Открыть внешнюю запись'):'')+
+      (m.localVideoName&&!hasSharedVideo?'<small>Локальная копия доступна только в этом браузере.</small>':'')+
+      (m.zoomUuid?'<div class="mt-file-import"><label for="mtAttachVideoFile">Видео MP4 для просмотра всей командой (до 1,2 ГБ)</label><input type="file" id="mtAttachVideoFile" accept=".mp4,video/mp4"/><small>Видео загружается в закрытое облачное хранилище. Это не публичная ссылка.</small></div>':'')+
       '</section><section class="mt-content-card"><div class="mt-card-label"><span>02 / TRANSCRIPT</span><b>Расшифровка · файл</b></div>'+
       (hasPrivateTranscript?
         '<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи</strong><small>Оригинальный файл Zoom · VTT / TXT</small></div><a class="mt-file-action" href="'+safe(fileUrl('transcript'))+'">Скачать файл ↓</a></div>':
@@ -188,25 +196,40 @@
         '<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Файл расшифровки ещё не получен</p></div>')+
       (m.zoomTranscriptAvailable&&!hasPrivateTranscript&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Загрузить VTT из Zoom</button>':'')+
       (!hasPrivateTranscript?'<div class="mt-file-import"><label for="mtAttachTranscriptFile">Прикрепить полный TXT/VTT в архив</label><input type="file" id="mtAttachTranscriptFile" accept=".txt,.vtt,.srt,text/plain,text/vtt" /></div>':'')+'</section></div>'+
-      '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ZOOM SUMMARY</span><b>Готовое резюме Zoom · файл</b></div>'+
+      '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ZOOM SUMMARY</span><b>Итоги по материалам встречи · PDF</b></div>'+
       (hasPrivateSummary?
-        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Zoom Summary.md</strong><small>Оригинальное резюме Zoom, сохранённое как документ</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary'))+'">Скачать файл ↓</a></div>':
+        '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Резюме Zoom.pdf</strong><small>Готовый итоговый документ Zoom · PDF</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary_pdf'))+'" target="_blank" rel="noopener noreferrer">Открыть PDF ↗</a></div>':
         m.summaryDocUrl?
         '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Резюме в Zoom</strong><small>Документ готов в аккаунте Zoom</small></div>'+linkHtml(validUrl(m.summaryDocUrl),'Открыть в Zoom')+'</div>':
         '<p class="mt-summary-pending">Готовый документ пока не получен из Zoom. Для автоматического импорта требуется разрешение <code>meeting_summary:read:admin</code> в Zoom Marketplace.</p>')+
       (m.zoomUuid&&!hasPrivateSummary&&m.zoomSource!=='local'?'<button type="button" id="mtGetZoomSummary" class="mt-zoom-get-transcript" data-uuid="'+safe(m.zoomUuid)+'">Проверить готовое резюме</button>':'')+
       '</section>'+
       '<section class="mt-content-card mt-notes"><div class="mt-card-label"><span>04 / NOTES</span><b>Протокол и решения</b></div>'+
-      '<h4>Краткие итоги</h4><p class="mt-preserve">'+safe(m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
-      '<h4>Принятые решения</h4><p class="mt-preserve">'+safe(m.decisions||'Пока не зафиксированы.')+'</p></section>'+
-      '<section class="mt-content-card mt-actions"><div class="mt-card-label"><span>05 / ACTIONS</span><b>Задачи по встрече</b></div>'+
+      '<h4>Краткий протокол</h4><p class="mt-preserve">'+safe(m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
+      '<h4>Решения и договорённости</h4><p class="mt-preserve">'+safe(m.decisions||'Пока не зафиксированы.')+'</p></section>'+
+      '<section class="mt-content-card mt-actions"><div class="mt-card-label"><span>05 / ACTIONS</span><b>Задачи · кратко</b></div>'+
       (rows.length?'<div class="mt-action-list">'+rows.map(function(t){
         var done=imported.includes(t.key);
         return '<div><span>'+safe(t.title)+'</span><small>'+safe(t.owner||'Без ответственного')+(t.due?' · '+safe(fmt(t.due)):' · Срок не указан')+'</small><em>'+(done?'В задачах ✓':'К передаче')+'</em></div>';
       }).join('')+'</div><button type="button" id="mtTransferTasks" class="mt-primary">Добавить новые задачи в хаб</button>':
       '<p class="mt-preserve">Пока нет задач. Можно указать одну задачу в строке: название | ответственный | дата ГГГГ-ММ-ДД.</p>')+
       '<small>Задачи передаются в текущую доску «Задачи» на этом устройстве. Перед публикацией для всей команды нужна синхронизация хаба.</small></section>';
-    if(m.localVideoName)renderLocalVideo(m);
+    if(m.localVideoName&&!hasSharedVideo&&!m.zoomVideoAvailable)renderLocalVideo(m);
+    if(m.zoomUuid&&(hasSharedVideo||m.zoomVideoAvailable)){
+      document.dispatchEvent(new CustomEvent('onvisual:meeting-video-requested',{detail:{uuid:m.zoomUuid}}));
+    }
+    var sharedVideoInput=detail.querySelector('#mtAttachVideoFile');
+    if(sharedVideoInput){
+      sharedVideoInput.addEventListener('change',function(){
+        var f=sharedVideoInput.files&&sharedVideoInput.files[0];
+        if(!f)return;
+        if(!/\.mp4$/i.test(f.name)||f.size>1200*1024*1024){alert('Выбери MP4 не более 1,2 ГБ');sharedVideoInput.value='';return}
+        sharedVideoInput.disabled=true;
+        document.dispatchEvent(new CustomEvent('onvisual:meeting-video-upload',{
+          detail:{uuid:m.zoomUuid,file:f,input:sharedVideoInput}
+        }));
+      });
+    }
     var transcriptInput=detail.querySelector('#mtAttachTranscriptFile');
     if(transcriptInput){
       transcriptInput.addEventListener('change',function(){
@@ -347,7 +370,28 @@
   });
 
   // Zoom import merges only cloud-sourced fields, preserving user-edited notes and tasks.
-  document.addEventListener('onvisual:meeting-transcript-uploaded',function(event){
+  document.addEventListener('onvisual:meeting-video-ready',function(event){
+    var d=event.detail||{};
+    var m=meetings.find(function(x){return x.zoomUuid===d.uuid});
+    if(!m||!d.url)return;
+    if(d.stored&&!m.privateVideoStored){m.privateVideoStored=true;save()}
+    if(selected!==m.id)return;
+    var slot=detail.querySelector('#mtSharedVideoSlot');
+    if(!slot)return;
+    var href=validUrl(d.url);if(!href)return;
+    if(d.source==='private'){
+      var player=document.createElement('video');
+      player.controls=true;player.preload='metadata';player.className='mt-video';player.playsInline=true;player.src=href;
+      var link=document.createElement('a');link.className='mt-link';link.textContent='Открыть видео в новой вкладке ↗';link.href=href;link.target='_blank';link.rel='noopener noreferrer';
+      slot.replaceChildren(player,link);
+      slot.classList.remove('mt-media-placeholder');
+    }else{
+      slot.innerHTML='<span>▶</span><p>Облачная запись Zoom доступна по ссылке</p>';
+      var a=document.createElement('a');a.href=href;a.target='_blank';a.rel='noopener noreferrer';a.className='mt-file-action';a.textContent='Смотреть в Zoom ↗';
+      slot.appendChild(a);
+    }
+  });
+    document.addEventListener('onvisual:meeting-transcript-uploaded',function(event){
     var d=event.detail||{};
     var m=meetings.find(function(x){return x.id===d.meetingId});
     if(!m||!d.uuid)return;
@@ -402,6 +446,10 @@
         if(rec.transcriptStored&&!old.transcriptStored){old.transcriptStored=true;changed=true}
         if(rec.summaryStored&&!old.summaryStored){old.summaryStored=true;changed=true}
         if(rec.summaryDocUrl&&!old.summaryDocUrl){old.summaryDocUrl=String(rec.summaryDocUrl);changed=true}
+        if(rec.privateVideoStored&&!old.privateVideoStored){old.privateVideoStored=true;changed=true}
+        if(rec.summary&&!old.summary){old.summary=String(rec.summary).slice(0,1200);changed=true}
+        if(rec.decisions&&!old.decisions){old.decisions=String(rec.decisions).slice(0,1600);changed=true}
+        if(rec.actions&&!old.actions){old.actions=String(rec.actions).slice(0,6000);changed=true}
         if(rec.zoomSource&&!old.zoomSource){old.zoomSource=rec.zoomSource;changed=true}
         return;
       }
@@ -412,11 +460,11 @@
         title:String(rec.title).slice(0,160),date:String(rec.date).slice(0,10),
         scope:isProject(rec.scope)?rec.scope:'',participants:'',videoUrl:rec.videoUrl||'',
         transcriptUrl:'',transcriptText:rec.transcriptText||'',
-        summary:'',decisions:'',actions:'',
+        summary:rec.summary||'',decisions:rec.decisions||'',actions:rec.actions||'',
         zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',zoomSource:rec.zoomSource||'zoom',
         zoomVideoAvailable:!!rec.zoomVideoAvailable,
         zoomTranscriptAvailable:!!rec.zoomTranscriptAvailable,
-        transcriptStored:!!rec.transcriptStored,summaryStored:!!rec.summaryStored,summaryDocUrl:rec.summaryDocUrl||''
+        transcriptStored:!!rec.transcriptStored,summaryStored:!!rec.summaryStored,summaryDocUrl:rec.summaryDocUrl||'',privateVideoStored:!!rec.privateVideoStored
       };
       meetings.push(newMeeting);changed=true;
     });
