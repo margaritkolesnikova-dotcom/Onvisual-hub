@@ -1570,6 +1570,15 @@
         <span class="mt-notice-icon">◎</span>
         <span><strong>Пока работает персональный каталог.</strong> Папки, заметки и загруженный текст сохраняются в этом браузере, без синхронизации между сотрудниками. Видеофайл остаётся в защищённом облаке Zoom / Яндекс Диска, а в хаб добавляется ссылка. Для единой командной библиотеки и автоматической загрузки MP4 потребуется подключить защищённое хранилище и авторизацию.</span>
       </div>
+      <div class="mt-zoom-panel" id="mtZoomPanel">
+        <div class="mt-zoom-heading"><span class="mt-zoom-glyph">◎</span><div><strong>ZOOM CLOUD SYNC</strong><small>Импорт записей и VTT из платного Zoom без передачи логина и пароля</small></div></div>
+        <div class="mt-zoom-controls">
+          <label>Месяц записей<input id="mtZoomMonth" type="month" aria-label="Месяц для импорта из Zoom" /></label>
+          <label>Ключ синхронизации<input id="mtZoomKey" type="password" autocomplete="off" placeholder="MEETINGS_SYNC_KEY" aria-label="Ключ синхронизации Zoom" /></label>
+          <button id="mtZoomSync" type="button" class="mt-primary">Синхронизировать Zoom</button>
+        </div>
+        <p class="mt-zoom-status" id="mtZoomState" aria-live="polite">Для первого подключения заполни ZOOM_ACCOUNT_ID, ZOOM_CLIENT_ID, ZOOM_CLIENT_SECRET, ZOOM_HOST_EMAIL и MEETINGS_SYNC_KEY в защищённых настройках Vercel. Ключ вводи только здесь, не в чате.</p>
+      </div>
       <div class="mt-stats">
         <div><b id="meetingCount">0</b><small>Всего встреч</small></div>
         <div><b id="meetingVideoCount">0</b><small>Записей видео</small></div>
@@ -1617,6 +1626,7 @@
     </dialog>
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
-  <script src="meetings.js?v=20261027-a"></script>
+  <script src="meetings.js?v=20261027-b"></script>
+  <script src="zoom-ui.js?v=20261027-a"></script>
 </body>
 </html>
