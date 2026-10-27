@@ -174,3 +174,10 @@
 .mt-file-import label{font-size:11px;color:#b8aed7;font-weight:700}
 .mt-file-import input[type=file]{width:100%;font-size:11px;color:#919bb0;max-width:100%}
 .mt-file-import input[type=file]::file-selector-button{background:#262139;color:#ded4fa;border:1px solid rgba(151,124,232,.32);padding:9px 12px;border-radius:8px;cursor:pointer;margin-right:12px}
+
+/* Playable restricted video in the selected meeting */
+.mt-video-local-slot:has(.mt-video){display:block;padding:0;background:#050812}
+.mt-video-local-slot .mt-video{display:block;width:100%;max-height:420px;border-radius:10px;background:#020306}
+#mtSharedVideoSlot .mt-link{display:inline-flex;margin:12px;font-size:12px}
+.mt-media-placeholder .mt-file-action{margin:8px 0}
+.mt-file-entry:has(a[href*="summary_pdf"]){background:linear-gradient(120deg,#17132b,#141a2c)}
