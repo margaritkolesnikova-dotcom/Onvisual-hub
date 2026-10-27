@@ -198,6 +198,11 @@
       m.scope=next;
       if(!save())return;
       if(activeProject!=='all')activeProject=projectValue(next);
+      if(m.zoomUuid&&isProject(next)){
+        document.dispatchEvent(new CustomEvent('onvisual:meeting-project-assigned',{
+          detail:{zoomUuid:m.zoomUuid,project:next}
+        }));
+      }
       render();
     });
     detail.querySelector('#mtEdit').addEventListener('click',function(){openForm(m.id)});
@@ -299,6 +304,11 @@
     if(isNew)meetings.push(prev);
     selected=prev.id;
     if(!save())return;
+    if(prev.zoomUuid&&isProject(prev.scope)){
+      document.dispatchEvent(new CustomEvent('onvisual:meeting-project-assigned',{
+        detail:{zoomUuid:prev.zoomUuid,project:prev.scope}
+      }));
+    }
     modal.close();render();
   });
 
