@@ -87,6 +87,10 @@
      var signed=await api('video-upload-url',{body:{uuid:d.uuid,size:file.size}});
      var upload=await fetch(signed.url,{method:'PUT',body:file,headers:{'Content-Type':'video/mp4'}});
      if(!upload.ok)throw new Error('Хранилище отклонило загрузку: HTTP '+upload.status);
+     var uploadedFile=await upload.json();
+     if(!uploadedFile.pathname)throw new Error('Не получено имя файла от хранилища');
+     var confirmed=await api('video-confirm',{body:{uuid:d.uuid,pathname:uploadedFile.pathname}});
+     if(!confirmed.ok)throw new Error('Сервер не подтвердил привязку MP4');
      var check=await api('video-link',{uuid:d.uuid});
      if(check.source!=='private')throw new Error('Сервер пока не видит файл, повтори проверку');
      document.dispatchEvent(new CustomEvent('onvisual:meeting-video-ready',{
