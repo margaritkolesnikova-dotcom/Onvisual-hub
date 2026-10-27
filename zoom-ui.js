@@ -88,8 +88,11 @@
      var upload=await fetch(signed.url,{method:'PUT',body:file,headers:{'Content-Type':'video/mp4'}});
      if(!upload.ok)throw new Error('Хранилище отклонило загрузку: HTTP '+upload.status);
      var uploadedFile=await upload.json();
-     if(!uploadedFile.pathname)throw new Error('Не получено имя файла от хранилища');
-     var confirmed=await api('video-confirm',{body:{uuid:d.uuid,pathname:uploadedFile.pathname}});
+     if(!uploadedFile.url)throw new Error('Не получено подтверждение адреса файла');
+     var uploadedUrl=new URL(uploadedFile.url);
+     if(!/\.private\.blob\.vercel-storage\.com$/i.test(uploadedUrl.hostname))throw new Error('Хранилище вернуло неправильный адрес');
+     var actualPath=decodeURIComponent(uploadedUrl.pathname.slice(1));
+     var confirmed=await api('video-confirm',{body:{uuid:d.uuid,pathname:actualPath}});
      if(!confirmed.ok)throw new Error('Сервер не подтвердил привязку MP4');
      var check=await api('video-link',{uuid:d.uuid});
      if(check.source!=='private')throw new Error('Сервер пока не видит файл, повтори проверку');
