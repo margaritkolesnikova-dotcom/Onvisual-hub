@@ -86,9 +86,9 @@ export default async function handler(req,res){
         const record=records.find(m=>m.uuid===uuid);
         if(!record)return err(res,404,'Встреча не найдена');
         const content=await summaryRead(uuid);
-        if(!content&&record.source!=='local'){
+        if(!content&&(record.source!=='local'||record.zoomSummaryUuid)){
           try{
-            const summary=await fetchZoomSummary(uuid);
+            const summary=await fetchZoomSummary(record.zoomSummaryUuid||uuid);
             if(summary.content){
               await summaryStore(uuid,summary.content,summary.docUrl);
               return res.status(200).json({available:true,downloadUrl:'/api/meeting-archive?action=download&kind=summary&uuid='+encodeURIComponent(uuid)});
