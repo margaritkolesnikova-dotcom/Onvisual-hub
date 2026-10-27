@@ -169,3 +169,8 @@
 .mt-file-action:hover{background:#443166;color:#fff}
 .mt-summary-pending{font-size:12px;line-height:1.6;color:#9eaac0;margin:8px 0 12px}
 .mt-summary-pending code{font-size:10px;overflow-wrap:anywhere}
+
+.mt-file-import{margin-top:13px;padding:12px 13px;border-top:1px solid rgba(255,255,255,.08);display:grid;gap:8px}
+.mt-file-import label{font-size:11px;color:#b8aed7;font-weight:700}
+.mt-file-import input[type=file]{width:100%;font-size:11px;color:#919bb0;max-width:100%}
+.mt-file-import input[type=file]::file-selector-button{background:#262139;color:#ded4fa;border:1px solid rgba(151,124,232,.32);padding:9px 12px;border-radius:8px;cursor:pointer;margin-right:12px}
