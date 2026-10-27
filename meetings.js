@@ -174,7 +174,7 @@
     var hasPrivateSummary=!!(m.zoomUuid&&m.summaryStored);
     var fileUrl=function(kind){return '/api/meeting-archive?action=download&kind='+kind+'&uuid='+encodeURIComponent(m.zoomUuid||'')};
     var isDirectVideo=video&&/\.(mp4|webm|ogg)(?:$|[?#])/i.test(video);
-    var rows=actionRows(m),imported=m.sentTaskKeys||[];
+    var rows=actionRows({...m,actions:m.actions||m.autoActions||''}),imported=m.sentTaskKeys||[];
     detail.innerHTML='<div class="mt-detail-head"><div><span class="mt-kicker">'+safe(projectName(m.scope))+' / '+safe(fmt(m.date))+'</span><h2>'+safe(m.title)+'</h2>'+
       '<p>'+(m.participants?'Участники: '+safe(m.participants):'Участники не указаны')+'</p></div><div class="mt-detail-actions"><button type="button" id="mtEdit">Редактировать</button><button type="button" id="mtDelete" class="mt-danger">Удалить</button></div></div>'+
       '<div class="mt-assign-row"><label for="mtMoveProject">Проект встречи</label><select id="mtMoveProject" aria-label="Переместить встречу в проект">'+'<option value="" '+(!isProject(m.scope)?'selected':'')+'>На распределение</option>'+'<option value="ONVISUAL" '+(m.scope==='ONVISUAL'?'selected':'')+'>ONVISUAL</option>'+'<option value="Мультвселенная" '+(m.scope==='Мультвселенная'?'selected':'')+'>Мультвселенная</option></select>'+'<span>При выборе проекта встреча и её папка автоматически перемещаются в соответствующий раздел.</span></div>'+'<div class="mt-media-grid"><section class="mt-content-card"><div class="mt-card-label"><span>01 / VIDEO</span><b>Запись созвона</b></div>'+
@@ -205,13 +205,13 @@
       (m.zoomUuid&&!hasPrivateSummary&&m.zoomSource!=='local'?'<button type="button" id="mtGetZoomSummary" class="mt-zoom-get-transcript" data-uuid="'+safe(m.zoomUuid)+'">Проверить готовое резюме</button>':'')+
       '</section>'+
       '<section class="mt-content-card mt-notes"><div class="mt-card-label"><span>04 / NOTES</span><b>Протокол и решения</b></div>'+
-      '<h4>Краткий протокол</h4><p class="mt-preserve">'+safe(m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
-      '<h4>Решения и договорённости</h4><p class="mt-preserve">'+safe(m.decisions||'Пока не зафиксированы.')+'</p></section>'+
+      '<h4>Краткий протокол</h4><p class="mt-preserve">'+safe(m.autoSummary||m.summary||'Итоги будут добавлены после обработки расшифровки.')+'</p>'+
+      '<h4>Решения и договорённости</h4><p class="mt-preserve">'+safe(m.autoDecisions||m.decisions||'Пока не зафиксированы.')+'</p></section>'+
       '<section class="mt-content-card mt-actions"><div class="mt-card-label"><span>05 / ACTIONS</span><b>Задачи · кратко</b></div>'+
-      (rows.length?'<div class="mt-action-list">'+rows.map(function(t){
+      (rows.length?'<div class="mt-action-list">'+rows.slice(0,8).map(function(t){
         var done=imported.includes(t.key);
         return '<div><span>'+safe(t.title)+'</span><small>'+safe(t.owner||'Без ответственного')+(t.due?' · '+safe(fmt(t.due)):' · Срок не указан')+'</small><em>'+(done?'В задачах ✓':'К передаче')+'</em></div>';
-      }).join('')+'</div><button type="button" id="mtTransferTasks" class="mt-primary">Добавить новые задачи в хаб</button>':
+      }).join('')+'</div>'+(rows.length>8?'<small>Показаны первые 8 задач из '+rows.length+'. Полный список — в PDF и доступен для передачи на доску.</small>':'')+'<button type="button" id="mtTransferTasks" class="mt-primary">Добавить новые задачи в хаб</button>':
       '<p class="mt-preserve">Пока нет задач. Можно указать одну задачу в строке: название | ответственный | дата ГГГГ-ММ-ДД.</p>')+
       '<small>Задачи передаются в текущую доску «Задачи» на этом устройстве. Перед публикацией для всей команды нужна синхронизация хаба.</small></section>';
     if(m.localVideoName&&!hasSharedVideo&&!m.zoomVideoAvailable)renderLocalVideo(m);
@@ -447,6 +447,9 @@
         if(rec.summaryStored&&!old.summaryStored){old.summaryStored=true;changed=true}
         if(rec.summaryDocUrl&&!old.summaryDocUrl){old.summaryDocUrl=String(rec.summaryDocUrl);changed=true}
         if(rec.privateVideoStored&&!old.privateVideoStored){old.privateVideoStored=true;changed=true}
+        if(rec.summary&&!old.autoSummary){old.autoSummary=String(rec.summary).slice(0,1200);changed=true}
+        if(rec.decisions&&!old.autoDecisions){old.autoDecisions=String(rec.decisions).slice(0,1600);changed=true}
+        if(rec.actions&&!old.autoActions){old.autoActions=String(rec.actions).slice(0,6000);changed=true}
         if(rec.summary&&!old.summary){old.summary=String(rec.summary).slice(0,1200);changed=true}
         if(rec.decisions&&!old.decisions){old.decisions=String(rec.decisions).slice(0,1600);changed=true}
         if(rec.actions&&!old.actions){old.actions=String(rec.actions).slice(0,6000);changed=true}
