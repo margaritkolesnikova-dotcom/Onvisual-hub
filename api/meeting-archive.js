@@ -117,6 +117,21 @@ export default async function handler(req,res){
     }
     if(req.method!=='POST')return err(res,405,'Используй GET или POST');
     if(req.headers['x-onvisual-request']!=='1')return err(res,403,'Не хватает заголовка защиты запроса');
+    // Files are uploaded only by an authenticated team member; no public file URL is created.
+    if(action==='upload-transcript'){
+      if(Number(req.headers['content-length']||0)>1_000_000)return err(res,413,'Файл слишком большой');
+      const data=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
+      if(!data||typeof data.transcript!=='string'||Buffer.byteLength(data.transcript,'utf8')>800_000||!data.transcript.trim())
+        return err(res,400,'Приложи TXT/VTT до 800 КБ');
+      const uuid=String(data.uuid||'');
+      if(!/^LOCAL[A-Z0-9]{10,35}$/.test(uuid))return err(res,400,'Неверный ID локальной записи');
+      await ensureLocalMeeting({
+        uuid,project:String(data.project||''),date:String(data.date||''),
+        title:String(data.title||''),startTime:String(data.startTime||''),duration:Number(data.duration||0)
+      });
+      await transcriptStore(uuid,data.transcript);
+      return res.status(200).json({ok:true,uuid,fileSaved:true});
+    }
     // A private migration route for existing Zoom recordings that only existed on the PC.
     // Importers must have the integration's master bearer key; a browser cookie alone cannot overwrite transcripts.
     if(action==='import-local'){
