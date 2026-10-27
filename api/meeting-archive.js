@@ -1,7 +1,7 @@
 import {createHmac} from 'node:crypto';
 import {
   isAuthorized,safeEqual,readIndex,assignProject,
-  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore
+  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles
 } from '../lib/zoom-archive.js';
 
 const cookieName='ov_meetings_auth';
@@ -52,6 +52,13 @@ function cleanView(m){
     firstSeen:m.firstSeen,source:m.source||'zoom',
   };
 }
+async function viewWithFileStatus(m){
+  const v=cleanView(m);
+  const files=await storedFiles(m.uuid);
+  v.transcriptStored=v.transcriptStored||files.transcript;
+  v.summaryStored=v.summaryStored||files.summary;
+  return v;
+}
 export default async function handler(req,res){
   res.setHeader('Cache-Control','private, no-store');
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -62,7 +69,7 @@ export default async function handler(req,res){
     if(req.method==='GET'){
       if(action==='list'){
         const {records}=await readIndex();
-        return res.status(200).json({meetings:records.map(cleanView),updatedAt:new Date().toISOString()});
+        return res.status(200).json({meetings:await Promise.all(records.map(viewWithFileStatus)),updatedAt:new Date().toISOString()});
       }
       if(action==='download'){
         const uuid=one(req.query.uuid),kind=one(req.query.kind);
@@ -169,7 +176,7 @@ export default async function handler(req,res){
       const to=last<current?last:current;
       const outcome=await syncRange(from,to);
       const {records}=await readIndex();
-      return res.status(200).json({synced:outcome,meetings:records.map(cleanView)});
+      return res.status(200).json({synced:outcome,meetings:await Promise.all(records.map(viewWithFileStatus))});
     }
     return err(res,400,'Неизвестное действие');
   }catch(e){
