@@ -181,3 +181,17 @@
 #mtSharedVideoSlot .mt-link{display:inline-flex;margin:12px;font-size:12px}
 .mt-media-placeholder .mt-file-action{margin:8px 0}
 .mt-file-entry:has(a[href*="summary_pdf"]){background:linear-gradient(120deg,#17132b,#141a2c)}
+
+
+/* Primary meeting outcome document */
+.mt-main-report{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:23px 25px;margin:15px 0 20px;background:linear-gradient(110deg,#211b35,#302343 62%,#1b2337);border:1px solid rgba(185,156,247,.43);border-radius:15px;box-shadow:0 12px 30px rgba(6,5,22,.19)}
+.mt-report-icon{display:grid;place-items:center;width:55px;height:65px;flex-shrink:0;border:1px solid rgba(216,190,255,.36);background:rgba(178,145,227,.12);border-radius:12px;color:#e1caff;font-size:28px}
+.mt-report-info{flex:1;min-width:220px}
+.mt-report-eyebrow{font-size:9px;letter-spacing:1.7px;font-weight:800;color:#ba9ff2;margin-bottom:7px}
+.mt-report-info h3{font-size:22px;line-height:1.2;font-weight:850;letter-spacing:-.45px;color:#fff;margin:0 0 8px}
+.mt-report-info p{font-size:11px;color:#e0d9eb;line-height:1.55;margin:0 0 8px}
+.mt-report-info small{font-size:10px;color:#a9a1bc;line-height:1.4}
+.mt-report-open{display:inline-flex;align-items:center;justify-content:center;padding:14px 17px;border-radius:10px;background:#efe5ff;color:#35214d!important;text-decoration:none;font-size:12px;font-weight:850;white-space:nowrap;box-shadow:0 4px 15px rgba(0,0,0,.18)}
+.mt-report-open:hover{background:#fff;color:#211334!important}
+.mt-report-pending{font-size:11px;color:#c7bdd7}
+@media(max-width:730px){.mt-main-report{padding:19px;gap:12px}.mt-report-open{width:100%}.mt-report-info h3{font-size:19px}}
