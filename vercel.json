@@ -4,6 +4,10 @@
     {
       "path": "/api/telegram-digest",
       "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/zoom-daily",
+      "schedule": "15 5 * * *"
     }
   ]
 }
