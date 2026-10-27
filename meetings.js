@@ -186,7 +186,8 @@
         '<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи.txt</strong><small>Документ прикреплён в текущем браузере</small></div><button class="mt-file-action" id="mtDownloadTranscript" type="button">Скачать TXT ↓</button></div>':
         tr?'<div class="mt-file-entry"><span class="mt-file-symbol">≡</span><div class="mt-file-info"><strong>Расшифровка встречи</strong><small>Файл во внешнем хранилище</small></div>'+linkHtml(tr,'Открыть файл')+'</div>':
         '<div class="mt-media-placeholder mt-text-placeholder"><span>≡</span><p>Файл расшифровки ещё не получен</p></div>')+
-      (m.zoomTranscriptAvailable&&!hasPrivateTranscript&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Загрузить VTT из Zoom</button>':'')+'</section></div>'+
+      (m.zoomTranscriptAvailable&&!hasPrivateTranscript&&!m.transcriptText?'<button type="button" class="mt-zoom-get-transcript" id="mtZoomTranscript" data-uuid="'+safe(m.zoomUuid||'')+'">Загрузить VTT из Zoom</button>':'')+
+      (!hasPrivateTranscript?'<div class="mt-file-import"><label for="mtAttachTranscriptFile">Прикрепить полный TXT/VTT в архив</label><input type="file" id="mtAttachTranscriptFile" accept=".txt,.vtt,.srt,text/plain,text/vtt" /></div>':'')+'</section></div>'+
       '<section class="mt-content-card mt-summary-document"><div class="mt-card-label"><span>03 / ZOOM SUMMARY</span><b>Готовое резюме Zoom · файл</b></div>'+
       (hasPrivateSummary?
         '<div class="mt-file-entry"><span class="mt-file-symbol">▤</span><div class="mt-file-info"><strong>Zoom Summary.md</strong><small>Оригинальное резюме Zoom, сохранённое как документ</small></div><a class="mt-file-action" href="'+safe(fileUrl('summary'))+'">Скачать файл ↓</a></div>':
@@ -206,6 +207,24 @@
       '<p class="mt-preserve">Пока нет задач. Можно указать одну задачу в строке: название | ответственный | дата ГГГГ-ММ-ДД.</p>')+
       '<small>Задачи передаются в текущую доску «Задачи» на этом устройстве. Перед публикацией для всей команды нужна синхронизация хаба.</small></section>';
     if(m.localVideoName)renderLocalVideo(m);
+    var transcriptInput=detail.querySelector('#mtAttachTranscriptFile');
+    if(transcriptInput){
+      transcriptInput.addEventListener('change',function(){
+        var file=transcriptInput.files&&transcriptInput.files[0];
+        if(!file)return;
+        if(file.size>800000){alert('TXT/VTT слишком большой (максимум 800 КБ)');transcriptInput.value='';return}
+        if(!isProject(m.scope)){alert('Сначала выбери проект встречи');transcriptInput.value='';return}
+        transcriptInput.disabled=true;
+        var t=String(m.title).match(/(?:^| )- (\d{2}):(\d{2})-(\d{2}):(\d{2})/);
+        var clock=t?t[1]+':'+t[2]:'12:00';
+        var localUUID=(m.zoomUuid||'LOCAL'+String(m.date).replace(/-/g,'')+clock.replace(':',''));
+        document.dispatchEvent(new CustomEvent('onvisual:meeting-transcript-upload',{
+          detail:{meetingId:m.id,uuid:localUUID,date:m.date,title:m.title,
+            project:m.scope,startTime:new Date(m.date+'T'+clock+':00+03:00').toISOString().replace('.000Z','Z'),
+            file:file,input:transcriptInput}
+        }));
+      });
+    }
     detail.querySelector('#mtMoveProject').addEventListener('change',function(e){
       var next=e.target.value;
       if(next!==''&&!isProject(next))return;
@@ -328,6 +347,14 @@
   });
 
   // Zoom import merges only cloud-sourced fields, preserving user-edited notes and tasks.
+  document.addEventListener('onvisual:meeting-transcript-uploaded',function(event){
+    var d=event.detail||{};
+    var m=meetings.find(function(x){return x.id===d.meetingId});
+    if(!m||!d.uuid)return;
+    m.zoomUuid=d.uuid;m.zoomSource=m.zoomSource||'local';
+    m.transcriptStored=true;m.zoomTranscriptAvailable=true;
+    if(save())render();
+  });
   document.addEventListener('onvisual:meetings-import',function(event){
     var records=Array.isArray(event.detail?.records)?event.detail.records:[];
     var changed=false;
