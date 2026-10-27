@@ -319,6 +319,13 @@
     records.forEach(function(rec){
       if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
       var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
+      // Backfill a meeting manually created before its audio was transcribed.
+      if(!old&&rec.zoomSource==='local'&&rec.title&&rec.date){
+        old=meetings.find(function(m){
+          return !m.zoomUuid&&m.date===rec.date&&m.title.trim()===rec.title.trim()
+        });
+        if(old){old.zoomUuid=rec.zoomUuid;old.zoomSource='local';changed=true}
+      }
       if(old){
         if(rec.title&&old.title===String(rec.title).replace(/ · \d{2}:\d{2}$/,'')){old.title=rec.title;changed=true}
         if(rec.date&&old.date!==rec.date){old.date=rec.date;changed=true}
@@ -337,7 +344,7 @@
         scope:isProject(rec.scope)?rec.scope:'',participants:'',videoUrl:rec.videoUrl||'',
         transcriptUrl:'',transcriptText:rec.transcriptText||'',
         summary:'',decisions:'',actions:'',
-        zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',
+        zoomUuid:rec.zoomUuid,zoomMeetingId:rec.zoomMeetingId||'',zoomSource:rec.zoomSource||'zoom',
         zoomVideoAvailable:!!rec.zoomVideoAvailable,
         zoomTranscriptAvailable:!!rec.zoomTranscriptAvailable
       };
