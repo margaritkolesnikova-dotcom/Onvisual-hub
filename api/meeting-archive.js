@@ -1,3 +1,4 @@
+import {renderVisualMeetingReport} from '../lib/meeting-pdf-visual.js';
 import {renderMeetingPDF,renderMainMeetingReport} from '../lib/meeting-pdf.js';
 import {meetingBrief} from '../lib/meeting-brief.js';
 import {createHmac} from 'node:crypto';
@@ -107,7 +108,7 @@ export default async function handler(req,res){
         if(!content)return err(res,404,'Исходный материал ещё не получен от Zoom');
         if(kind==='report_pdf'){
           const transcript=await transcriptRead(uuid).catch(()=>null);
-          const data=await renderMainMeetingReport(record,content,transcript||'');
+          const data=await renderVisualMeetingReport(record,content,transcript||'');
           res.setHeader('Content-Type','application/pdf');
           res.setHeader('Content-Length',String(data.length));
           const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(record.startTime||Date.now())).replace(/\D/g,'');
