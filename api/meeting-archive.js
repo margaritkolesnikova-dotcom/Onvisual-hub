@@ -75,7 +75,7 @@ async function visibleArchive(records){
   return {meetings:await Promise.all(active.map(viewWithFileStatus)),deletedUuids};
 }
 async function visibleRecord(records,uuid){
-  const record=await visibleRecord(records,uuid);
+  const record=records.find(m=>m.uuid===uuid&&!m.deletedAt);
   if(!record||await isPermanentlyDeleted(uuid)||
    (record.zoomSummaryUuid&&await isPermanentlyDeleted(record.zoomSummaryUuid)))return null;
   return record;
