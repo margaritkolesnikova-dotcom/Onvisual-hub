@@ -9,5 +9,13 @@
       "path": "/api/zoom-daily",
       "schedule": "15 5 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/zoom-daily.js": {
+      "maxDuration": 300
+    },
+    "api/meeting-archive.js": {
+      "maxDuration": 300
+    }
+  }
 }
