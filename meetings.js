@@ -274,8 +274,8 @@
     detail.querySelector('#mtDelete').addEventListener('click',async function(){
       var synced=!!m.zoomUuid;
       var question='Удалить встречу «'+m.title+'» из хаба?'+
-        (synced?'\\nОна исчезнет у всех участников и не появится снова при синхронизации Zoom.':'')+
-        '\\nИсходная запись в Zoom при этом не удаляется.';
+        (synced?'\nОна исчезнет у всех участников и не появится снова при синхронизации Zoom.':'')+
+        '\nИсходная запись в Zoom при этом не удаляется.';
       if(!confirm(question))return;
       var control=detail.querySelector('#mtDelete');
       if(control){control.disabled=true;control.textContent='Удаляю…'}
