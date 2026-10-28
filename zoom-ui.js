@@ -166,7 +166,7 @@
      imported(result);
      var sync=result.synced||{};
      status('Синхронизация завершена. Zoom вернул '+(sync.discovered||0)+' записей за '+month+
-       '. Новых/обновлённых: '+(sync.updated||0)+'. Расшифровок: '+(sync.transcripts||0)+'. MP4 сохранено: '+(sync.videosArchived||0)+'.'+((sync.videoPending||0)?' Часть видео ожидает повторной архивации.':''),false);
+       '. Новых/обновлённых: '+(sync.updated||0)+'. Расшифровок: '+(sync.transcripts||0)+'. Копирование MP4 в закрытое хранилище выполняется отдельным ежедневным процессом.',false);
    }catch(e){status('Ошибка подключения: '+e.message,true)}
    finally{button.disabled=false;button.textContent='Проверить новые записи'}
  });
