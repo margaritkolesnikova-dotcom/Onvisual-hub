@@ -1824,7 +1824,7 @@ function renderKnowledge(){
   knowledgeItems.forEach(item=>{
     const category=item.dataset.knowledgeCategory||'';
     const hay=(item.dataset.knowledgeTitle||item.textContent||'').toLowerCase();
-    const categoryOk=knowledgeCategory==='all'||category===knowledgeCategory;
+    const categoryOk=knowledgeCategory==='all'||category.split(/\s+/).includes(knowledgeCategory);
     const searchOk=!q||hay.includes(q);
     const showItem=categoryOk&&searchOk;
     item.classList.toggle('is-hidden',!showItem);

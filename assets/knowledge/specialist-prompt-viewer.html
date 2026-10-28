@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпты для ИИ-специалиста — ONVISUAL Hub</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#090d14;color:#e8eaf4;font:15px/1.7 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 82% 0,rgba(133,99,226,.17),transparent 37%)}
+header,main,footer{max-width:1020px;padding-left:24px;padding-right:24px;margin:0 auto;position:relative}
+header{padding-top:42px;padding-bottom:24px}
+.kicker{font-size:11px;letter-spacing:.16em;color:#b49bff;font-weight:800}
+h1{font-size:clamp(29px,5vw,44px);line-height:1.16;letter-spacing:-.035em;margin:13px 0}
+.subtitle{color:#a2abc2;max-width:860px;margin:0 0 22px;line-height:1.55}
+.toolbar{display:flex;flex-wrap:wrap;gap:9px}
+.toolbar button,.toolbar a{font:600 13px/1.2 system-ui,sans-serif;text-decoration:none;border:1px solid #45435f;background:#1a1d2a;color:#fff;border-radius:10px;padding:12px 16px;cursor:pointer}
+.toolbar button{background:#7859df;border-color:#7859df}
+.toolbar button:hover,.toolbar a:hover{filter:brightness(1.12)}
+.doc{border:1px solid #292f3f;border-radius:15px;background:#10151e;padding:clamp(19px,3.8vw,38px);box-shadow:0 15px 48px rgba(0,0,0,.22)}
+pre{margin:0;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font:15px/1.8 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;tab-size:4}
+.status{color:#a8b0c0;margin:0 0 10px;font-size:13px;min-height:1.6em}
+footer{text-align:center;padding-top:22px;padding-bottom:35px;color:#758097;font-size:12px}
+@media(max-width:600px){header{padding-top:25px}pre{font-size:14px;line-height:1.75}}
+</style>
+</head>
+<body>
+<header>
+<div class="kicker">ONVISUAL HUB / БАЗА ЗНАНИЙ / AI + ПРОМПТЫ</div>
+<h1 id="title">Промпт для ИИ-специалиста</h1>
+<p class="subtitle" id="subtitle">Оригинальный промпт без сокращений, с возможностью чтения, копирования и сохранения.</p>
+<div class="toolbar">
+<button type="button" id="copy" disabled>Скопировать промпт</button>
+<a id="download" href="./specialist-brief.txt" download>Скачать оригинал TXT ↓</a>
+<a href="../../index.html" target="_self">Открыть ONVISUAL HUB</a>
+</div>
+</header>
+<main><p class="status" id="status" role="status">Загрузка текста...</p><article class="doc"><pre id="prompt">Загрузка...</pre></article></main>
+<footer>ONVISUAL KNOWLEDGE · Октябрь 2026</footer>
+<script>
+(function(){
+'use strict';
+var definitions={
+brief:{title:'Бриф перед созданием ИИ-специалиста',file:'specialist-brief.txt',desc:'10 вопросов для постановки задачи перед созданием экспертного AI-профиля.'},
+mega:{title:'МЕГА-ПРОМПТ — создание ИИ-специалиста',file:'specialist-mega-prompt.txt',desc:'Подробная инструкция по созданию профессиональных ИИ-специалистов и проверке качества их ответов.'}
+};
+var key=new URLSearchParams(location.search).get('doc');
+if(!Object.prototype.hasOwnProperty.call(definitions,key))key='brief';
+var data=definitions[key],prompt=document.getElementById('prompt'),status=document.getElementById('status'),button=document.getElementById('copy');
+document.title=data.title+' — ONVISUAL HUB';
+document.getElementById('title').textContent=data.title;
+document.getElementById('subtitle').textContent=data.desc;
+document.getElementById('download').href='./'+data.file;
+var source='';
+fetch('./'+data.file,{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text();}).then(function(txt){
+source=txt;prompt.textContent=txt;status.textContent='Полный оригинальный текст · '+txt.length.toLocaleString('ru-RU')+' символов';button.disabled=false;
+}).catch(function(){prompt.textContent='Не удалось загрузить текст. Попробуйте скачать оригинал TXT.';status.textContent='Файл временно недоступен для просмотра.';});
+button.addEventListener('click',function(){
+if(!source)return;
+var fallback=function(){var t=document.createElement('textarea');t.value=source;t.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(t);t.select();var ok=document.execCommand('copy');document.body.removeChild(t);if(!ok)throw Error('copy rejected')};
+Promise.resolve().then(function(){if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(source);fallback();}).then(function(){button.textContent='Скопировано ✓';status.textContent='Промпт скопирован полностью';}).catch(function(){try{fallback();button.textContent='Скопировано ✓'}catch(e){button.textContent='Копирование недоступно: скачайте TXT';}});
+});
+})();
+</script>
+</body>
+</html>
