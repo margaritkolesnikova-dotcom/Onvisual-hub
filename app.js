@@ -1,7 +1,25 @@
 const sections=[...document.querySelectorAll('.section')];
 const links=[...document.querySelectorAll('.nav-link')];
 const sidebar=document.getElementById('sidebar');
-function show(id){sections.forEach(s=>s.classList.toggle('active',s.id===id));links.forEach(a=>a.classList.toggle('active',a.dataset.target===id));sidebar.classList.remove('open');window.scrollTo({top:0,behavior:'smooth'});}
+// Shareable section URLs: /#knowledge, /#meetings, /#tasks and other sidebar sections.
+const sectionIds=new Set(sections.map(section=>section.id));
+function show(id, updateUrl=true){
+  if(!sectionIds.has(id)) return;
+  sections.forEach(s=>s.classList.toggle('active',s.id===id));
+  links.forEach(a=>a.classList.toggle('active',a.dataset.target===id));
+  sidebar.classList.remove('open');
+  if(updateUrl&&window.location.hash!=='#'+id){
+    window.history.pushState({hubSection:id},'', '#'+id);
+  }
+  window.scrollTo({top:0,behavior:updateUrl?'smooth':'auto'});
+}
+function openSectionFromUrl(){
+  const id=window.location.hash.slice(1);
+  show(sectionIds.has(id)?id:'home',false);
+}
+window.addEventListener('popstate',openSectionFromUrl);
+window.addEventListener('hashchange',openSectionFromUrl);
+openSectionFromUrl();
 links.forEach(a=>a.addEventListener('click',()=>show(a.dataset.target)));
 document.querySelectorAll('[data-go]').forEach(c=>c.addEventListener('click',()=>show(c.dataset.go)));
 document.getElementById('menuBtn').addEventListener('click',()=>sidebar.classList.toggle('open'));
