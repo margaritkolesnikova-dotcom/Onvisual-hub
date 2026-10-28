@@ -4,6 +4,12 @@
 (function(){
   'use strict';
   var STORE='onvisualHubMeetingsV1';
+  var DELETED_STORE='onvisualHubMeetingsDeletedV1';
+  var deletedUuids=new Set();
+  try{var deletedSaved=JSON.parse(localStorage.getItem(DELETED_STORE)||'[]');if(Array.isArray(deletedSaved))deletedSaved.forEach(function(id){if(typeof id==='string')deletedUuids.add(id)})}catch(e){}
+  function storeDeleted(){
+    try{localStorage.setItem(DELETED_STORE,JSON.stringify(Array.from(deletedUuids)))}catch(e){}
+  }
   var root=document.getElementById('meetings');
   if(!root)return;
   var list=document.getElementById('meetingFolders');
@@ -265,10 +271,33 @@
       render();
     });
     detail.querySelector('#mtEdit').addEventListener('click',function(){openForm(m.id)});
-    detail.querySelector('#mtDelete').addEventListener('click',function(){
-      if(!confirm('Удалить встречу «'+m.title+'» из локального каталога? Запись в Zoom/Диске останется.'))return;
-      if(m.localVideoName)removeVideo(m.id).catch(function(){/* keep deletion local */});
-      meetings=meetings.filter(function(x){return x.id!==m.id}); selected=null;save();render();
+    detail.querySelector('#mtDelete').addEventListener('click',async function(){
+      var synced=!!m.zoomUuid;
+      var question='Удалить встречу «'+m.title+'» из хаба?'+
+        (synced?'\\nОна исчезнет у всех участников и не появится снова при синхронизации Zoom.':'')+
+        '\\nИсходная запись в Zoom при этом не удаляется.';
+      if(!confirm(question))return;
+      var control=detail.querySelector('#mtDelete');
+      if(control){control.disabled=true;control.textContent='Удаляю…'}
+      try{
+        if(synced){
+          var response=await fetch('/api/meeting-archive?action=delete',{
+            method:'POST',credentials:'same-origin',cache:'no-store',
+            headers:{'Content-Type':'application/json','X-ONVISUAL-REQUEST':'1'},
+            body:JSON.stringify({uuid:m.zoomUuid})
+          });
+          var body=await response.json().catch(function(){return {}});
+          if(!response.ok||!body.deleted)throw new Error(body.error||'Не удалось сохранить удаление в общем архиве');
+          deletedUuids.add(m.zoomUuid);storeDeleted();
+        }
+        if(m.localVideoName)removeVideo(m.id).catch(function(){});
+        meetings=meetings.filter(function(x){return x.id!==m.id});
+        selected=null;save();render();
+        document.dispatchEvent(new CustomEvent('onvisual:meeting-delete-confirmed',{detail:{uuid:m.zoomUuid||''}}));
+      }catch(e){
+        alert('Встреча пока не удалена: '+e.message+'. Подключись к защищённому архиву Zoom и повтори.');
+        if(control){control.disabled=false;control.textContent='Удалить'}
+      }
     });
     var down=detail.querySelector('#mtDownloadTranscript');
     if(down)down.addEventListener('click',function(){
@@ -401,11 +430,21 @@
     m.transcriptStored=true;m.zoomTranscriptAvailable=true;
     if(save())render();
   });
+  document.addEventListener('onvisual:meetings-deleted-from-server',function(event){
+    var ids=Array.isArray(event.detail?.uuids)?event.detail.uuids:[];
+    if(!ids.length)return;
+    ids.forEach(function(id){if(typeof id==='string')deletedUuids.add(id)});
+    storeDeleted();
+    var before=meetings.length;
+    meetings=meetings.filter(function(m){return !m.zoomUuid||!deletedUuids.has(m.zoomUuid)});
+    if(meetings.length!==before){if(!meetings.some(function(m){return m.id===selected}))selected=null;save();render()}
+  });
   document.addEventListener('onvisual:meetings-import',function(event){
     var records=Array.isArray(event.detail?.records)?event.detail.records:[];
     var changed=false;
     records.forEach(function(rec){
       if(!rec||typeof rec.zoomUuid!=='string'||!rec.zoomUuid)return;
+      if(deletedUuids.has(rec.zoomUuid))return;
       var old=meetings.find(function(m){return m.zoomUuid===rec.zoomUuid});
       // Attach a native Zoom summary to the corresponding manually saved meeting
       // by project topic, local date and approximate time, avoiding duplicate folders.
