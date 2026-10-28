@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мастер-промпт ONVISUAL HUB — База знаний</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#090c12;color:#e8ecf5;font:15px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif}
+body:before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 85% -10%,rgba(153,92,250,.16),transparent 36%);}
+header,main{position:relative;max-width:1000px;margin:auto;padding:0 22px}header{padding-top:46px;padding-bottom:26px}
+.kicker{font-size:11px;letter-spacing:.22em;color:#b59bff;font-weight:800}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.12;letter-spacing:-.04em;margin:14px 0 12px}
+.sub{max-width:750px;color:#a2acbe;font-size:15px;margin:0 0 26px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.actions a,.actions button{font:600 13px system-ui,sans-serif;display:inline-flex;text-decoration:none;align-items:center;border:1px solid #393c52;background:#191d29;color:#fff;border-radius:10px;padding:12px 15px;cursor:pointer}
+.actions .primary{background:#7d56f3;border-color:#7d56f3}.actions a:hover,.actions button:hover{filter:brightness(1.2)}
+main{padding-bottom:68px}.document{border:1px solid #292d3b;background:#0e121b;border-radius:18px;padding:clamp(20px,4vw,43px);box-shadow:0 14px 45px rgba(0,0,0,.22)}
+.document h2{font-size:24px;margin:30px 0 12px;color:#f5f3ff}.document h3{font-size:19px;margin:23px 0 10px}.document h4{font-size:16px;margin:17px 0 8px}.document p{margin:0 0 12px;white-space:pre-wrap}.document ul{margin:6px 0 16px 22px;padding:0}.document li{margin-bottom:7px}.document pre{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #303650;background:#090d14;border-radius:12px;padding:20px;color:#d2e3ff;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;overflow:auto}
+.document code{white-space:pre-wrap}footer{text-align:center;color:#69768d;font-size:12px;padding:22px}
+@media(max-width:600px){header{padding-top:28px}.document{padding:18px}}
+</style></head>
+<body><header><div class="kicker">ONVISUAL / KNOWLEDGE BASE / AI & CHATGPT</div><h1>Мастер-промпт для ChatGPT</h1>
+<p class="sub">Как развивать существующий ONVISUAL HUB с помощью AI-агента, сохраняя работающую архитектуру и данные.</p>
+<div class="actions"><button class="primary" id="copy">Скопировать весь текст</button><a href="./onvisual-hub-master-prompt.md" download>Скачать .md</a><a href="./onvisual-hub-master-instruction.docx" download>Полная инструкция DOCX</a></div></header>
+<main><article class="document" id="document">Загрузка инструкции…</article></main><footer>ONVISUAL HUB · 2026</footer>
+<script>
+(function(){
+  var raw='',el=document.getElementById('document'),btn=document.getElementById('copy');
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function render(source){
+    var lines=source.split(/\r?\n/),out=[],code=false,list=false;
+    function endList(){if(list){out.push('</ul>');list=false;}}
+    lines.forEach(function(line){
+      if(line.trim().indexOf(String.fromCharCode(96,96,96))===0){endList();if(code){out.push('</code></pre>');code=false}else{out.push('<pre><code>');code=true}return;}
+      if(code){out.push(esc(line)+'\n');return;}
+      var h=line.match(/^(#{1,4})\s+(.*)$/);
+      if(h){endList();var level=Math.min(4,h[1].length+1);out.push('<h'+level+'>'+esc(h[2])+'</h'+level+'>');return;}
+      if(/^[-*] /.test(line)){if(!list){out.push('<ul>');list=true;}out.push('<li>'+esc(line.slice(2))+'</li>');return;}
+      endList();
+      if(line.trim()===''){out.push('');return;}
+      out.push('<p>'+esc(line)+'</p>');
+    });
+    endList();if(code)out.push('</code></pre>');
+    el.innerHTML=out.join('\n');
+  }
+  fetch('./onvisual-hub-master-prompt.md',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text();}).then(function(t){raw=t;render(t);}).catch(function(){el.textContent='Не удалось загрузить текст. Используйте ссылку «Скачать .md».';});
+  btn.addEventListener('click',function(){if(!raw)return;navigator.clipboard.writeText(raw).then(function(){btn.textContent='Скопировано ✓';}).catch(function(){btn.textContent='Не удалось скопировать';});});
+})();
+</script></body></html>
