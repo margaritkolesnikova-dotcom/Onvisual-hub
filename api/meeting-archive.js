@@ -110,7 +110,9 @@ export default async function handler(req,res){
           const data=await renderMainMeetingReport(record,content,transcript||'');
           res.setHeader('Content-Type','application/pdf');
           res.setHeader('Content-Length',String(data.length));
-          res.setHeader('Content-Disposition','inline; filename="ONVISUAL_Meeting_Report_'+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'.pdf"');
+          const when=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(record.startTime||Date.now())).replace(/\D/g,'');
+          const file='Itogi_vstrechi_'+String(record.date||'meeting').replace(/[^0-9-]/g,'')+'_'+when+'.pdf';
+          res.setHeader('Content-Disposition','inline; filename="'+file+'"');
           return res.status(200).send(data);
         }
         if(kind==='summary_pdf'){
