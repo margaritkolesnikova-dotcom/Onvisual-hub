@@ -114,12 +114,14 @@
    loadBriefs().catch(function(){});
    var unassigned=archiveRecords.filter(m=>!m.project).length;
    var videos=archiveRecords.filter(m=>m.hasVideo||m.privateVideoStored).length;
+   var savedVideos=archiveRecords.filter(m=>m.privateVideoStored).length;
+   var zoomOnlyVideos=archiveRecords.filter(m=>m.hasVideo&&!m.privateVideoStored).length;
    var transcripts=archiveRecords.filter(m=>m.transcriptStored).length;
    var summaries=archiveRecords.filter(m=>m.summaryStored).length;
    results.innerHTML='<div class="mt-zoom-list-title">Облачный архив Zoom <small>'+
      esc(String(archiveRecords.length))+' встреч</small></div>'+
-     '<div class="mt-cloud-stats"><span>'+videos+' видео</span><span>'+transcripts+' файлов расшифровки</span><span>'+summaries+' резюме Zoom</span><span>'+unassigned+' на распределение</span></div>'+
-     '<p class="mt-cloud-hint">Новые встречи появляются в папке «На распределение». Выбери встречу слева и назначь ONVISUAL или Мультвселенной. Записи остаются в защищённом облаке Zoom.</p>';
+     '<div class="mt-cloud-stats"><span>'+savedVideos+' MP4 сохранено в хабе</span><span>'+zoomOnlyVideos+' видео пока только в Zoom</span><span>'+transcripts+' расшифровок</span><span>'+summaries+' резюме Zoom</span><span>'+unassigned+' на распределение</span></div>'+
+     '<p class="mt-cloud-hint">Все встречи сохраняются в защищённом архиве хаба. MP4 из Zoom автоматически копируются по очереди; пока копия не готова, видео открывается в Zoom. Резюме и расшифровки уже сохраняются отдельно. Встречи, удалённые из хаба, повторно не импортируются.</p>';
  }
  async function reconcileLocalProjects(){
    try{
@@ -164,7 +166,7 @@
      imported(result);
      var sync=result.synced||{};
      status('Синхронизация завершена. Zoom вернул '+(sync.discovered||0)+' записей за '+month+
-       '. Новых/обновлённых: '+(sync.updated||0)+'. Загружено расшифровок: '+(sync.transcripts||0)+'.',false);
+       '. Новых/обновлённых: '+(sync.updated||0)+'. Расшифровок: '+(sync.transcripts||0)+'. MP4 сохранено: '+(sync.videosArchived||0)+'.'+((sync.videoPending||0)?' Часть видео ожидает повторной архивации.':''),false);
    }catch(e){status('Ошибка подключения: '+e.message,true)}
    finally{button.disabled=false;button.textContent='Проверить новые записи'}
  });
