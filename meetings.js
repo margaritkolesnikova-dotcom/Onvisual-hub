@@ -488,9 +488,18 @@
         if(rec.summaryStored&&!old.summaryStored){old.summaryStored=true;changed=true}
         if(rec.summaryDocUrl&&!old.summaryDocUrl){old.summaryDocUrl=String(rec.summaryDocUrl);changed=true}
         if(rec.privateVideoStored&&!old.privateVideoStored){old.privateVideoStored=true;changed=true}
-        if(rec.summary&&!old.autoSummary){old.autoSummary=String(rec.summary).slice(0,1200);changed=true}
-        if(rec.decisions&&!old.autoDecisions){old.autoDecisions=String(rec.decisions).slice(0,1600);changed=true}
-        if(rec.actions&&!old.autoActions){old.autoActions=String(rec.actions).slice(0,6000);changed=true}
+        if(rec.briefSource==='zoom_summary'){
+          var autoFields={autoSummary:String(rec.summary||'').slice(0,1200),
+            autoDecisions:String(rec.decisions||'').slice(0,1600),
+            autoActions:String(rec.actions||'').slice(0,6000)};
+          Object.keys(autoFields).forEach(function(key){
+            if(old[key]!==autoFields[key]){old[key]=autoFields[key];changed=true}
+          });
+        }else{
+          if(rec.summary&&!old.autoSummary){old.autoSummary=String(rec.summary).slice(0,1200);changed=true}
+          if(rec.decisions&&!old.autoDecisions){old.autoDecisions=String(rec.decisions).slice(0,1600);changed=true}
+          if(rec.actions&&!old.autoActions){old.autoActions=String(rec.actions).slice(0,6000);changed=true}
+        }
         if(rec.summary&&!old.summary){old.summary=String(rec.summary).slice(0,1200);changed=true}
         if(rec.decisions&&!old.decisions){old.decisions=String(rec.decisions).slice(0,1600);changed=true}
         if(rec.actions&&!old.actions){old.actions=String(rec.actions).slice(0,6000);changed=true}
