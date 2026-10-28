@@ -4,7 +4,7 @@ import {meetingBrief} from '../lib/meeting-brief.js';
 import {createHmac} from 'node:crypto';
 import {
   isAuthorized,safeEqual,readIndex,assignProject,
-  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles,createPrivateVideoUpload,getPrivateVideoLink,savePrivateVideoPath
+  transcriptRead,transcriptStore,fetchZoomTranscript,syncRange,ensureLocalMeeting,summaryRead,fetchZoomSummary,summaryStore,storedFiles,createPrivateVideoUpload,getPrivateVideoLink,savePrivateVideoPath,deleteMeetingFromArchive
 } from '../lib/zoom-archive.js';
 
 const cookieName='ov_meetings_auth';
@@ -63,6 +63,9 @@ async function viewWithFileStatus(m){
   v.privateVideoStored=files.video;
   return v;
 }
+function alive(records){return records.filter(m=>!m.deletedAt)}
+function deletedIds(records){return [...new Set(records.filter(m=>m.deletedAt)
+ .flatMap(m=>[m.uuid,m.zoomSummaryUuid].filter(Boolean)))]}
 export default async function handler(req,res){
   res.setHeader('Cache-Control','private, no-store');
   res.setHeader('X-Content-Type-Options','nosniff');
@@ -73,13 +76,13 @@ export default async function handler(req,res){
     if(req.method==='GET'){
       if(action==='list'){
         const {records}=await readIndex();
-        return res.status(200).json({meetings:await Promise.all(records.map(viewWithFileStatus)),updatedAt:new Date().toISOString()});
+        return res.status(200).json({meetings:await Promise.all(alive(records).map(viewWithFileStatus)),deletedUuids:deletedIds(records),updatedAt:new Date().toISOString()});
       }
       if(action==='brief'){
         const uuid=one(req.query.uuid);
         if(!validUUID(uuid))return err(res,400,'Некорректный UUID');
         const {records}=await readIndex();
-        const item=records.find(m=>m.uuid===uuid);
+        const item=records.find(m=>m.uuid===uuid&&!m.deletedAt);
         if(!item)return err(res,404,'Встреча отсутствует в архиве');
         const text=await summaryRead(uuid);
         if(!text)return err(res,404,'Готового резюме Zoom пока нет');
@@ -89,7 +92,7 @@ export default async function handler(req,res){
         const uuid=one(req.query.uuid);
         if(!validUUID(uuid))return err(res,400,'Некорректный UUID');
         const {records}=await readIndex();
-        const meeting=records.find(m=>m.uuid===uuid);
+        const meeting=records.find(m=>m.uuid===uuid&&!m.deletedAt);
         if(!meeting)return err(res,404,'Встреча не найдена');
         const privateVideo=await getPrivateVideoLink(uuid,meeting.videoPath);
         if(privateVideo)return res.status(200).json({source:'private',...privateVideo});
@@ -102,7 +105,7 @@ export default async function handler(req,res){
         const uuid=one(req.query.uuid),kind=one(req.query.kind);
         if(!validUUID(uuid)||!['transcript','summary','summary_pdf','report_pdf'].includes(kind))return err(res,400,'Неверный файл');
         const {records}=await readIndex();
-        const record=records.find(m=>m.uuid===uuid);
+        const record=records.find(m=>m.uuid===uuid&&!m.deletedAt);
         if(!record)return err(res,404,'Встреча не найдена');
         const content=(kind==='summary'||kind==='summary_pdf'||kind==='report_pdf')?await summaryRead(uuid):await transcriptRead(uuid);
         if(!content)return err(res,404,'Исходный материал ещё не получен от Zoom');
@@ -135,7 +138,7 @@ export default async function handler(req,res){
         const uuid=one(req.query.uuid);
         if(!validUUID(uuid))return err(res,400,'Неверный UUID');
         const {records}=await readIndex();
-        const record=records.find(m=>m.uuid===uuid);
+        const record=records.find(m=>m.uuid===uuid&&!m.deletedAt);
         if(!record)return err(res,404,'Встреча не найдена');
         const content=await summaryRead(uuid);
         if(!content&&(record.source!=='local'||record.zoomSummaryUuid)){
@@ -154,7 +157,7 @@ export default async function handler(req,res){
         const uuid=one(req.query.uuid);
         if(!validUUID(uuid))return err(res,400,'Некорректный UUID Zoom');
         const {records}=await readIndex();
-        const record=records.find(m=>m.uuid===uuid);
+        const record=records.find(m=>m.uuid===uuid&&!m.deletedAt);
         if(!record)return err(res,404,'Встреча отсутствует в архиве');
         // A retained AI Meeting Summary transcript can exist without a Zoom MP4 recording.
         let transcript=await transcriptRead(uuid);
@@ -181,7 +184,7 @@ export default async function handler(req,res){
       const uuid=String(requestData.uuid||'');
       if(!validUUID(uuid))return err(res,400,'Укажи корректную встречу');
       const {records}=await readIndex();
-      if(!records.some(m=>m.uuid===uuid))return err(res,404,'Встреча отсутствует в закрытом архиве');
+      if(!records.some(m=>m.uuid===uuid&&!m.deletedAt))return err(res,404,'Встреча отсутствует в закрытом архиве');
       const result=await createPrivateVideoUpload(uuid,Number(requestData.size));
       return res.status(200).json(result);
     }
@@ -225,6 +228,13 @@ export default async function handler(req,res){
       return res.status(200).json({ok:true,uuid,transcriptStored:true});
     }
     const data=await body(req);
+    if(action==='delete'){
+      const uuid=String(data.uuid||'');
+      if(!validUUID(uuid))return err(res,400,'Некорректный идентификатор встречи');
+      const outcome=await deleteMeetingFromArchive(uuid);
+      if(!outcome.exists)return err(res,404,'Встреча отсутствует в архиве');
+      return res.status(200).json({deleted:outcome.deleted,uuid});
+    }
     if(action==='assign'){
       const uuid=String(data.uuid||''),project=String(data.project||'');
       if(!validUUID(uuid)||!['ONVISUAL','Мультвселенная'].includes(project))return err(res,400,'Укажи проект и UUID встречи');
@@ -244,7 +254,7 @@ export default async function handler(req,res){
       const to=last<current?last:current;
       const outcome=await syncRange(from,to);
       const {records}=await readIndex();
-      return res.status(200).json({synced:outcome,meetings:await Promise.all(records.map(viewWithFileStatus))});
+      return res.status(200).json({synced:outcome,meetings:await Promise.all(alive(records).map(viewWithFileStatus)),deletedUuids:deletedIds(records)});
     }
     return err(res,400,'Неизвестное действие');
   }catch(e){
