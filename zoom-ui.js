@@ -104,7 +104,9 @@
    finally{if(d.input){d.input.disabled=false;d.input.value=''}}
  });
  function imported(archive){
-   archiveRecords=archive.meetings||[];
+   var gone=Array.isArray(archive.deletedUuids)?archive.deletedUuids:[];
+   if(gone.length)document.dispatchEvent(new CustomEvent('onvisual:meetings-deleted-from-server',{detail:{uuids:gone}}));
+   archiveRecords=(archive.meetings||[]).filter(function(m){return !gone.includes(m.uuid)});
    if(archiveRecords.length){
      document.dispatchEvent(new CustomEvent('onvisual:meetings-import',
        {detail:{records:archiveRecords.map(toLocal)}}));
@@ -186,6 +188,15 @@
    }catch(e){
      status('Не удалось прикрепить TXT/VTT: '+e.message,true);
    }finally{input.disabled=false;input.value=''}
+ });
+ document.addEventListener('onvisual:meeting-delete-confirmed',function(event){
+   var uuid=event.detail?.uuid;
+   if(!uuid)return;
+   archiveRecords=archiveRecords.filter(function(m){return m.uuid!==uuid});
+   briefsLoaded.add(uuid);
+   var card=results.querySelector('.mt-zoom-list-title small');
+   if(card)card.textContent=String(archiveRecords.length)+' встреч';
+   getArchive().catch(function(e){status('Удаление сохранено, но список пока не обновился: '+e.message,true)});
  });
  document.addEventListener('onvisual:meeting-project-assigned',async function(e){
    var uuid=e.detail?.zoomUuid,project=e.detail?.project;
