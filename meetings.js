@@ -414,7 +414,14 @@
       var player=document.createElement('video');
       player.controls=true;player.preload='metadata';player.className='mt-video';player.playsInline=true;player.src=href;
       var link=document.createElement('a');link.className='mt-link';link.textContent='Открыть видео в новой вкладке ↗';link.href=href;link.target='_blank';link.rel='noopener noreferrer';
-      slot.replaceChildren(player,link);
+      var refresh=document.createElement('button');
+      refresh.type='button';refresh.className='mt-link mt-refresh-media';
+      refresh.textContent='Обновить защищённую ссылку ↻';
+      refresh.addEventListener('click',function(){
+        refresh.disabled=true;refresh.textContent='Обновляю доступ…';
+        document.dispatchEvent(new CustomEvent('onvisual:meeting-video-requested',{detail:{uuid:d.uuid}}));
+      });
+      slot.replaceChildren(player,link,refresh);
       slot.classList.remove('mt-media-placeholder');
     }else{
       slot.innerHTML='<span>▶</span><p>Облачная запись Zoom доступна по ссылке</p>';
