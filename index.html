@@ -1622,10 +1622,11 @@
         <div class="mt-zoom-heading"><span class="mt-zoom-glyph">◎</span><div><strong>ZOOM CLOUD SYNC</strong><small>Импорт записей и VTT из платного Zoom без передачи логина и пароля</small></div></div>
         <div class="mt-zoom-controls">
           <label>Месяц записей<input id="mtZoomMonth" type="month" aria-label="Месяц для импорта из Zoom" /></label>
-          <label>Ключ синхронизации<input id="mtZoomKey" type="password" autocomplete="off" placeholder="MEETINGS_SYNC_KEY" aria-label="Ключ синхронизации Zoom" /></label>
-          <button id="mtZoomSync" type="button" class="mt-primary">Синхронизировать Zoom</button>
+          <label>Ключ доступа к архиву<input id="mtZoomKey" type="password" autocomplete="off" placeholder="Ключ доступа (один раз для этого устройства)" aria-label="Ключ доступа к закрытому архиву встреч" /></label>
+          <button id="mtZoomConnect" type="button" class="mt-primary">Открыть архив встреч</button>
+          <button id="mtZoomSync" type="button">Проверить новые записи Zoom</button>
         </div>
-        <p class="mt-zoom-status" id="mtZoomState" aria-live="polite">Облачный Zoom подключён к защищённому архиву. После входа здесь будут показываться новые записи и расшифровки. Ежедневное обновление работает на сервере, даже когда ноутбук выключен. Для проверки сразу после встречи нажми «Проверить новые записи».</p>
+        <p class="mt-zoom-status" id="mtZoomState" aria-live="polite">Проверяю доступ к общему архиву встреч…</p>
       </div>
       <div class="mt-stats">
         <div><b id="meetingCount">0</b><small>Всего встреч</small></div>
@@ -1679,6 +1680,6 @@
   </main>
   <script src="app.js?v=20261022-subtaskfix1"></script>
   <script src="meetings.js?v=20261028-retention-archive"></script>
-  <script src="zoom-ui.js?v=20261028-retention-archive"></script>
+  <script src="zoom-ui.js?v=20261029-mobile-auth"></script>
 </body>
 </html>
