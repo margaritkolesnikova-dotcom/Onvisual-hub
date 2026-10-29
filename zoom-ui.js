@@ -157,11 +157,10 @@
 
  async function getArchive(){
    var a=await api('list');
-   authorized=true;
    clearLocked();
    imported(a);
    await reconcileLocalProjects();
-   status('Подключено к общему архиву Zoom. Записи обновляются автоматически каждый день, а также по кнопке.',false);
+   status('Архив встреч доступен для просмотра всем, у кого есть ссылка на хаб. Изменения и синхронизация Zoom доступны только администратору.',false);
  }
  async function connect(){
    var key=keyInput.value.trim();
@@ -176,7 +175,7 @@
    try{
      await connect();
      await getArchive();
-     status('Архив открыт на этом устройстве. Все сохранённые встречи загружены.',false);
+     status('Администратор подключён. Просмотр встреч доступен всем по ссылке, редактирование — только с ключом.',false);
    }catch(e){showLocked();status('Не удалось открыть архив: '+e.message,true)}
    finally{connectButton.disabled=false;connectButton.textContent='Открыть архив встреч'}
  });
@@ -185,7 +184,7 @@
  button.addEventListener('click',async function(){
    button.disabled=true;button.textContent='Проверяю Zoom...';
    try{
-     if(!authorized)await connect();
+     if(!authorized&&keyInput.value.trim())await connect();
      await getArchive();
      var month=monthInput.value;
      if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))throw new Error('Выбери месяц');
@@ -268,9 +267,7 @@
    finally{btn.disabled=false;btn.textContent='Получить расшифровку Zoom'}
  });
  getArchive().catch(function(e){
-   authorized=false;
-   showLocked();
-   status('Это устройство ещё не подключено к защищённому архиву. Введи ключ доступа и нажми «Открыть архив встреч». Сами записи не удалены.'+
-     (e.message==='Введите ключ архива Zoom для доступа к встречам'?'':' ('+e.message+')'),false);
+   status('Не удалось загрузить общий каталог. Данные не удалены: '+e.message,true);
+   results.innerHTML='<div class="mt-lock-notice"><strong>Временная ошибка загрузки</strong><p>Архив хранится на сервере. Обнови страницу для повторного подключения — ключ для просмотра не нужен.</p></div>';
  });
 })();
