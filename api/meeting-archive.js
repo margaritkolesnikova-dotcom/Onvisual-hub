@@ -85,7 +85,11 @@ export default async function handler(req,res){
   res.setHeader('X-Content-Type-Options','nosniff');
   const action=one(req.query.action)||'list';
   if(req.method==='POST'&&action==='login')return login(req,res);
-  if(!authenticated(req))return err(res,401,'Введите ключ архива Zoom для доступа к встречам');
+  // Public, read-only archive: sharing the hub link grants viewing access.
+  // All mutations, Zoom synchronization, uploads, assignments and deletion
+  // still require an authenticated administrator.
+  const publicRead=req.method==='GET'&&['list','brief','video-link','download'].includes(action);
+  if(!publicRead&&!authenticated(req))return err(res,401,'Для изменения архива нужен ключ администратора');
   try{
     if(req.method==='GET'){
       if(action==='list'){
