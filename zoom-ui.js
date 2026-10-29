@@ -5,15 +5,30 @@
  var keyInput=document.getElementById('mtZoomKey');
  var monthInput=document.getElementById('mtZoomMonth');
  var button=document.getElementById('mtZoomSync');
+ var connectButton=document.getElementById('mtZoomConnect');
  var statusEl=document.getElementById('mtZoomState');
  var results=document.createElement('div');
  results.id='mtZoomResults';results.className='mt-zoom-results';panel.appendChild(results);
  var archiveRecords=[];
  var authorized=false;
  monthInput.value=new Intl.DateTimeFormat('sv-SE',{year:'numeric',month:'2-digit',timeZone:'Europe/Moscow'}).format(new Date()).slice(0,7);
- button.textContent='Проверить новые записи';
+ button.textContent='Проверить новые записи Zoom';
  function status(s,error){
    statusEl.textContent=s;statusEl.classList.toggle('error',!!error);
+ }
+ function showLocked(){
+   panel.classList.add('mt-archive-locked');
+   results.innerHTML='<div class="mt-lock-notice"><strong>Архив встреч закрыт на этом устройстве</strong><p>Записи, видео и PDF сохранены на сервере. Чтобы увидеть их на iPhone, один раз введи ключ доступа и нажми «Открыть архив встреч». Нули на этой странице не означают, что встречи удалены.</p></div>';
+   ['meetingCount','meetingVideoCount','meetingTranscriptCount','mtProjectAllCount','mtProjectOnvisualCount','mtProjectMultiverseCount','mtProjectUnassignedCount'].forEach(function(id){
+     var node=document.getElementById(id);if(node)node.textContent='—';
+   });
+   var list=document.getElementById('meetingFolders');
+   if(list)list.setAttribute('aria-busy','true');
+ }
+ function clearLocked(){
+   panel.classList.remove('mt-archive-locked');
+   var list=document.getElementById('meetingFolders');
+   if(list)list.removeAttribute('aria-busy');
  }
  function esc(s){return String(s??'').replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[x]})}
  async function api(action,options){
@@ -143,23 +158,35 @@
  async function getArchive(){
    var a=await api('list');
    authorized=true;
+   clearLocked();
    imported(a);
    await reconcileLocalProjects();
    status('Подключено к общему архиву Zoom. Записи обновляются автоматически каждый день, а также по кнопке.',false);
  }
  async function connect(){
    var key=keyInput.value.trim();
-   if(!key){if(!authorized){status('Для просмотра защищённого архива нужен ключ синхронизации.',true);return}return}
-   if(key.length<20){status('Ключ должен содержать не менее 20 символов.',true);return}
+   if(!key){if(!authorized)throw new Error('Введи ключ доступа к архиву — он настраивается отдельно для Safari на iPhone');return}
+   if(key.length<20)throw new Error('Ключ доступа должен содержать не менее 20 символов');
    await api('login',{body:{},auth:key});
    keyInput.value='';
    authorized=true;
  }
+ if(connectButton)connectButton.addEventListener('click',async function(){
+   connectButton.disabled=true;connectButton.textContent='Подключаю архив…';
+   try{
+     await connect();
+     await getArchive();
+     status('Архив открыт на этом устройстве. Все сохранённые встречи загружены.',false);
+   }catch(e){showLocked();status('Не удалось открыть архив: '+e.message,true)}
+   finally{connectButton.disabled=false;connectButton.textContent='Открыть архив встреч'}
+ });
+ keyInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(connectButton)connectButton.click()}});
+
  button.addEventListener('click',async function(){
    button.disabled=true;button.textContent='Проверяю Zoom...';
    try{
-     await connect();
-     if(!authorized)return;
+     if(!authorized)await connect();
+     await getArchive();
      var month=monthInput.value;
      if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))throw new Error('Выбери месяц');
      var result=await api('sync',{body:{month}});
@@ -168,7 +195,7 @@
      status('Синхронизация завершена. Zoom вернул '+(sync.discovered||0)+' записей за '+month+
        '. Новых/обновлённых: '+(sync.updated||0)+'. Расшифровок: '+(sync.transcripts||0)+'. Копирование MP4 в закрытое хранилище выполняется отдельным ежедневным процессом.',false);
    }catch(e){status('Ошибка подключения: '+e.message,true)}
-   finally{button.disabled=false;button.textContent='Проверить новые записи'}
+   finally{button.disabled=false;button.textContent='Проверить новые записи Zoom'}
  });
  document.addEventListener('onvisual:meeting-transcript-upload',async function(event){
    var d=event.detail||{},file=d.file,input=d.input;
@@ -242,6 +269,8 @@
  });
  getArchive().catch(function(e){
    authorized=false;
-   status('Облачный архив защищён. Введи ключ и нажми «Проверить новые записи», чтобы подключиться. '+(e.message==='Введите ключ архива Zoom для доступа к встречам'?'':'('+e.message+')'),false);
+   showLocked();
+   status('Это устройство ещё не подключено к защищённому архиву. Введи ключ доступа и нажми «Открыть архив встреч». Сами записи не удалены.'+
+     (e.message==='Введите ключ архива Zoom для доступа к встречам'?'':' ('+e.message+')'),false);
  });
 })();
