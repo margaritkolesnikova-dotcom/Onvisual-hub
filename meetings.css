@@ -195,3 +195,11 @@
 .mt-report-open:hover{background:#fff;color:#211334!important}
 .mt-report-pending{font-size:11px;color:#c7bdd7}
 @media(max-width:730px){.mt-main-report{padding:19px;gap:12px}.mt-report-open{width:100%}.mt-report-info h3{font-size:19px}}
+
+/* Accessible mobile state when shared cloud archive needs separate device authorization */
+.mt-archive-locked~.mt-stats{opacity:.65}
+.mt-lock-notice{padding:18px 20px;margin:12px 0;border:1px solid rgba(170,146,221,.37);border-radius:14px;background:rgba(96,69,137,.11)}
+.mt-lock-notice strong{display:block;color:#e3d5fa;font-size:15px;line-height:1.4;margin-bottom:9px}
+.mt-lock-notice p{color:#c4b8d5;font-size:12px;line-height:1.65;margin:0}
+#mtZoomConnect{min-height:43px}
+@media(max-width:680px){#mtZoomConnect,#mtZoomSync{width:100%}.mt-lock-notice{padding:16px}}
